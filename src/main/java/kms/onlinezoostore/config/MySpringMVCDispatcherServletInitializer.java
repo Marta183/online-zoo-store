@@ -1,5 +1,7 @@
 package kms.onlinezoostore.config;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class MySpringMVCDispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -19,5 +21,9 @@ public class MySpringMVCDispatcherServletInitializer extends AbstractAnnotationC
         return new String[] {"/"};
     }
 
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        super.onStartup(servletContext);
+    }
 
 }

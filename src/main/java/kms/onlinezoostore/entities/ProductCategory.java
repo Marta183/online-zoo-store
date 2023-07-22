@@ -1,6 +1,6 @@
 package kms.onlinezoostore.entities;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ public class ProductCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "Name should not be empty")
+    @NotBlank(message = "Name should not be empty")
     @Size(max = 150, message = "Name should be less then 150 characters")
     @Column(name = "name")
     private String name;
