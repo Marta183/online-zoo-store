@@ -1,11 +1,11 @@
 package kms.onlinezoostore.repositories.specifications;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import kms.onlinezoostore.entities.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import java.util.List;
 
 public class ProductSpecifications {

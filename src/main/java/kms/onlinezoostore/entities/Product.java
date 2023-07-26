@@ -3,7 +3,7 @@ package kms.onlinezoostore.entities;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "products")
@@ -51,7 +51,7 @@ public class Product {
     @Column(name = "price")
     private Double price;
 
-    @Column(name = "newArrival")
+    @Column(name = "new_arrival")
     private Boolean newArrival;
     @Column(name = "not_available")
     private Boolean notAvailable;
