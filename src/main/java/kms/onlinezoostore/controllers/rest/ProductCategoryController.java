@@ -7,6 +7,7 @@ import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,11 +44,25 @@ public class ProductCategoryController {
         return categoryService.findById(categoryId);
     }
 
+    @GetMapping("/{categoryId}/inner-categories")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductCategory> findAllByParentId(@PathVariable String categoryId) {
+        return categoryService.findAllByParentId(categoryId);
+    }
+
     @GetMapping("/{categoryId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> findProductsByCategoryId(@PathVariable Long categoryId) {
-        return productService.findAllByCategoryId(categoryId);
+    public List<Product> findProductsByCriteria(@PathVariable String categoryId,
+                                                @RequestParam MultiValueMap<String, String> params) {
+        params.add("category_id", categoryId);
+        return productService.findByMultipleCriteria(params);
     }
+
+//    @GetMapping("/{categoryId}/products/max-price")
+//    @ResponseStatus(HttpStatus.OK)
+//    public List<Product> findMaxProductPriceByCategoryId(@PathVariable Long categoryId) {
+//        return
+//    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

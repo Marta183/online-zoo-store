@@ -5,10 +5,7 @@ import kms.onlinezoostore.entities.Product;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = ProductController.REST_URL)
@@ -20,12 +17,6 @@ public class ProductController {
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<Product> findAllByCriteria(@RequestParam MultiValueMap<String, String> params) {
-        return productService.findByMultipleCriteria(params);
     }
 
     @GetMapping("/{id}")

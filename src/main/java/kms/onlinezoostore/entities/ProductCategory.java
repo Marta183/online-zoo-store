@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "product_categories")
@@ -23,11 +22,16 @@ public class ProductCategory {
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private ProductCategory parent;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
-    private List<ProductCategory> innerCategories;
+//    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<ProductCategory> innerCategories;
+//
+//    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<Product> products;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Product> products;
+//    @Transient
+//    private Double maxPrice;
 
     protected ProductCategory() {
     }
@@ -74,19 +78,27 @@ public class ProductCategory {
         this.parent = parent;
     }
 
-    public List<ProductCategory> getInnerCategories() {
-        return innerCategories;
-    }
+//    public List<ProductCategory> getInnerCategories() {
+//        return innerCategories;
+//    }
+//
+//    public void setInnerCategories(List<ProductCategory> innerCategories) {
+//        this.innerCategories = innerCategories;
+//    }
+//
+//    public List<Product> getProducts() {
+//        return products;
+//    }
+//
+//    public void setProducts(List<Product> products) {
+//        this.products = products;
+//    }
 
-    public void setInnerCategories(List<ProductCategory> innerCategories) {
-        this.innerCategories = innerCategories;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
+//    public Double getMaxPrice() {
+//        return maxPrice;
+//    }
+//
+//    public void setMaxPrice(Double maxPrice) {
+//        this.maxPrice = maxPrice;
+//    }
 }

@@ -36,9 +36,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> findByMultipleCriteria(MultiValueMap<String, String> params) {
 
-        deleteInvalidParams(params);
+        processParamsForCriteriaBuilder(params);
 
         return productRep.findAll(ProductSpecifications.build(params));
+    }
+
+    private void processParamsForCriteriaBuilder(MultiValueMap<String, String> params) {
+
+        deleteInvalidParams(params);
+
+        if (params.containsKey("min_price")
+                && params.getFirst("min_price") != null
+                && Double.parseDouble(params.getFirst("min_price")) == 0) {
+            params.remove("min_price");
+        }
     }
 
     private void deleteInvalidParams(MultiValueMap<String, String> source) {
@@ -63,7 +74,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product update(Long id, Product updatedProduct) {
+        Product product = productRep.findById(id).orElse(null);
+        if (product == null) {
+            return null; //TODO: exception
+        }
+
         updatedProduct.setId(id);
+        updatedProduct.setCreatedAt(product.getCreatedAt());
         return productRep.save(updatedProduct);
     }
 
@@ -72,39 +89,4 @@ public class ProductServiceImpl implements ProductService {
     public void deleteById(Long id) {
         productRep.deleteById(id);
     }
-
-
-    //TODO: check if it works =) and then delete
-//    @Override
-//    public List<Product> findAllByParameters(String name, Long idCategory, Double price1, Double price2,
-//                                             Boolean newArrival, Boolean archived,
-//                                             Integer page, Integer productsPerPage) {
-//
-//        boolean usePriceFilter = (price1 != null || price2 != null);
-//        price1 = (price1 == null) ? 0 : price1;
-//        price2 = (price2 == null) ? Double.MAX_VALUE : price2;
-//
-//        return productRep.findAllByParameters(PageRequest.of(page, productsPerPage),
-//                        name, idCategory, usePriceFilter, price1, price2, newArrival, archived)
-//                .getContent();
-//    }
-
-
-//    public List<Product> findProductsByMultipleCriteria(String category, String size, String packaging, int age, String material) {
-//        List<Specification<Product>> specs = new ArrayList<>();
-//
-//        if (category != null)
-//            specs.add(ProductSpecifications.hasCategory(category));
-//        if (size != null)
-//            specs.add(ProductSpecifications.hasSize(size));
-//        if (packaging != null)
-//            specs.add(ProductSpecifications.hasPackaging(packaging));
-//        if (age != 0)
-//            specs.add(ProductSpecifications.hasAge(age));
-//        if (material != null)
-//            specs.add(ProductSpecifications.hasMaterial(material));
-//        Specification<Product> combinedSpec = specs.stream().reduce(Specification::and).orElse(null);
-//        return productRep.findAll(combinedSpec);
-//    }
-
 }

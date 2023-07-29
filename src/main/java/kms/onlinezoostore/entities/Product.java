@@ -4,9 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "products")
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
 
     @Id
@@ -36,6 +41,10 @@ public class Product {
     private Material material;
 
     @ManyToOne
+    @JoinColumn(name = "age_id", referencedColumnName = "id")
+    private Age age;
+
+    @ManyToOne
     @JoinColumn(name = "weight_id", referencedColumnName = "id")
     private Weight weight;
 
@@ -56,26 +65,12 @@ public class Product {
     @Column(name = "not_available")
     private Boolean notAvailable;
 
-    protected Product() {
-    }
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private Date createdAt;
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", category=" + category +
-                ", brand=" + brand +
-                ", color=" + color +
-                ", material=" + material +
-                ", weight=" + weight +
-                ", productSize=" + productSize +
-                ", description='" + description + '\'' +
-                ", prescription='" + prescription + '\'' +
-                ", price=" + price +
-                ", newArrival=" + newArrival +
-                ", notAvailable=" + notAvailable +
-                '}';
+    protected Product() {
     }
 
     public Long getId() {
@@ -148,6 +143,13 @@ public class Product {
         this.weight = weight;
     }
 
+    public Age getAge() {
+        return age;
+    }
+    public void setAge(Age age) {
+        this.age = age;
+    }
+
     public ProductSize getProductSize() {
         return productSize;
     }
@@ -167,5 +169,12 @@ public class Product {
     }
     public void setPrescription(String prescription) {
         this.prescription = prescription;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 }

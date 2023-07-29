@@ -11,5 +11,4 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     List<ProductCategory> findAllByNameStartingWith(String nameStartingWith);
 
     List<ProductCategory> findAllByParent_Id(Long parentId);
-
 }
