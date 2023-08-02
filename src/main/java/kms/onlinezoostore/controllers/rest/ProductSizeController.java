@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.ProductSize;
 import kms.onlinezoostore.services.ProductSizeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class ProductSizeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductSize create(@RequestBody ProductSize productSize) {
+    public ProductSize create(@RequestBody @Valid ProductSize productSize) {
         return productSizeService.create(productSize);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductSize update(@PathVariable Long id, @RequestBody ProductSize productSize) {
+    public ProductSize update(@PathVariable Long id, @RequestBody @Valid ProductSize productSize) {
         return productSizeService.update(id, productSize);
     }
 

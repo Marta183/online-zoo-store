@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.Brand;
 import kms.onlinezoostore.services.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class BrandController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Brand create(@RequestBody Brand brand) {
+    public Brand create(@RequestBody @Valid Brand brand) {
         return brandService.create(brand);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Brand update(@PathVariable Long id, @RequestBody Brand brand) {
+    public Brand update(@PathVariable Long id, @RequestBody @Valid Brand brand) {
         return brandService.update(id, brand);
     }
 

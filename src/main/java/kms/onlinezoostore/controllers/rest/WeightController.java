@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.Weight;
 import kms.onlinezoostore.services.WeightService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class WeightController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Weight create(@RequestBody Weight weight) {
+    public Weight create(@RequestBody @Valid Weight weight) {
         return weightService.create(weight);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Weight update(@PathVariable Long id, @RequestBody Weight weight) {
+    public Weight update(@PathVariable Long id, @RequestBody @Valid Weight weight) {
         return weightService.update(id, weight);
     }
 

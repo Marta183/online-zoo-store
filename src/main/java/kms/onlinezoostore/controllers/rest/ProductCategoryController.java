@@ -6,6 +6,7 @@ import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -17,45 +18,52 @@ import java.util.List;
 //@Api(description = "Controller for product categories")
 public class ProductCategoryController {
     static final String REST_URL = "/api/v1/product-categories";
-    private final ProductCategoryService categoryService;
-    private final ProductService productService;
 
     @Autowired
-    public ProductCategoryController(ProductCategoryService categoryService, ProductService productService) {
-        this.categoryService = categoryService;
-        this.productService = productService;
-    }
+    private ProductCategoryService thisService;
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductCategory> findAll(@RequestParam(name = "parent_id", required = false) String parentId,
-                                         @RequestParam(name = "name_starting_with", required = false) String nameStartingWith) {
+    public List<ProductCategory> findAll(@RequestParam(name = "parentId", required = false) String parentId,
+                                         @RequestParam(name = "nameLike", required = false) String nameLike) {
         if (parentId != null && !parentId.isBlank()) {
-            return categoryService.findAllByParentId(parentId);
-        } else if (nameStartingWith != null && !nameStartingWith.isBlank()) {
-            return categoryService.findAllByNameStartingWith(nameStartingWith);
+            return thisService.findAllByParentId(parentId);
+        } else if (nameLike != null && !nameLike.isBlank()) {
+            return thisService.findAllByNameLike(nameLike);
         }
-        return categoryService.findAll();
+        return thisService.findAll();
     }
 
     @GetMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
     public ProductCategory findById(@PathVariable Long categoryId) {
-        return categoryService.findById(categoryId);
+        return thisService.findById(categoryId);
     }
 
     @GetMapping("/{categoryId}/inner-categories")
     @ResponseStatus(HttpStatus.OK)
     public List<ProductCategory> findAllByParentId(@PathVariable String categoryId) {
-        return categoryService.findAllByParentId(categoryId);
+        return thisService.findAllByParentId(categoryId);
     }
 
     @GetMapping("/{categoryId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> findProductsByCriteria(@PathVariable String categoryId,
-                                                @RequestParam MultiValueMap<String, String> params) {
-        params.add("category_id", categoryId);
-        return productService.findByMultipleCriteria(params);
+    public Page<Product> findProductPageByCriteria(@PathVariable Long categoryId,
+                                                   @RequestParam("pageNumber") Integer pageNumber,
+                                                   @RequestParam("pageSize") Integer pageSize,
+                                                   @RequestParam MultiValueMap<String, String> params) {
+        params.remove("pageNumber");
+        params.remove("pageSize");
+
+        if (params.isEmpty()) {
+            return productService.findAllByCategoryId(categoryId, pageNumber, pageSize);
+        }
+
+        params.add("categoryId", categoryId.toString());
+        return productService.findPageByMultipleCriteria(params, pageNumber, pageSize);
     }
 
 //    @GetMapping("/{categoryId}/products/max-price")
@@ -67,18 +75,18 @@ public class ProductCategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductCategory create(@RequestBody @Valid ProductCategory productCategory) { //}, BindingResult bindingResult) {
-        return categoryService.create(productCategory);
+        return thisService.create(productCategory);
     }
 
     @PutMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
     public ProductCategory update(@PathVariable Long categoryId, @RequestBody @Valid ProductCategory productCategory) {
-        return categoryService.update(categoryId, productCategory);
+        return thisService.update(categoryId, productCategory);
     }
 
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long categoryId) {
-        categoryService.deleteById(categoryId);
+        thisService.deleteById(categoryId);
     }
 }

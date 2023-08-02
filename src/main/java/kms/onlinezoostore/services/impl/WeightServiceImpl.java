@@ -1,7 +1,9 @@
 package kms.onlinezoostore.services.impl;
 
 import kms.onlinezoostore.entities.Weight;
+import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.WeightRepository;
+import kms.onlinezoostore.utils.UniqueFieldService;
 import kms.onlinezoostore.services.WeightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,14 +16,20 @@ import java.util.List;
 public class WeightServiceImpl implements WeightService {
 
     private final WeightRepository weightRepository;
+    private final UniqueFieldService uniqueFieldService;
+    private static final String ENTITY_CLASS_NAME = "Weight";
+
     @Autowired
-    public WeightServiceImpl(WeightRepository weightRepository) {
+    public WeightServiceImpl(WeightRepository weightRepository, UniqueFieldService uniqueFieldService) {
         this.weightRepository = weightRepository;
+        this.uniqueFieldService = uniqueFieldService;
     }
 
     @Override
     public Weight findById(Long id) {
-        return weightRepository.findById(id).orElse(null);
+        Weight weight = weightRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        // log
+        return weight;
     }
 
     @Override
@@ -32,12 +40,24 @@ public class WeightServiceImpl implements WeightService {
     @Override
     @Transactional
     public Weight create(Weight weight) {
-        return weightRepository.save(weight);
+        // log
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", weight.getName());
+        // log
+        Weight savedWeight = weightRepository.save(weight);
+        // log
+        return savedWeight;
     }
 
     @Override
     @Transactional
     public Weight update(Long id, Weight updatedWeight) {
+        // log
+        Weight existingWeight = weightRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        // log
+        if (!existingWeight.getName().equals(updatedWeight.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", updatedWeight.getName());
+        }
+        // log
         updatedWeight.setId(id);
         return weightRepository.save(updatedWeight);
     }
@@ -45,6 +65,7 @@ public class WeightServiceImpl implements WeightService {
     @Override
     @Transactional
     public void deleteById(Long id) {
+        // log
         weightRepository.deleteById(id);
     }
 }

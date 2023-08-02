@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "sizes")
+@Table(name = "sizes", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class ProductSize {
 
     @Id

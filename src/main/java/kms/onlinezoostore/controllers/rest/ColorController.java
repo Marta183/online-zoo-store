@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.Color;
 import kms.onlinezoostore.services.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class ColorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Color create(@RequestBody Color color) {
+    public Color create(@RequestBody @Valid Color color) {
         return colorService.create(color);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Color update(@PathVariable Long id, @RequestBody Color color) {
+    public Color update(@PathVariable Long id, @RequestBody @Valid Color color) {
         return colorService.update(id, color);
     }
 

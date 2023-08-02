@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.Age;
 import kms.onlinezoostore.services.AgeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class AgeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Age create(@RequestBody Age age) {
+    public Age create(@RequestBody @Valid Age age) {
         return ageService.create(age);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Age update(@PathVariable Long id, @RequestBody Age age) {
+    public Age update(@PathVariable Long id, @RequestBody @Valid Age age) {
         return ageService.update(id, age);
     }
 

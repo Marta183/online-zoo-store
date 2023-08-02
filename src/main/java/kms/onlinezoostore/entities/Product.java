@@ -1,6 +1,8 @@
 package kms.onlinezoostore.entities;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import jakarta.persistence.*;
@@ -10,7 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Date;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
 
@@ -19,14 +21,20 @@ public class Product {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotBlank(message = "Name should not be empty")
-    @Size(max = 150, message = "Name should be less then 150 characters")
+    @NotBlank(message = "Name should not be empty.")
+    @Size(max = 150, message = "Name should be less then 150 characters.")
     @Column(name = "name")
     private String name;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @NotNull(message = "Category should not be empty.")
     private ProductCategory category;
+
+    @Column(name = "price")
+    @NotNull(message = "Price should not be empty.")
+    @DecimalMin(value = "0.00", inclusive = false, message = "Price should be greater than 0.")
+    private Double price;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "id")
@@ -57,9 +65,6 @@ public class Product {
     @Column(name = "prescription")
     private String prescription;
 
-    @Column(name = "price")
-    private Double price;
-
     @Column(name = "new_arrival")
     private Boolean newArrival;
     @Column(name = "not_available")
@@ -71,6 +76,18 @@ public class Product {
     private Date createdAt;
 
     protected Product() {
+    }
+
+    @PrePersist
+    private void prePersist() {
+        setDefaultValueForBooleanFields();
+    }
+
+    private void setDefaultValueForBooleanFields() {
+        if (this.getNewArrival() == null)
+            this.setNewArrival(false);
+        if (this.getNotAvailable() == null)
+            this.setNotAvailable(false);
     }
 
     public Long getId() {

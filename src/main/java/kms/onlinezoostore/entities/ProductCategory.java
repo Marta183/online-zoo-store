@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "product_categories")
+@Table(name = "product_categories", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "parent_id"}))
 public class ProductCategory {
     @Id
     @Column(name = "id", nullable = false)
@@ -81,7 +81,6 @@ public class ProductCategory {
 //    public List<ProductCategory> getInnerCategories() {
 //        return innerCategories;
 //    }
-//
 //    public void setInnerCategories(List<ProductCategory> innerCategories) {
 //        this.innerCategories = innerCategories;
 //    }
@@ -89,7 +88,6 @@ public class ProductCategory {
 //    public List<Product> getProducts() {
 //        return products;
 //    }
-//
 //    public void setProducts(List<Product> products) {
 //        this.products = products;
 //    }

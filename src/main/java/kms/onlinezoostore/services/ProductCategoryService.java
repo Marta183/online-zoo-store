@@ -8,7 +8,7 @@ public interface ProductCategoryService {
 
     ProductCategory findById(Long id);
     List<ProductCategory> findAll();
-    List<ProductCategory> findAllByNameStartingWith(String nameStartingWith);
+    List<ProductCategory> findAllByNameLike(String nameLike);
     List<ProductCategory> findAllByParentId(String idParentCategory);
 
     ProductCategory create(ProductCategory category);

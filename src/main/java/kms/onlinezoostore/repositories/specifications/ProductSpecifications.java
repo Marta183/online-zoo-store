@@ -10,17 +10,17 @@ public class ProductSpecifications {
 
     private static Specification<Product> nameLike(String namePart) {
         return (root, criteriaQuery, criteriaBuilder)
-                -> criteriaBuilder.like(root.get("name"), "%" + namePart.trim().toLowerCase() + "%");
+                -> criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + namePart.trim().toLowerCase() + "%");
     }
 
     private static Specification<Product> prescriptionLike(String prescriptionPart) {
         return (root, criteriaQuery, criteriaBuilder)
-                -> criteriaBuilder.like(root.get("prescription"), "%" + prescriptionPart.trim().toLowerCase() + "%");
+                -> criteriaBuilder.like(criteriaBuilder.lower(root.get("prescription")), "%" + prescriptionPart.trim().toLowerCase() + "%");
     }
 
     private static Specification<Product> nameStartingWith(String nameStartingWith) {
         return (root, criteriaQuery, criteriaBuilder)
-                -> criteriaBuilder.like(root.get("name"), nameStartingWith + "%");
+                -> criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), nameStartingWith.toLowerCase() + "%");
     }
 
     private static Specification<Product> priceBetween(String minPrice, String maxPrice) {
@@ -94,59 +94,59 @@ public class ProductSpecifications {
 
         Specification<Product> spec = Specification.where(ProductSpecifications.init());
 
-        if (params.containsKey("name_any_part")) {
-            spec = Specification.where(spec).and(ProductSpecifications.nameLike(params.getFirst("name_any_part")));
+        if (params.containsKey("nameLike")) {
+            spec = Specification.where(spec).and(ProductSpecifications.nameLike(params.getFirst("nameLike")));
         }
 
-        if (params.containsKey("prescription_any_part")) {
-            spec = Specification.where(spec).and(ProductSpecifications.prescriptionLike(params.getFirst("prescription_any_part")));
+        if (params.containsKey("prescriptionLike")) {
+            spec = Specification.where(spec).and(ProductSpecifications.prescriptionLike(params.getFirst("prescriptionLike")));
         }
 
-        if (params.containsKey("name_starting_with")) {
-            spec = Specification.where(spec).and(ProductSpecifications.nameStartingWith(params.getFirst("name_starting_with")));
+        if (params.containsKey("nameStartsWith")) {
+            spec = Specification.where(spec).and(ProductSpecifications.nameStartingWith(params.getFirst("nameStartsWith")));
         }
 
-        if (params.containsKey("min_price") && params.containsKey("max_price")) {
-            spec = Specification.where(spec).and(ProductSpecifications.priceBetween(params.getFirst("min_price"), params.getFirst("max_price")));
-        } else if (params.containsKey("min_price")) {
-            spec = Specification.where(spec).and(ProductSpecifications.priceGreaterOrEquals(params.getFirst("min_price")));
-        } else if (params.containsKey("max_price")) {
-            spec = Specification.where(spec).and(ProductSpecifications.priceLessOrEquals(params.getFirst("max_price")));
+        if (params.containsKey("minPrice") && params.containsKey("maxPrice")) {
+            spec = Specification.where(spec).and(ProductSpecifications.priceBetween(params.getFirst("minPrice"), params.getFirst("maxPrice")));
+        } else if (params.containsKey("minPrice")) {
+            spec = Specification.where(spec).and(ProductSpecifications.priceGreaterOrEquals(params.getFirst("minPrice")));
+        } else if (params.containsKey("maxPrice")) {
+            spec = Specification.where(spec).and(ProductSpecifications.priceLessOrEquals(params.getFirst("maxPrice")));
         }
 
-        if (params.containsKey("new_arrival")) {
-            spec = Specification.where(spec).and(ProductSpecifications.isNewArrival(params.getFirst("new_arrival")));
+        if (params.containsKey("newArrival")) {
+            spec = Specification.where(spec).and(ProductSpecifications.isNewArrival(params.getFirst("newArrival")));
         }
-        if (params.containsKey("not_available")) {
-            spec = Specification.where(spec).and(ProductSpecifications.isNotAvailable(params.getFirst("not_available")));
-        }
-
-        if (params.containsKey("category_id")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasCategory(params.getFirst("category_id")));
+        if (params.containsKey("notAvailable")) {
+            spec = Specification.where(spec).and(ProductSpecifications.isNotAvailable(params.getFirst("notAvailable")));
         }
 
-        if (params.containsKey("brand_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasBrands(params.get("brand_ids")));
+        if (params.containsKey("categoryId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasCategory(params.getFirst("categoryId")));
         }
 
-        if (params.containsKey("color_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasColors(params.get("color_ids")));
+        if (params.containsKey("brandId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasBrands(params.get("brandId")));
         }
 
-        if (params.containsKey("material_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasMaterials(params.get("material_ids")));
+        if (params.containsKey("colorId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasColors(params.get("colorId")));
         }
 
-        if (params.containsKey("weight_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasWeights(params.get("weight_ids")));
+        if (params.containsKey("materialId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasMaterials(params.get("materialId")));
         }
 
-        if (params.containsKey("size_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasSizes(params.get("size_ids")));
+        if (params.containsKey("weightId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasWeights(params.get("weightId")));
         }
 
-        if (params.containsKey("age_ids")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasAges(params.get("age_ids")));
+        if (params.containsKey("sizeId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasSizes(params.get("sizeId")));
+        }
+
+        if (params.containsKey("ageId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasAges(params.get("ageId")));
         }
 
         return spec;

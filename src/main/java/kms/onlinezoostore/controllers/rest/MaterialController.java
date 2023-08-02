@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.rest;
 
+import jakarta.validation.Valid;
 import kms.onlinezoostore.entities.Material;
 import kms.onlinezoostore.services.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class MaterialController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Material create(@RequestBody Material material) {
+    public Material create(@RequestBody @Valid Material material) {
         return materialService.create(material);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Material update(@PathVariable Long id, @RequestBody Material material) {
+    public Material update(@PathVariable Long id, @RequestBody @Valid Material material) {
         return materialService.update(id, material);
     }
 

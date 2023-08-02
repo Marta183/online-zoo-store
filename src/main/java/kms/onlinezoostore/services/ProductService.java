@@ -1,17 +1,16 @@
 package kms.onlinezoostore.services;
 
 import kms.onlinezoostore.entities.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.util.MultiValueMap;
-
-import java.util.List;
 
 public interface ProductService {
 
     Product findById(Long id);
 
-    List<Product> findAllByCategoryId(Long categoryId);
+    Page<Product> findAllByCategoryId(Long categoryId, Integer pageNumber, Integer pageSize);
 
-    List<Product> findByMultipleCriteria(MultiValueMap<String, String> params);
+    Page<Product> findPageByMultipleCriteria(MultiValueMap<String, String> params, Integer pageNumber, Integer pageSize);
 
     Product create(Product product);
     Product update(Long id, Product product);

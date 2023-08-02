@@ -8,7 +8,9 @@ import java.util.List;
 
 @Repository
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
-    List<ProductCategory> findAllByNameStartingWith(String nameStartingWith);
+    List<ProductCategory> findAllByNameLikeIgnoreCase(String nameStartingWith);
 
     List<ProductCategory> findAllByParent_Id(Long parentId);
+
+    long countAllByParent_IdAndNameIgnoreCase(Long parent_id, String name);
 }
