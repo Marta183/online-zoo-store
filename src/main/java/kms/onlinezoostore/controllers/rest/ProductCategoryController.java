@@ -7,6 +7,7 @@ import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -51,19 +52,18 @@ public class ProductCategoryController {
 
     @GetMapping("/{categoryId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public Page<Product> findProductPageByCriteria(@PathVariable Long categoryId,
-                                                   @RequestParam("pageNumber") Integer pageNumber,
-                                                   @RequestParam("pageSize") Integer pageSize,
+    public Page<Product> findProductPageByCriteria(@PathVariable Long categoryId, Pageable pageable,
                                                    @RequestParam MultiValueMap<String, String> params) {
         params.remove("pageNumber");
         params.remove("pageSize");
+        params.remove("sort");
 
         if (params.isEmpty()) {
-            return productService.findAllByCategoryId(categoryId, pageNumber, pageSize);
+            return productService.findPageByCategoryId(categoryId, pageable);
         }
 
         params.add("categoryId", categoryId.toString());
-        return productService.findPageByMultipleCriteria(params, pageNumber, pageSize);
+        return productService.findPageByMultipleCriteria(params, pageable);
     }
 
 //    @GetMapping("/{categoryId}/products/max-price")

@@ -66,9 +66,9 @@ public class Product {
     private String prescription;
 
     @Column(name = "new_arrival")
-    private Boolean newArrival;
+    private boolean newArrival;
     @Column(name = "not_available")
-    private Boolean notAvailable;
+    private boolean notAvailable;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -76,18 +76,6 @@ public class Product {
     private Date createdAt;
 
     protected Product() {
-    }
-
-    @PrePersist
-    private void prePersist() {
-        setDefaultValueForBooleanFields();
-    }
-
-    private void setDefaultValueForBooleanFields() {
-        if (this.getNewArrival() == null)
-            this.setNewArrival(false);
-        if (this.getNotAvailable() == null)
-            this.setNotAvailable(false);
     }
 
     public Long getId() {
@@ -118,17 +106,17 @@ public class Product {
         this.price = price;
     }
 
-    public Boolean getNewArrival() {
+    public boolean getNewArrival() {
         return newArrival;
     }
-    public void setNewArrival(Boolean newArrival) {
+    public void setNewArrival(boolean newArrival) {
         this.newArrival = newArrival;
     }
 
-    public Boolean getNotAvailable() {
+    public boolean getNotAvailable() {
         return notAvailable;
     }
-    public void setNotAvailable(Boolean notAvailable) {
+    public void setNotAvailable(boolean notAvailable) {
         this.notAvailable = notAvailable;
     }
 

@@ -9,6 +9,7 @@ import kms.onlinezoostore.utils.UniqueFieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -39,18 +40,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAllByCategoryId(Long categoryId, Integer pageNumber, Integer pageSize) {
-        return productRep.findAllByCategory_Id(categoryId, PageRequest.of(pageNumber -1, pageSize));
+    public Page<Product> findPageByCategoryId(Long categoryId, Pageable pageable) {
+        return productRep.findAllByCategory_Id(categoryId, pageable);
     }
 
     @Override
-    public Page<Product> findPageByMultipleCriteria(MultiValueMap<String, String> params, Integer pageNumber, Integer pageSize) {
+    public Page<Product> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable) {
         // log
         processParamsForCriteriaBuilder(params);
 
-        Page<Product> page = productRep.findAll(
-                ProductSpecifications.build(params),
-                PageRequest.of(pageNumber -1, pageSize)); // (pageIndex - 1) because here the numbering is from 0, and at the front from 1
+        Page<Product> page = productRep.findAll(ProductSpecifications.build(params), pageable);
         // log
         return page;
     }
