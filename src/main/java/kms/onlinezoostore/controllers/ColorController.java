@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Color;
+import kms.onlinezoostore.dto.ColorDto;
 import kms.onlinezoostore.services.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,26 @@ public class ColorController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Color> findAll() {
+    public List<ColorDto> findAll() {
         return colorService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Color findById(@PathVariable Long id) {
+    public ColorDto findById(@PathVariable Long id) {
         return colorService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Color create(@RequestBody @Valid Color color) {
-        return colorService.create(color);
+    public ColorDto create(@RequestBody @Valid ColorDto colorDto) {
+        return colorService.create(colorDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Color update(@PathVariable Long id, @RequestBody @Valid Color color) {
-        return colorService.update(id, color);
+    public void update(@PathVariable Long id, @RequestBody @Valid ColorDto colorDto) {
+        colorService.update(id, colorDto);
     }
 
     @DeleteMapping("/{id}")

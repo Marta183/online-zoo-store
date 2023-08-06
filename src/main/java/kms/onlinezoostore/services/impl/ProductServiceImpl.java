@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.ProductDto;
+import kms.onlinezoostore.dto.mappers.ProductMapper;
 import kms.onlinezoostore.entities.Product;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductRepository;
@@ -8,7 +10,6 @@ import kms.onlinezoostore.services.ProductService;
 import kms.onlinezoostore.utils.UniqueFieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,56 +34,70 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findById(Long id) {
-        Product product = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public ProductDto findById(Long id) {
+        ProductDto productDto = productRep.findById(id)
+                .map(ProductMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return product;
+        return productDto;
     }
 
     @Override
-    public Page<Product> findPageByCategoryId(Long categoryId, Pageable pageable) {
-        return productRep.findAllByCategory_Id(categoryId, pageable);
+    public Page<ProductDto> findPageByCategoryId(Long categoryId, Pageable pageable) {
+        Page<ProductDto> page =  productRep.findAllByCategoryId(categoryId, pageable)
+                .map(ProductMapper.INSTANCE::mapToDto);
+        // log
+        return page;
     }
 
     @Override
-    public Page<Product> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable) {
+    public Page<ProductDto> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable) {
         // log
         processParamsForCriteriaBuilder(params);
 
-        Page<Product> page = productRep.findAll(ProductSpecifications.build(params), pageable);
+        Page<ProductDto> page = productRep.findAll(ProductSpecifications.build(params), pageable)
+                .map(ProductMapper.INSTANCE::mapToDto);
         // log
         return page;
     }
 
     @Override
     @Transactional
-    public Product create(Product product) {
+    public ProductDto create(ProductDto productDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", product.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", productDto.getName());
+        // log
+        Product product = ProductMapper.INSTANCE.mapToEntity(productDto);
         // log
         Product savedProduct = productRep.save(product);
         // log
-        return savedProduct;
+        ProductDto savedProductDto = ProductMapper.INSTANCE.mapToDto(savedProduct);
+        // log
+        return savedProductDto;
     }
 
     @Override
     @Transactional
-    public Product update(Long id, Product updatedProduct) {
+    public void update(Long id, ProductDto updatedProductDto) {
         // log
         Product existingProduct = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingProduct.getName().equals(updatedProduct.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", updatedProduct.getName());
+        if (!existingProduct.getName().equals(updatedProductDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", updatedProductDto.getName());
         }
+
+        Product updatedProduct = ProductMapper.INSTANCE.mapToEntity(updatedProductDto);
+        // log
         updatedProduct.setId(id);
         updatedProduct.setCreatedAt(existingProduct.getCreatedAt());
-
-        return productRep.save(updatedProduct);
+        // log
+        productRep.save(updatedProduct);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        Product product = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         productRep.deleteById(id);
     }

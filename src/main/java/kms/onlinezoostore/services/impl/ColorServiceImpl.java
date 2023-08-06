@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.ColorDto;
+import kms.onlinezoostore.dto.mappers.ColorMapper;
 import kms.onlinezoostore.entities.Color;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ColorRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,45 +29,55 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public Color findById(Long id) {
-        Color color = colorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public ColorDto findById(Long id) {
+        ColorDto colorDto = colorRepository.findById(id)
+                .map(ColorMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return color;
+        return colorDto;
     }
 
     @Override
-    public List<Color> findAll() {
-        return colorRepository.findAll();
+    public List<ColorDto> findAll() {
+        return colorRepository.findAll()
+                .stream().map(ColorMapper.INSTANCE::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Color create(Color color) {
+    public ColorDto create(ColorDto colorDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", color.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", colorDto.getName());
+        // log
+        Color color = ColorMapper.INSTANCE.mapToEntity(colorDto);
         // log
         Color savedColor = colorRepository.save(color);
         // log
-        return savedColor;
+        ColorDto savedColorDto = ColorMapper.INSTANCE.mapToDto(savedColor);
+        // log
+        return savedColorDto;
     }
 
     @Override
     @Transactional
-    public Color update(Long id, Color updatedColor) {
+    public void update(Long id, ColorDto updatedColorDto) {
         // log
         Color existingColor = colorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingColor.getName().equals(updatedColor.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", updatedColor.getName());
+        if (!existingColor.getName().equals(updatedColorDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", updatedColorDto.getName());
         }
+        Color updatedColor = ColorMapper.INSTANCE.mapToEntity(updatedColorDto);
         // log
         updatedColor.setId(id);
-        return colorRepository.save(updatedColor);
+        colorRepository.save(updatedColor);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        Color color = colorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         colorRepository.deleteById(id);
     }

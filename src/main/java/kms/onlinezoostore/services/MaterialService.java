@@ -1,15 +1,15 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.Material;
+import kms.onlinezoostore.dto.MaterialDto;
 
 import java.util.List;
 
 public interface MaterialService {
 
-    Material findById(Long id);
-    List<Material> findAll();
+    MaterialDto findById(Long id);
+    List<MaterialDto> findAll();
 
-    Material create(Material material);
-    Material update(Long id, Material material);
+    MaterialDto create(MaterialDto materialDto);
+    void update(Long id, MaterialDto materialDto);
     void deleteById(Long id);
 }

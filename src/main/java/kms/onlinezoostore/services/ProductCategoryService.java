@@ -1,17 +1,17 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.ProductCategory;
+import kms.onlinezoostore.dto.ProductCategoryDto;
 
 import java.util.List;
 
 public interface ProductCategoryService {
 
-    ProductCategory findById(Long id);
-    List<ProductCategory> findAll();
-    List<ProductCategory> findAllByNameLike(String nameLike);
-    List<ProductCategory> findAllByParentId(String idParentCategory);
+    ProductCategoryDto findById(Long id);
+    List<ProductCategoryDto> findAll();
+    List<ProductCategoryDto> findAllByNameLike(String nameLike);
+    List<ProductCategoryDto> findAllByParentId(Long idParentCategory);
 
-    ProductCategory create(ProductCategory category);
-    ProductCategory update(Long id, ProductCategory category);
+    ProductCategoryDto create(ProductCategoryDto category);
+    void update(Long id, ProductCategoryDto category);
     void deleteById(Long id);
 }

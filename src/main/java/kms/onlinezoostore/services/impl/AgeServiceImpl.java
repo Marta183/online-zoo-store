@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.AgeDto;
+import kms.onlinezoostore.dto.mappers.AgeMapper;
 import kms.onlinezoostore.entities.Age;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.AgeRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,45 +29,56 @@ public class AgeServiceImpl implements AgeService {
     }
 
     @Override
-    public Age findById(Long id) {
-        Age age = ageRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public AgeDto findById(Long id) {
+        AgeDto ageDto = ageRepository.findById(id)
+                .map(AgeMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return age;
+        return ageDto;
     }
 
     @Override
-    public List<Age> findAll() {
-        return ageRepository.findAll();
+    public List<AgeDto> findAll() {
+        return ageRepository.findAll()
+                .stream().map(AgeMapper.INSTANCE::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Age create(Age age) {
+    public AgeDto create(AgeDto ageDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(ageRepository, "name", age.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(ageRepository, "name", ageDto.getName());
+        // log
+        Age age = AgeMapper.INSTANCE.mapToEntity(ageDto);
         // log
         Age savedAge = ageRepository.save(age);
         // log
-        return savedAge;
+        AgeDto savedAgeDto = AgeMapper.INSTANCE.mapToDto(savedAge);
+        // log
+        return savedAgeDto;
     }
 
     @Override
     @Transactional
-    public Age update(Long id, Age updatedAge) {
+    public void update(Long id, AgeDto updatedAgeDto) {
         // log
         Age existingAge = ageRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingAge.getName().equals(updatedAge.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(ageRepository, "name", updatedAge.getName());
+        if (!existingAge.getName().equals(updatedAgeDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(ageRepository, "name", updatedAgeDto.getName());
         }
+
+        Age updatedAge = AgeMapper.INSTANCE.mapToEntity(updatedAgeDto);
         // log
         updatedAge.setId(id);
-        return ageRepository.save(updatedAge);
+        ageRepository.save(updatedAge);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        Age age = ageRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         ageRepository.deleteById(id);
     }

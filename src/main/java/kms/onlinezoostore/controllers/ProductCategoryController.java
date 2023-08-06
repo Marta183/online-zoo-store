@@ -1,8 +1,8 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Product;
-import kms.onlinezoostore.entities.ProductCategory;
+import kms.onlinezoostore.dto.ProductCategoryDto;
+import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +28,8 @@ public class ProductCategoryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductCategory> findAll(@RequestParam(name = "parentId", required = false) String parentId,
-                                         @RequestParam(name = "nameLike", required = false) String nameLike) {
-        if (parentId != null && !parentId.isBlank()) {
-            return thisService.findAllByParentId(parentId);
-        } else if (nameLike != null && !nameLike.isBlank()) {
+    public List<ProductCategoryDto> findAll(@RequestParam(name = "nameLike", required = false) String nameLike) {
+        if (nameLike != null && !nameLike.isBlank()) {
             return thisService.findAllByNameLike(nameLike);
         }
         return thisService.findAll();
@@ -40,20 +37,20 @@ public class ProductCategoryController {
 
     @GetMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductCategory findById(@PathVariable Long categoryId) {
+    public ProductCategoryDto findById(@PathVariable Long categoryId) {
         return thisService.findById(categoryId);
     }
 
     @GetMapping("/{categoryId}/inner-categories")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductCategory> findAllByParentId(@PathVariable String categoryId) {
+    public List<ProductCategoryDto> findAllByParentId(@PathVariable Long categoryId) {
         return thisService.findAllByParentId(categoryId);
     }
 
     @GetMapping("/{categoryId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public Page<Product> findProductPageByCriteria(@PathVariable Long categoryId, Pageable pageable,
-                                                   @RequestParam MultiValueMap<String, String> params) {
+    public Page<ProductDto> findProductPageByCriteria(@PathVariable Long categoryId, Pageable pageable,
+                                                         @RequestParam MultiValueMap<String, String> params) {
         params.remove("pageNumber");
         params.remove("pageSize");
         params.remove("sort");
@@ -74,14 +71,14 @@ public class ProductCategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductCategory create(@RequestBody @Valid ProductCategory productCategory) { //}, BindingResult bindingResult) {
-        return thisService.create(productCategory);
+    public ProductCategoryDto create(@RequestBody @Valid ProductCategoryDto productCategoryDto) { //}, BindingResult bindingResult) {
+        return thisService.create(productCategoryDto);
     }
 
     @PutMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductCategory update(@PathVariable Long categoryId, @RequestBody @Valid ProductCategory productCategory) {
-        return thisService.update(categoryId, productCategory);
+    public void update(@PathVariable Long categoryId, @RequestBody @Valid ProductCategoryDto productCategoryDto) {
+        thisService.update(categoryId, productCategoryDto);
     }
 
     @DeleteMapping("/{categoryId}")

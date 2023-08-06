@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Product;
+import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,20 +21,20 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product findProductById(@PathVariable Long id) {
+    public ProductDto findProductById(@PathVariable Long id) {
         return productService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@RequestBody @Valid Product product) { //}, BindingResult bindingResult) {
-        return productService.create(product);
+    public ProductDto createProduct(@RequestBody @Valid ProductDto productDto) { //}, BindingResult bindingResult) {
+        return productService.create(productDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product updateProduct(@PathVariable Long id, @RequestBody @Valid Product product) {
-        return productService.update(id, product);
+    public void updateProduct(@PathVariable Long id, @RequestBody @Valid ProductDto productDto) {
+        productService.update(id, productDto);
     }
 
     @DeleteMapping("/{id}")

@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Brand;
+import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.services.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,26 @@ public class BrandController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Brand> findAll() {
+    public List<BrandDto> findAll() {
         return brandService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Brand findById(@PathVariable Long id) {
+    public BrandDto findById(@PathVariable Long id) {
         return brandService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Brand create(@RequestBody @Valid Brand brand) {
-        return brandService.create(brand);
+    public BrandDto create(@RequestBody @Valid BrandDto brandDto) {
+        return brandService.create(brandDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Brand update(@PathVariable Long id, @RequestBody @Valid Brand brand) {
-        return brandService.update(id, brand);
+    public void update(@PathVariable Long id, @RequestBody @Valid BrandDto brandDto) {
+        brandService.update(id, brandDto);
     }
 
     @DeleteMapping("/{id}")

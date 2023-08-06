@@ -1,15 +1,15 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.Age;
+import kms.onlinezoostore.dto.AgeDto;
 
 import java.util.List;
 
 public interface AgeService {
 
-    Age findById(Long id);
-    List<Age> findAll();
+    AgeDto findById(Long id);
+    List<AgeDto> findAll();
 
-    Age create(Age age);
-    Age update(Long id, Age age);
+    AgeDto create(AgeDto ageDto);
+    void update(Long id, AgeDto ageDto);
     void deleteById(Long id);
 }

@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.ProductSize;
+import kms.onlinezoostore.dto.ProductSizeDto;
 import kms.onlinezoostore.services.ProductSizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,26 @@ public class ProductSizeController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductSize> findAll() {
+    public List<ProductSizeDto> findAll() {
         return productSizeService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductSize findById(@PathVariable Long id) {
+    public ProductSizeDto findById(@PathVariable Long id) {
         return productSizeService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductSize create(@RequestBody @Valid ProductSize productSize) {
-        return productSizeService.create(productSize);
+    public ProductSizeDto create(@RequestBody @Valid ProductSizeDto productSizeDto) {
+        return productSizeService.create(productSizeDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductSize update(@PathVariable Long id, @RequestBody @Valid ProductSize productSize) {
-        return productSizeService.update(id, productSize);
+    public void update(@PathVariable Long id, @RequestBody @Valid ProductSizeDto productSizeDto) {
+        productSizeService.update(id, productSizeDto);
     }
 
     @DeleteMapping("/{id}")

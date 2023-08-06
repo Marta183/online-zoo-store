@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.WeightDto;
+import kms.onlinezoostore.dto.mappers.WeightMapper;
 import kms.onlinezoostore.entities.Weight;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.WeightRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,45 +29,56 @@ public class WeightServiceImpl implements WeightService {
     }
 
     @Override
-    public Weight findById(Long id) {
-        Weight weight = weightRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public WeightDto findById(Long id) {
+        WeightDto weightDto = weightRepository.findById(id)
+                .map(WeightMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return weight;
+        return weightDto;
     }
 
     @Override
-    public List<Weight> findAll() {
-        return weightRepository.findAll();
+    public List<WeightDto> findAll() {
+        return weightRepository.findAll()
+                .stream().map(WeightMapper.INSTANCE::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Weight create(Weight weight) {
+    public WeightDto create(WeightDto weightDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", weight.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", weightDto.getName());
+        // log
+        Weight weight = WeightMapper.INSTANCE.mapToEntity(weightDto);
         // log
         Weight savedWeight = weightRepository.save(weight);
         // log
-        return savedWeight;
+        WeightDto savedWeightDto = WeightMapper.INSTANCE.mapToDto(savedWeight);
+        // log
+        return savedWeightDto;
     }
 
     @Override
     @Transactional
-    public Weight update(Long id, Weight updatedWeight) {
+    public void update(Long id, WeightDto updatedWeightDto) {
         // log
         Weight existingWeight = weightRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingWeight.getName().equals(updatedWeight.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", updatedWeight.getName());
+        if (!existingWeight.getName().equals(updatedWeightDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", updatedWeightDto.getName());
         }
         // log
+        Weight updatedWeight = WeightMapper.INSTANCE.mapToEntity(updatedWeightDto);
+        // log
         updatedWeight.setId(id);
-        return weightRepository.save(updatedWeight);
+        weightRepository.save(updatedWeight);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        Weight weight = weightRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         weightRepository.deleteById(id);
     }

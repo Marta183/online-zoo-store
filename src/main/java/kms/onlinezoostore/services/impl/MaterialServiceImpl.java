@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.MaterialDto;
+import kms.onlinezoostore.dto.mappers.MaterialMapper;
 import kms.onlinezoostore.entities.Material;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.MaterialRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,45 +29,55 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public Material findById(Long id) {
-        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public MaterialDto findById(Long id) {
+        MaterialDto materialDto = materialRepository.findById(id)
+                .map(MaterialMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return material;
+        return materialDto;
     }
 
     @Override
-    public List<Material> findAll() {
-        return materialRepository.findAll();
+    public List<MaterialDto> findAll() {
+        return materialRepository.findAll()
+                .stream().map(MaterialMapper.INSTANCE::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Material create(Material material) {
+    public MaterialDto create(MaterialDto materialDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", material.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", materialDto.getName());
+        // log
+        Material material = MaterialMapper.INSTANCE.mapToEntity(materialDto);
         // log
         Material savedMaterial = materialRepository.save(material);
         // log
-        return savedMaterial;
+        MaterialDto savedMaterialDto = MaterialMapper.INSTANCE.mapToDto(savedMaterial);
+        // log
+        return savedMaterialDto;
     }
 
     @Override
     @Transactional
-    public Material update(Long id, Material updatedMaterial) {
+    public void update(Long id, MaterialDto updatedMaterialDto) {
         // log
         Material existingMaterial = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingMaterial.getName().equals(updatedMaterial.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", updatedMaterial.getName());
+        if (!existingMaterial.getName().equals(updatedMaterialDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", updatedMaterialDto.getName());
         }
+        Material updatedMaterial = MaterialMapper.INSTANCE.mapToEntity(updatedMaterialDto);
         // log
         updatedMaterial.setId(id);
-        return materialRepository.save(updatedMaterial);
+        materialRepository.save(updatedMaterial);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         materialRepository.deleteById(id);
     }

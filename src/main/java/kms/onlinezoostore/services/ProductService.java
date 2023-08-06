@@ -1,20 +1,19 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.Product;
+import kms.onlinezoostore.dto.ProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 
 public interface ProductService {
 
-    Product findById(Long id);
+    ProductDto findById(Long id);
 
-    Page<Product> findPageByCategoryId(Long categoryId, Pageable pageable);
+    Page<ProductDto> findPageByCategoryId(Long categoryId, Pageable pageable);
 
-    Page<Product> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable);
+    Page<ProductDto> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable);
 
-    Product create(Product product);
-    Product update(Long id, Product product);
-
+    ProductDto create(ProductDto productDto);
+    void update(Long id, ProductDto productDto);
     void deleteById(Long id);
 }

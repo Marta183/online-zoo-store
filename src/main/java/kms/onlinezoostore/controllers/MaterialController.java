@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Material;
+import kms.onlinezoostore.dto.MaterialDto;
 import kms.onlinezoostore.services.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,26 @@ public class MaterialController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Material> findAll() {
+    public List<MaterialDto> findAll() {
         return materialService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Material findById(@PathVariable Long id) {
+    public MaterialDto findById(@PathVariable Long id) {
         return materialService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Material create(@RequestBody @Valid Material material) {
-        return materialService.create(material);
+    public MaterialDto create(@RequestBody @Valid MaterialDto materialDto) {
+        return materialService.create(materialDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Material update(@PathVariable Long id, @RequestBody @Valid Material material) {
-        return materialService.update(id, material);
+    public void update(@PathVariable Long id, @RequestBody @Valid MaterialDto materialDto) {
+        materialService.update(id, materialDto);
     }
 
     @DeleteMapping("/{id}")

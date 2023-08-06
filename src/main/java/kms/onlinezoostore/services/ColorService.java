@@ -1,15 +1,15 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.Color;
+import kms.onlinezoostore.dto.ColorDto;
 
 import java.util.List;
 
 public interface ColorService {
 
-    Color findById(Long id);
-    List<Color> findAll();
+    ColorDto findById(Long id);
+    List<ColorDto> findAll();
 
-    Color create(Color color);
-    Color update(Long id, Color color);
+    ColorDto create(ColorDto colorDto);
+    void update(Long id, ColorDto colorDto);
     void deleteById(Long id);
 }

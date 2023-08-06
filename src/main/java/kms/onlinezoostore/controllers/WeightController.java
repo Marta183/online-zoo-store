@@ -1,7 +1,7 @@
-package kms.onlinezoostore.controllers.rest;
+package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
-import kms.onlinezoostore.entities.Weight;
+import kms.onlinezoostore.dto.WeightDto;
 import kms.onlinezoostore.services.WeightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,26 @@ public class WeightController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Weight> findAll() {
+    public List<WeightDto> findAll() {
         return weightService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Weight findById(@PathVariable Long id) {
+    public WeightDto findById(@PathVariable Long id) {
         return weightService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Weight create(@RequestBody @Valid Weight weight) {
-        return weightService.create(weight);
+    public WeightDto create(@RequestBody @Valid WeightDto weightDto) {
+        return weightService.create(weightDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Weight update(@PathVariable Long id, @RequestBody @Valid Weight weight) {
-        return weightService.update(id, weight);
+    public void update(@PathVariable Long id, @RequestBody @Valid WeightDto weightDto) {
+        weightService.update(id, weightDto);
     }
 
     @DeleteMapping("/{id}")

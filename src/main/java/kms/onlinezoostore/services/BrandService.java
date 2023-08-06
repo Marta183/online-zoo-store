@@ -1,15 +1,15 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.entities.Brand;
+import kms.onlinezoostore.dto.BrandDto;
 
 import java.util.List;
 
 public interface BrandService {
 
-    Brand findById(Long id);
-    List<Brand> findAll();
+    BrandDto findById(Long id);
+    List<BrandDto> findAll();
 
-    Brand create(Brand brand);
-    Brand update(Long id, Brand brand);
+    BrandDto create(BrandDto brandDto);
+    void update(Long id, BrandDto brandDto);
     void deleteById(Long id);
 }

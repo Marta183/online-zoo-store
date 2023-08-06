@@ -1,16 +1,15 @@
 package kms.onlinezoostore.services;
 
-
-import kms.onlinezoostore.entities.Weight;
+import kms.onlinezoostore.dto.WeightDto;
 
 import java.util.List;
 
 public interface WeightService {
 
-    Weight findById(Long id);
-    List<Weight> findAll();
+    WeightDto findById(Long id);
+    List<WeightDto> findAll();
 
-    Weight create(Weight weight);
-    Weight update(Long id, Weight weight);
+    WeightDto create(WeightDto weightDto);
+    void update(Long id, WeightDto weightDto);
     void deleteById(Long id);
 }

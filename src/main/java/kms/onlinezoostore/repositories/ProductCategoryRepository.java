@@ -8,9 +8,10 @@ import java.util.List;
 
 @Repository
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
-    List<ProductCategory> findAllByNameLikeIgnoreCase(String nameStartingWith);
 
-    List<ProductCategory> findAllByParent_Id(Long parentId);
+    List<ProductCategory> findAllByNameContainsIgnoreCase(String nameLike);
 
-    long countAllByParent_IdAndNameIgnoreCase(Long parent_id, String name);
+    List<ProductCategory> findAllByParentId(Long parentId);
+
+    long countAllByParentIdAndNameIgnoreCase(Long parentId, String name);
 }

@@ -1,16 +1,15 @@
 package kms.onlinezoostore.services;
 
-
-import kms.onlinezoostore.entities.ProductSize;
+import kms.onlinezoostore.dto.ProductSizeDto;
 
 import java.util.List;
 
 public interface ProductSizeService {
 
-    ProductSize findById(Long id);
-    List<ProductSize> findAll();
+    ProductSizeDto findById(Long id);
+    List<ProductSizeDto> findAll();
 
-    ProductSize create(ProductSize productSize);
-    ProductSize update(Long id, ProductSize productSize);
+    ProductSizeDto create(ProductSizeDto productSizeDto);
+    void update(Long id, ProductSizeDto productSizeDto);
     void deleteById(Long id);
 }

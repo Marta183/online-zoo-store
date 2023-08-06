@@ -1,5 +1,7 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.ProductSizeDto;
+import kms.onlinezoostore.dto.mappers.ProductSizeMapper;
 import kms.onlinezoostore.entities.ProductSize;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductSizeRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,45 +29,55 @@ public class ProductSizeServiceImpl implements ProductSizeService {
     }
 
     @Override
-    public ProductSize findById(Long id) {
-        ProductSize size = productSizeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+    public ProductSizeDto findById(Long id) {
+        ProductSizeDto sizeDto = productSizeRepository.findById(id)
+                .map(ProductSizeMapper.INSTANCE::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        return size;
+        return sizeDto;
     }
 
     @Override
-    public List<ProductSize> findAll() {
-        return productSizeRepository.findAll();
+    public List<ProductSizeDto> findAll() {
+        return productSizeRepository.findAll()
+                .stream().map(ProductSizeMapper.INSTANCE::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public ProductSize create(ProductSize productSize) {
+    public ProductSizeDto create(ProductSizeDto productSizeDto) {
         // log
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", productSize.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", productSizeDto.getName());
+        // log
+        ProductSize productSize = ProductSizeMapper.INSTANCE.mapToEntity(productSizeDto);
         // log
         ProductSize savedProductSize = productSizeRepository.save(productSize);
         // log
-        return savedProductSize;
+        ProductSizeDto savedProductSizeDto = ProductSizeMapper.INSTANCE.mapToDto(savedProductSize);
+        // log
+        return savedProductSizeDto;
     }
 
     @Override
     @Transactional
-    public ProductSize update(Long id, ProductSize updatedSize) {
+    public void update(Long id, ProductSizeDto updatedSizeDto) {
         // log
         ProductSize existingSize = productSizeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
-        if (!existingSize.getName().equals(updatedSize.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", updatedSize.getName());
+        if (!existingSize.getName().equals(updatedSizeDto.getName())) {
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", updatedSizeDto.getName());
         }
+        ProductSize updatedSize = ProductSizeMapper.INSTANCE.mapToEntity(updatedSizeDto);
         // log
         updatedSize.setId(id);
-        return productSizeRepository.save(updatedSize);
+        productSizeRepository.save(updatedSize);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        ProductSize size = productSizeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
         // log
         productSizeRepository.deleteById(id);
     }
