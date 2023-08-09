@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = AgeController.REST_URL)
-//@Api(description = "Controller for Ages")
 public class AgeController {
     static final String REST_URL = "/api/v1/Ages";
     private final AgeService ageService;

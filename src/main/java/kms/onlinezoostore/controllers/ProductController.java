@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = ProductController.REST_URL)
-//@Api(description = "Controller for products")
 public class ProductController {
     static final String REST_URL = "/api/v1/products";
     private final ProductService productService;

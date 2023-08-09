@@ -7,6 +7,7 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.BrandService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final UniqueFieldService uniqueFieldService;
-    private static final String ENTITY_CLASS_NAME = "Brand";
+    private static final String ENTITY_CLASS_NAME = "BRAND";
 
     @Autowired
     public BrandServiceImpl(BrandRepository brandRepository, UniqueFieldService uniqueFieldService) {
@@ -30,15 +32,20 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandDto findById(Long id) {
+        log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
+
         BrandDto brandDto = brandRepository.findById(id)
                 .map(BrandMapper.INSTANCE::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+
+        log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
         return brandDto;
     }
 
     @Override
     public List<BrandDto> findAll() {
+        log.debug("Finding all {}", ENTITY_CLASS_NAME);
+
         return brandRepository.findAll()
                 .stream().map(BrandMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
@@ -47,39 +54,44 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional
     public BrandDto create(BrandDto brandDto) {
-        // log
+        log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, brandDto.getName());
+
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(brandRepository, "name", brandDto.getName());
-        // log
+
         Brand brand = BrandMapper.INSTANCE.mapToEntity(brandDto);
-        // log
+
         Brand savedbrand = brandRepository.save(brand);
-        // log
-        BrandDto savedbrandDto = BrandMapper.INSTANCE.mapToDto(savedbrand);
-        // log
-        return savedbrandDto;
+        log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedbrand.getId());
+
+        return BrandMapper.INSTANCE.mapToDto(savedbrand);
     }
 
     @Override
     @Transactional
     public void update(Long id, BrandDto updatedBrandDto) {
-        // log
+        log.debug("Updating {} with ID {}", ENTITY_CLASS_NAME, id);
+
         Brand existingBrand = brandRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+
         if (!existingBrand.getName().equals(updatedBrandDto.getName())) {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(brandRepository, "name", updatedBrandDto.getName());
         }
-        // log
+
         Brand updatedBrand = BrandMapper.INSTANCE.mapToEntity(updatedBrandDto);
-        // log
         updatedBrand.setId(id);
         brandRepository.save(updatedBrand);
+
+        log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Brand brand = brandRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+        log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
+
+        brandRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
         brandRepository.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 }

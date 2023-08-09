@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = ColorController.REST_URL)
-//@Api(description = "Controller for colors")
 public class ColorController {
     static final String REST_URL = "/api/v1/colors";
     private final ColorService colorService;

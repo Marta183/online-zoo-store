@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = WeightController.REST_URL)
-//@Api(description = "Controller for weights")
 public class WeightController {
     static final String REST_URL = "/api/v1/weights";
     private final WeightService weightService;

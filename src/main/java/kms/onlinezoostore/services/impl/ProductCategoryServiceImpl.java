@@ -7,6 +7,7 @@ import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     private final ProductCategoryRepository categoryRep;
-    private static final String ENTITY_CLASS_NAME = "ProductCategory";
+    private static final String ENTITY_CLASS_NAME = "PRODUCT_CATEGORY";
 
     @Autowired
     public ProductCategoryServiceImpl(ProductCategoryRepository categoryRep) {
@@ -28,15 +30,20 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public ProductCategoryDto findById(Long id) {
+        log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
+
         ProductCategoryDto categoryDto = categoryRep.findById(id)
                 .map(ProductCategoryMapper.INSTANCE::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+
+        log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
         return categoryDto;
     }
 
     @Override
     public List<ProductCategoryDto> findAll() {
+        log.debug("Finding all {}", ENTITY_CLASS_NAME);
+
         return categoryRep.findAll()
                 .stream().map(ProductCategoryMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
@@ -44,6 +51,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<ProductCategoryDto> findAllByNameLike(String nameLike) {
+        log.debug("Finding {} by name like: {}", ENTITY_CLASS_NAME, nameLike);
+
         return categoryRep.findAllByNameContainsIgnoreCase(nameLike)
                 .stream().map(ProductCategoryMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
@@ -51,6 +60,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<ProductCategoryDto> findAllByParentId(Long idParentCategory) {
+        log.debug("Finding {} by parent ID {}", ENTITY_CLASS_NAME, idParentCategory);
+
         return categoryRep.findAllByParentId(idParentCategory)
                 .stream().map(ProductCategoryMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
@@ -59,44 +70,52 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Override
     @Transactional
     public ProductCategoryDto create(ProductCategoryDto categoryDto) {
-        // log
+        log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, categoryDto.getName());
+
         checkUniqueNameWithinParentCategory(categoryDto);
-        // log
+
         ProductCategory productCategory = ProductCategoryMapper.INSTANCE.mapToEntity(categoryDto);
-        // log
+
         ProductCategory savedCategory = categoryRep.save(productCategory);
-        // log
-        ProductCategoryDto savedCategoryDto = ProductCategoryMapper.INSTANCE.mapToDto(savedCategory);
-        // log
-        return savedCategoryDto;
+        log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedCategory.getId());
+
+        return ProductCategoryMapper.INSTANCE.mapToDto(savedCategory);
     }
 
     @Override
     @Transactional
     public void update(Long id, ProductCategoryDto updatedCategoryDto) {
-        // log
+        log.debug("Updating {} with ID {}", ENTITY_CLASS_NAME, id);
+
         ProductCategory existingCategory = categoryRep.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+
         if (!existingCategory.getName().equals(updatedCategoryDto.getName())) {
             checkUniqueNameWithinParentCategory(updatedCategoryDto);
         }
 
         ProductCategory updatedCategory = ProductCategoryMapper.INSTANCE.mapToEntity(updatedCategoryDto);
-        // log
         updatedCategory.setId(id);
         categoryRep.save(updatedCategory);
+
+        log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        ProductCategory category = categoryRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));// log
+        log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
+
+        categoryRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
         categoryRep.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
     private void checkUniqueNameWithinParentCategory(ProductCategoryDto categoryDto) {
         String name = categoryDto.getName();
+        log.debug("Checking unique name within parent category for {}: {}", ENTITY_CLASS_NAME, name);
+
         String parentName = null;
         Long parentId = null;
         if (categoryDto.getParent() != null) {
@@ -104,6 +123,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             parentName = (parentCategory == null) ? null : parentCategory.getName();
             parentId = (parentCategory == null) ? null : parentCategory.getId();
         }
+
+        log.debug("For {}: {} found parent category with ID {}", ENTITY_CLASS_NAME, name, parentId);
 
         if (categoryRep.countAllByParentIdAndNameIgnoreCase(parentId, name) != 0) {
             String message = String.format("Name \'%s\' is already exist in the group \'%s\'", name, parentName);

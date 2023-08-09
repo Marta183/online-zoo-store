@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = ProductCategoryController.REST_URL)
-//@Api(description = "Controller for product categories")
 public class ProductCategoryController {
     static final String REST_URL = "/api/v1/product-categories";
 
@@ -28,7 +27,8 @@ public class ProductCategoryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductCategoryDto> findAll(@RequestParam(name = "nameLike", required = false) String nameLike) {
+    public List<ProductCategoryDto> findAll(
+            @RequestParam(name = "nameLike", required = false) String nameLike) {
         if (nameLike != null && !nameLike.isBlank()) {
             return thisService.findAllByNameLike(nameLike);
         }

@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = MaterialController.REST_URL)
-//@Api(description = "Controller for materials")
 public class MaterialController {
     static final String REST_URL = "/api/v1/materials";
     private final MaterialService materialService;

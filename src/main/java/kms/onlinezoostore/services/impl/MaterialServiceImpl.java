@@ -7,6 +7,7 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.MaterialRepository;
 import kms.onlinezoostore.services.MaterialService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
     private final UniqueFieldService uniqueFieldService;
-    private static final String ENTITY_CLASS_NAME = "Material";
+    private static final String ENTITY_CLASS_NAME = "MATERIAL";
 
     @Autowired
     public MaterialServiceImpl(MaterialRepository materialRepository, UniqueFieldService uniqueFieldService) {
@@ -30,15 +32,20 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public MaterialDto findById(Long id) {
+        log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
+
         MaterialDto materialDto = materialRepository.findById(id)
                 .map(MaterialMapper.INSTANCE::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+
+        log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
         return materialDto;
     }
 
     @Override
     public List<MaterialDto> findAll() {
+        log.debug("Finding all {}", ENTITY_CLASS_NAME);
+
         return materialRepository.findAll()
                 .stream().map(MaterialMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
@@ -47,38 +54,45 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     @Transactional
     public MaterialDto create(MaterialDto materialDto) {
-        // log
+        log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, materialDto.getName());
+
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", materialDto.getName());
-        // log
+
         Material material = MaterialMapper.INSTANCE.mapToEntity(materialDto);
-        // log
+
         Material savedMaterial = materialRepository.save(material);
-        // log
-        MaterialDto savedMaterialDto = MaterialMapper.INSTANCE.mapToDto(savedMaterial);
-        // log
-        return savedMaterialDto;
+        log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedMaterial.getId());
+
+        return MaterialMapper.INSTANCE.mapToDto(savedMaterial);
     }
 
     @Override
     @Transactional
     public void update(Long id, MaterialDto updatedMaterialDto) {
-        // log
-        Material existingMaterial = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+        log.debug("Updating {} with ID {}", ENTITY_CLASS_NAME, id);
+
+        Material existingMaterial = materialRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
         if (!existingMaterial.getName().equals(updatedMaterialDto.getName())) {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", updatedMaterialDto.getName());
         }
+
         Material updatedMaterial = MaterialMapper.INSTANCE.mapToEntity(updatedMaterialDto);
-        // log
         updatedMaterial.setId(id);
         materialRepository.save(updatedMaterial);
+
+        log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-        // log
+        log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
+
+        materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
         materialRepository.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 }

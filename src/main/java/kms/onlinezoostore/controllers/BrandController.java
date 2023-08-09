@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = BrandController.REST_URL)
-//@Api(description = "Controller for brands")
 public class BrandController {
     static final String REST_URL = "/api/v1/brands";
     private final BrandService brandService;

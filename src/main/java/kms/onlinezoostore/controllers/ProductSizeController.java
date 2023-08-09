@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = ProductSizeController.REST_URL)
-//@Api(description = "Controller for product sizes")
 public class ProductSizeController {
     static final String REST_URL = "/api/v1/product-sizes";
     private final ProductSizeService productSizeService;
