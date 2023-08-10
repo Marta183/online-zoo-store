@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @CrossOrigin(origins = "*",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
                 RequestMethod.PATCH, RequestMethod.OPTIONS, RequestMethod.DELETE}
-
 )
 @EnableJpaAuditing
 public class SpringBootApp {

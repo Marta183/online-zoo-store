@@ -1,0 +1,131 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Missis_MK (generated)" id="1691690121992-1">
+        <createTable tableName="products">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="product_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="price" type="numeric(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="new_arrival" type="BOOLEAN"/>
+            <column name="not_available" type="BOOLEAN"/>
+            <column name="material_id" type="BIGINT"/>
+            <column name="color_id" type="BIGINT"/>
+            <column name="weight_id" type="BIGINT"/>
+            <column name="size_id" type="BIGINT"/>
+            <column name="age_id" type="BIGINT"/>
+            <column name="brand_id" type="BIGINT"/>
+            <column name="prescription" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-2">
+        <createTable tableName="product_categories">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="product_categories_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-3">
+        <addUniqueConstraint columnNames="name" constraintName="unique_name" tableName="products"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-4">
+        <addUniqueConstraint columnNames="name, parent_id" constraintName="unique_name_parent_id" tableName="product_categories"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-5">
+        <createTable tableName="ages">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="ages_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-6">
+        <createTable tableName="brands">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="brands_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-7">
+        <createTable tableName="colors">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="colors_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-8">
+        <createTable tableName="materials">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="materials_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-9">
+        <createTable tableName="sizes">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="sizes_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-10">
+        <createTable tableName="weights">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="weights_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-11">
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="product_categories" constraintName="product_categories_group_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="product_categories" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-12">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="products" constraintName="product_category_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="product_categories" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-13">
+        <addForeignKeyConstraint baseColumnNames="age_id" baseTableName="products" constraintName="products_age_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ages" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-14">
+        <addForeignKeyConstraint baseColumnNames="brand_id" baseTableName="products" constraintName="products_brand_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="brands" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-15">
+        <addForeignKeyConstraint baseColumnNames="color_id" baseTableName="products" constraintName="products_color_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="colors" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-16">
+        <addForeignKeyConstraint baseColumnNames="material_id" baseTableName="products" constraintName="products_material_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="materials" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-17">
+        <addForeignKeyConstraint baseColumnNames="size_id" baseTableName="products" constraintName="products_size_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sizes" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1691690121992-18">
+        <addForeignKeyConstraint baseColumnNames="weight_id" baseTableName="products" constraintName="products_weight_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="weights" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
