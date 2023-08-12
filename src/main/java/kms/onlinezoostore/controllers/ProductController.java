@@ -4,7 +4,10 @@ import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +25,19 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public ProductDto findProductById(@PathVariable Long id) {
         return productService.findById(id);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Page<ProductDto> findPageByCriteria(@RequestParam MultiValueMap<String, String> params, Pageable pageable) {
+        params.remove("pageNumber");
+        params.remove("pageSize");
+        params.remove("sort");
+
+        if (params.isEmpty()) {
+            return productService.findPage(pageable);
+        }
+        return productService.findPageByMultipleCriteria(params, pageable);
     }
 
     @PostMapping

@@ -49,14 +49,38 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductDto> findPage(Pageable pageable) {
+        log.debug("Finding {} product page ", ENTITY_CLASS_NAME);
+        log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<ProductDto> page =  productRep.findAll(pageable)
+                .map(ProductMapper.INSTANCE::mapToDto);
+
+        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
+        return page;
+    }
+
+    @Override
     public Page<ProductDto> findPageByCategoryId(Long categoryId, Pageable pageable) {
-        log.debug("Finding {} page by category ID {}", ENTITY_CLASS_NAME, categoryId);
+        log.debug("Finding {} product page by category ID {}", ENTITY_CLASS_NAME, categoryId);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<ProductDto> page =  productRep.findAllByCategoryId(categoryId, pageable)
                 .map(ProductMapper.INSTANCE::mapToDto);
 
-        log.debug("Found {} page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
+        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
+        return page;
+    }
+
+    @Override
+    public Page<ProductDto> findPageByBrandId(Long brandId, Pageable pageable) {
+        log.debug("Finding {} product page by brand ID {}", ENTITY_CLASS_NAME, brandId);
+        log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<ProductDto> page =  productRep.findAllByBrandId(brandId, pageable)
+                .map(ProductMapper.INSTANCE::mapToDto);
+
+        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
     }
 

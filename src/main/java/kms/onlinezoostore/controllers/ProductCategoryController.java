@@ -35,31 +35,32 @@ public class ProductCategoryController {
         return thisService.findAll();
     }
 
-    @GetMapping("/{categoryId}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductCategoryDto findById(@PathVariable Long categoryId) {
-        return thisService.findById(categoryId);
+    public ProductCategoryDto findById(@PathVariable Long id) {
+        return thisService.findById(id);
     }
 
-    @GetMapping("/{categoryId}/inner-categories")
+    @GetMapping("/{id}/inner-categories")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductCategoryDto> findAllByParentId(@PathVariable Long categoryId) {
-        return thisService.findAllByParentId(categoryId);
+    public List<ProductCategoryDto> findAllByParentId(@PathVariable Long id) {
+        return thisService.findAllByParentId(id);
     }
 
-    @GetMapping("/{categoryId}/products")
+    @GetMapping("/{id}/products")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductDto> findProductPageByCriteria(@PathVariable Long categoryId, Pageable pageable,
-                                                         @RequestParam MultiValueMap<String, String> params) {
+    public Page<ProductDto> findProductPageByCriteria(@PathVariable Long id, Pageable pageable,
+                                                      @RequestParam MultiValueMap<String, String> params) {
         params.remove("pageNumber");
         params.remove("pageSize");
         params.remove("sort");
 
         if (params.isEmpty()) {
-            return productService.findPageByCategoryId(categoryId, pageable);
+            return productService.findPageByCategoryId(id, pageable);
         }
 
-        params.add("categoryId", categoryId.toString());
+        params.remove("categoryId"); // acceptably only as a pathVariable
+        params.add("categoryId", id.toString());
         return productService.findPageByMultipleCriteria(params, pageable);
     }
 
@@ -75,15 +76,15 @@ public class ProductCategoryController {
         return thisService.create(productCategoryDto);
     }
 
-    @PutMapping("/{categoryId}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable Long categoryId, @RequestBody @Valid ProductCategoryDto productCategoryDto) {
-        thisService.update(categoryId, productCategoryDto);
+    public void update(@PathVariable Long id, @RequestBody @Valid ProductCategoryDto productCategoryDto) {
+        thisService.update(id, productCategoryDto);
     }
 
-    @DeleteMapping("/{categoryId}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long categoryId) {
-        thisService.deleteById(categoryId);
+    public void deleteById(@PathVariable Long id) {
+        thisService.deleteById(id);
     }
 }

@@ -48,9 +48,9 @@ public class ProductSpecifications {
                 -> criteriaBuilder.equal(root.get("notAvailable"), Boolean.parseBoolean(notAvailable));
     }
 
-    private static Specification<Product> hasCategory(String categoryId) {
+    private static Specification<Product> hasCategory(List<String> categoryIds) {
         return (root, criteriaQuery, criteriaBuilder)
-                -> criteriaBuilder.equal(root.get("category").get("id"), categoryId);
+                -> criteriaBuilder.in(root.get("category").get("id")).value(categoryIds);
     }
 
     private static Specification<Product> hasBrands(List<String> brandIds) {
@@ -122,7 +122,7 @@ public class ProductSpecifications {
         }
 
         if (params.containsKey("categoryId")) {
-            spec = Specification.where(spec).and(ProductSpecifications.hasCategory(params.getFirst("categoryId")));
+            spec = Specification.where(spec).and(ProductSpecifications.hasCategory(params.get("categoryId")));
         }
 
         if (params.containsKey("brandId")) {
