@@ -6,7 +6,3 @@ env:
   DATABASE_URL: jdbc:postgresql://dpg-cj9j4t2vvtos73eoerkg-a.frankfurt-postgres.render.com:5432/online_zoo_store_teamchallenge
   DATABASE_USERNAME: online_zoo_store_teamchallenge_user
   DATABASE_PASSWORD: 1ABHA4JQE4WjV189lQc4Uv4DyHobPlLZ
-build:
-  after_build:
-    - name: Run Liquibase Update
-      command: mvn liquibase:update
