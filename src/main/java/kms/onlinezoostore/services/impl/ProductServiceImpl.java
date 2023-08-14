@@ -8,8 +8,8 @@ import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.repositories.specifications.ProductSpecifications;
 import kms.onlinezoostore.services.ProductService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,18 +22,13 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRep;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "PRODUCT";
-
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, UniqueFieldService uniqueFieldService) {
-        this.productRep = productRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
 
     @Override
 

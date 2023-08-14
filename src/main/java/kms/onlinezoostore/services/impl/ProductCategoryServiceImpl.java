@@ -7,8 +7,8 @@ import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +17,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     private final ProductCategoryRepository categoryRep;
     private static final String ENTITY_CLASS_NAME = "PRODUCT_CATEGORY";
-
-    @Autowired
-    public ProductCategoryServiceImpl(ProductCategoryRepository categoryRep) {
-        this.categoryRep = categoryRep;
-    }
 
     @Override
     public ProductCategoryDto findById(Long id) {

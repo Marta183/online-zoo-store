@@ -3,22 +3,18 @@ package kms.onlinezoostore.controllers;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.ColorDto;
 import kms.onlinezoostore.services.ColorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = ColorController.REST_URL)
 public class ColorController {
     static final String REST_URL = "/api/v1/colors";
     private final ColorService colorService;
-
-    @Autowired
-    public ColorController(ColorService colorService) {
-        this.colorService = colorService;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

@@ -39,7 +39,6 @@ public class UniqueFieldServiceImpl implements UniqueFieldService {
     public <E, K, R extends JpaRepository<E, K> & JpaSpecificationExecutor<E>> void checkIsFieldValueUniqueOrElseThrow(
             R repository, String fieldName, Object fieldValue
     ) {
-
         if (!isFieldValueUnique(repository, fieldName, fieldValue)) {
             throw new EntityDuplicateException(fieldName, fieldValue.toString());
         }

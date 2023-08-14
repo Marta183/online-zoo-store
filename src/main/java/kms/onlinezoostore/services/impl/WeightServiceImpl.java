@@ -7,8 +7,8 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.WeightRepository;
 import kms.onlinezoostore.utils.UniqueFieldService;
 import kms.onlinezoostore.services.WeightService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,18 +17,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class WeightServiceImpl implements WeightService {
 
     private final WeightRepository weightRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "WEIGHT";
-
-    @Autowired
-    public WeightServiceImpl(WeightRepository weightRepository, UniqueFieldService uniqueFieldService) {
-        this.weightRepository = weightRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
 
     @Override
     public WeightDto findById(Long id) {

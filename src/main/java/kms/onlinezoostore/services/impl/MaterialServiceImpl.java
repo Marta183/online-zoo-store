@@ -7,8 +7,8 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.MaterialRepository;
 import kms.onlinezoostore.services.MaterialService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,18 +17,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "MATERIAL";
-
-    @Autowired
-    public MaterialServiceImpl(MaterialRepository materialRepository, UniqueFieldService uniqueFieldService) {
-        this.materialRepository = materialRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
 
     @Override
     public MaterialDto findById(Long id) {

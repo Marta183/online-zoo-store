@@ -3,7 +3,7 @@ package kms.onlinezoostore.controllers;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -11,15 +11,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = ProductController.REST_URL)
 public class ProductController {
     static final String REST_URL = "/api/v1/products";
     private final ProductService productService;
-
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)

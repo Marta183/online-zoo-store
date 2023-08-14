@@ -7,8 +7,8 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.BrandService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,18 +17,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "BRAND";
-
-    @Autowired
-    public BrandServiceImpl(BrandRepository brandRepository, UniqueFieldService uniqueFieldService) {
-        this.brandRepository = brandRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
 
     @Override
     public BrandDto findById(Long id) {

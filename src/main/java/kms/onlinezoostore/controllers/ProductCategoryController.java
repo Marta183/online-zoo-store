@@ -5,7 +5,7 @@ import kms.onlinezoostore.dto.ProductCategoryDto;
 import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,15 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = ProductCategoryController.REST_URL)
 public class ProductCategoryController {
     static final String REST_URL = "/api/v1/product-categories";
 
-    @Autowired
-    private ProductCategoryService thisService;
-
-    @Autowired
-    private ProductService productService;
+    private final ProductCategoryService thisService;
+    private final ProductService productService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
