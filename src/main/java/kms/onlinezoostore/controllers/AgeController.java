@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = AgeController.REST_URL)
 public class AgeController {
-    static final String REST_URL = "/api/v1/Ages";
+    static final String REST_URL = "/api/v1/ages";
     private final AgeService ageService;
 
     @Autowired

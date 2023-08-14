@@ -2,7 +2,3 @@ services:
   - name: online_zoo_store
     buildCommand: docker build -t online_zoo_store_api .
     startCommand: docker run -p 8088:8088 online_zoo_store_api
-env:
-  DATABASE_URL: jdbc:postgresql://dpg-cj9j4t2vvtos73eoerkg-a.frankfurt-postgres.render.com:5432/online_zoo_store_teamchallenge
-  DATABASE_USERNAME: online_zoo_store_teamchallenge_user
-  DATABASE_PASSWORD: 1ABHA4JQE4WjV189lQc4Uv4DyHobPlLZ
