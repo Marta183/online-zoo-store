@@ -1,17 +1,11 @@
 package kms.onlinezoostore.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Getter
@@ -30,6 +24,15 @@ public class ProductCategory {
     @ManyToOne
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private ProductCategory parent;
+
+//    @OneToOne(mappedBy = "ownerProductCategory", cascade = CascadeType.REMOVE, orphanRemoval = true)
+//    private AttachedFile attachedImage;
+
+//    @OneToOne(mappedBy = "ownerProductCategory", cascade = CascadeType.ALL)
+////    @OneToOne(cascade = CascadeType.ALL)
+////    @JoinColumn(name = "id", referencedColumnName = "owner_entity_id")
+////    @Where(clause = "owner_entity_class = 'ProductCategory'")
+//    private AttachedFile attachedImage;
 
 //    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
 //    @JsonIgnore

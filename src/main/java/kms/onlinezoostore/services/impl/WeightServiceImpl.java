@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class WeightServiceImpl implements WeightService {
-
+    private final WeightMapper weightMapper;
     private final WeightRepository weightRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "WEIGHT";
@@ -29,8 +29,7 @@ public class WeightServiceImpl implements WeightService {
     public WeightDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        WeightDto weightDto = weightRepository.findById(id)
-                .map(WeightMapper.INSTANCE::mapToDto)
+        WeightDto weightDto = weightRepository.findById(id).map(weightMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -41,8 +40,7 @@ public class WeightServiceImpl implements WeightService {
     public List<WeightDto> findAll() {
         log.debug("Finding all {}", ENTITY_CLASS_NAME);
 
-        return weightRepository.findAll()
-                .stream().map(WeightMapper.INSTANCE::mapToDto)
+        return weightRepository.findAll().stream().map(weightMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -53,12 +51,12 @@ public class WeightServiceImpl implements WeightService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", weightDto.getName());
 
-        Weight weight = WeightMapper.INSTANCE.mapToEntity(weightDto);
+        Weight weight = weightMapper.mapToEntity(weightDto);
 
         Weight savedWeight = weightRepository.save(weight);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedWeight.getId());
 
-        return WeightMapper.INSTANCE.mapToDto(savedWeight);
+        return weightMapper.mapToDto(savedWeight);
     }
 
     @Override
@@ -73,7 +71,7 @@ public class WeightServiceImpl implements WeightService {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(weightRepository, "name", updatedWeightDto.getName());
         }
 
-        Weight updatedWeight = WeightMapper.INSTANCE.mapToEntity(updatedWeightDto);
+        Weight updatedWeight = weightMapper.mapToEntity(updatedWeightDto);
         updatedWeight.setId(id);
         weightRepository.save(updatedWeight);
 

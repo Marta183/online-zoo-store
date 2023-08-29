@@ -1,6 +1,7 @@
 package kms.onlinezoostore.controllers;
 
 import jakarta.validation.Valid;
+import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.BrandService;
@@ -9,10 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,5 +72,26 @@ public class BrandController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         brandService.deleteById(id);
+    }
+
+
+    //// IMAGES ////
+
+    @GetMapping("/{id}/image")
+    @ResponseStatus(HttpStatus.OK)
+    public AttachedFileDto findImage(@PathVariable Long id) {
+        return brandService.findImageByOwnerId(id);
+    }
+
+    @PostMapping(value = "/{id}/image")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AttachedFileDto uploadImage(@PathVariable Long id, @RequestParam("image") MultipartFile image) {
+        return brandService.uploadImageByOwnerId(id, image);
+    }
+
+    @DeleteMapping("/{id}/image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllImages(@PathVariable Long id) {
+        brandService.deleteImageByOwnerId(id);
     }
 }

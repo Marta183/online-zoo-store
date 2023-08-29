@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MaterialServiceImpl implements MaterialService {
-
+    private final MaterialMapper materialMapper;
     private final MaterialRepository materialRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "MATERIAL";
@@ -29,8 +29,7 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        MaterialDto materialDto = materialRepository.findById(id)
-                .map(MaterialMapper.INSTANCE::mapToDto)
+        MaterialDto materialDto = materialRepository.findById(id).map(materialMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -41,8 +40,7 @@ public class MaterialServiceImpl implements MaterialService {
     public List<MaterialDto> findAll() {
         log.debug("Finding all {}", ENTITY_CLASS_NAME);
 
-        return materialRepository.findAll()
-                .stream().map(MaterialMapper.INSTANCE::mapToDto)
+        return materialRepository.findAll().stream().map(materialMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -53,12 +51,12 @@ public class MaterialServiceImpl implements MaterialService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", materialDto.getName());
 
-        Material material = MaterialMapper.INSTANCE.mapToEntity(materialDto);
+        Material material = materialMapper.mapToEntity(materialDto);
 
         Material savedMaterial = materialRepository.save(material);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedMaterial.getId());
 
-        return MaterialMapper.INSTANCE.mapToDto(savedMaterial);
+        return materialMapper.mapToDto(savedMaterial);
     }
 
     @Override
@@ -73,7 +71,7 @@ public class MaterialServiceImpl implements MaterialService {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(materialRepository, "name", updatedMaterialDto.getName());
         }
 
-        Material updatedMaterial = MaterialMapper.INSTANCE.mapToEntity(updatedMaterialDto);
+        Material updatedMaterial = materialMapper.mapToEntity(updatedMaterialDto);
         updatedMaterial.setId(id);
         materialRepository.save(updatedMaterial);
 

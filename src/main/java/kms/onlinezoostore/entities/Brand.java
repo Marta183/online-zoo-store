@@ -19,4 +19,8 @@ public class Brand {
 
     @Column(name = "name")
     private String name;
+
+//    @OneToOne(mappedBy = "ownerBrand", cascade = CascadeType.REMOVE, orphanRemoval = true)
+//    @Transient
+//    private AttachedFile attachedImage;
 }

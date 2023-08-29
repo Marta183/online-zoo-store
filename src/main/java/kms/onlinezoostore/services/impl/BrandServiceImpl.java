@@ -1,18 +1,22 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.dto.mappers.BrandMapper;
 import kms.onlinezoostore.entities.Brand;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.BrandService;
+import kms.onlinezoostore.services.files.images.AttachedImageService;
 import kms.onlinezoostore.utils.UniqueFieldService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,17 +24,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BrandServiceImpl implements BrandService {
-
+    private final BrandMapper brandMapper;
     private final BrandRepository brandRepository;
     private final UniqueFieldService uniqueFieldService;
+    private final AttachedImageService attachedImageService;
     private static final String ENTITY_CLASS_NAME = "BRAND";
 
     @Override
     public BrandDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        BrandDto brandDto = brandRepository.findById(id)
-                .map(BrandMapper.INSTANCE::mapToDto)
+        BrandDto brandDto = brandRepository.findById(id).map(brandMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -41,8 +45,7 @@ public class BrandServiceImpl implements BrandService {
     public List<BrandDto> findAll() {
         log.debug("Finding all {}", ENTITY_CLASS_NAME);
 
-        return brandRepository.findAll()
-                .stream().map(BrandMapper.INSTANCE::mapToDto)
+        return brandRepository.findAll().stream().map(brandMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -53,12 +56,12 @@ public class BrandServiceImpl implements BrandService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(brandRepository, "name", brandDto.getName());
 
-        Brand brand = BrandMapper.INSTANCE.mapToEntity(brandDto);
+        Brand brand = brandMapper.mapToEntity(brandDto);
 
         Brand savedbrand = brandRepository.save(brand);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedbrand.getId());
 
-        return BrandMapper.INSTANCE.mapToDto(savedbrand);
+        return brandMapper.mapToDto(savedbrand);
     }
 
     @Override
@@ -72,7 +75,7 @@ public class BrandServiceImpl implements BrandService {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(brandRepository, "name", updatedBrandDto.getName());
         }
 
-        Brand updatedBrand = BrandMapper.INSTANCE.mapToEntity(updatedBrandDto);
+        Brand updatedBrand = brandMapper.mapToEntity(updatedBrandDto);
         updatedBrand.setId(id);
         brandRepository.save(updatedBrand);
 
@@ -84,9 +87,61 @@ public class BrandServiceImpl implements BrandService {
     public void deleteById(Long id) {
         log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        brandRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        BrandDto brandDto = brandRepository.findById(id).map(brandMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        // delete entity
         brandRepository.deleteById(id);
+
+        // delete attached files
+        attachedImageService.deleteAllByOwner(brandDto);
+
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
+    }
+
+
+    //// IMAGES ////
+
+    @Override
+    public AttachedFileDto findImageByOwnerId(Long id) {
+        // log
+        BrandDto brandDto = brandRepository.findById(id)
+                .map(brandMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
+        AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(brandDto);
+        // log
+        return attachedFileDto;
+    }
+
+    @Override
+    @Transactional
+    public AttachedFileDto uploadImageByOwnerId(Long id, MultipartFile image) {
+        // log
+        BrandDto brandDto = brandRepository.findById(id)
+                .map(brandMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
+        // delete existing image //TODO: rewrite with one method in the repo
+        AttachedFileDto existingImage = attachedImageService.findFirstByOwner(brandDto);
+        if (Objects.nonNull(existingImage)) {
+            // log
+            attachedImageService.deleteAllByOwner(brandDto);
+        }
+        // upload new image
+        AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(brandDto, image);
+        // log
+        return uploadedImage;
+    }
+
+    @Override
+    @Transactional
+    public void deleteImageByOwnerId(Long id) {
+        // log
+        BrandDto brandDto = brandRepository.findById(id)
+                .map(brandMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+
+        attachedImageService.deleteAllByOwner(brandDto);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @AllArgsConstructor
-public class ProductDto {
+public class ProductDto implements AttachedImageOwner {
 
     private final Long id;
 
@@ -24,6 +25,13 @@ public class ProductDto {
     @NotNull(message = "Price should not be empty.")
     @DecimalMin(value = "0.00", inclusive = false, message = "Price should be greater than 0.")
     private final Double price;
+
+    private final AttachedFileDto mainImage;
+//    private final String mainImagePath; // TODO: consider it instead of mainImageId
+//    private final Long mainImageId;
+
+
+//    private final Set<AttachedFileDto> attachedImages;
 
     @NotNull(message = "Category should not be empty.")
     private final ProductCategoryDto category;
@@ -42,4 +50,9 @@ public class ProductDto {
     private final boolean notAvailable;
 
     private final LocalDateTime createdAt;
+
+    @Override
+    public String getImageOwnerClassName() {
+        return "Product";
+    }
 }

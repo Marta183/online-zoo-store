@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityDuplicateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public ErrorMessage handleEntityDuplicateException(EntityDuplicateException ex) {
+    protected ErrorMessage handleEntityDuplicateException(EntityDuplicateException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage("Duplicate value! " + ex.getMessage());
     }
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
-    public ErrorMessage handleEntityNotFoundException(EntityNotFoundException ex) {
+    protected ErrorMessage handleEntityNotFoundException(EntityNotFoundException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage("Not exists in DB: " + ex.getMessage());
     }
@@ -28,16 +28,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ErrorMessage DataIntegrityViolationException(DataIntegrityViolationException ex) {
+    protected ErrorMessage DataIntegrityViolationException(DataIntegrityViolationException ex) {
         log.error(ex.getMessage());
         return new ErrorMessage("Data integrity violation: " + ex.getMessage());
     }
 
     @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ErrorMessage handleUnhandledException(Throwable ex) {
+    protected ErrorMessage handleUnhandledException(Throwable ex) {
+        log.info("Fatal exception ===> {}", ex);
         log.error(ex.getMessage());
-        return new ErrorMessage(ex.getMessage());
+        return new ErrorMessage("We apologize. Something is not right");
     }
 }

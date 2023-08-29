@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ColorServiceImpl implements ColorService {
-
+    private final ColorMapper colorMapper;
     private final ColorRepository colorRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "COLOR";
@@ -29,8 +29,7 @@ public class ColorServiceImpl implements ColorService {
     public ColorDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        ColorDto colorDto = colorRepository.findById(id)
-                .map(ColorMapper.INSTANCE::mapToDto)
+        ColorDto colorDto = colorRepository.findById(id).map(colorMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -41,8 +40,7 @@ public class ColorServiceImpl implements ColorService {
     public List<ColorDto> findAll() {
         log.debug("Finding all {}", ENTITY_CLASS_NAME);
 
-        return colorRepository.findAll()
-                .stream().map(ColorMapper.INSTANCE::mapToDto)
+        return colorRepository.findAll().stream().map(colorMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -53,12 +51,12 @@ public class ColorServiceImpl implements ColorService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", colorDto.getName());
 
-        Color color = ColorMapper.INSTANCE.mapToEntity(colorDto);
+        Color color = colorMapper.mapToEntity(colorDto);
 
         Color savedColor = colorRepository.save(color);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedColor.getId());
 
-        return ColorMapper.INSTANCE.mapToDto(savedColor);
+        return colorMapper.mapToDto(savedColor);
     }
 
     @Override
@@ -72,7 +70,7 @@ public class ColorServiceImpl implements ColorService {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(colorRepository, "name", updatedColorDto.getName());
         }
         
-        Color updatedColor = ColorMapper.INSTANCE.mapToEntity(updatedColorDto);
+        Color updatedColor = colorMapper.mapToEntity(updatedColorDto);
         updatedColor.setId(id);
         colorRepository.save(updatedColor);
 
