@@ -1,5 +1,6 @@
 package kms.onlinezoostore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
@@ -19,9 +20,8 @@ public class ProductCategoryDto implements AttachedImageOwner {
 
     private final ProductCategoryDto parent;
 
-//    private final AttachedFileDto attachedImage;
-
     @Override
+    @JsonIgnore
     public String getImageOwnerClassName() {
         return "ProductCategory";
     }

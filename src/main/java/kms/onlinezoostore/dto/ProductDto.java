@@ -27,11 +27,6 @@ public class ProductDto implements AttachedImageOwner {
     private final Double price;
 
     private final AttachedFileDto mainImage;
-//    private final String mainImagePath; // TODO: consider it instead of mainImageId
-//    private final Long mainImageId;
-
-
-//    private final Set<AttachedFileDto> attachedImages;
 
     @NotNull(message = "Category should not be empty.")
     private final ProductCategoryDto category;

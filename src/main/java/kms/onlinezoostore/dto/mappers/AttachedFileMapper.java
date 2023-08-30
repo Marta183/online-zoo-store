@@ -9,12 +9,4 @@ import org.mapstruct.MappingConstants.ComponentModel;
 public interface AttachedFileMapper {
     AttachedFileDto mapToDto(AttachedFile entity);
     AttachedFile mapToEntity(AttachedFileDto dto);
-
-//    @Mapping(target = "owner.id", source = "entity.ownerId")
-//    @Mapping(target = "owner.ownerClassName", source = "entity.ownerClass")
-//    AttachedFileDto mapToDtoWithOwner(AttachedFile entity);
-
-//    @Mapping(target = "ownerId", source = "dto.owner.id")
-//    @Mapping(target = "ownerClass", source = "dto.owner.ownerClassName")
-//    AttachedFile toEntityWithOwner(AttachedFileDto dto);
 }

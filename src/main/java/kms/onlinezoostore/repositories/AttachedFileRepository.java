@@ -14,6 +14,4 @@ public interface AttachedFileRepository extends JpaRepository<AttachedFile, Long
     List<AttachedFile> findAllByOwnerIdAndOwnerClass(Long ownerId, String ownerClass);
 
     Optional<AttachedFile> findByIdAndOwnerIdAndOwnerClass(Long imageId, Long ownerId, String ownerClass);
-
-//    Optional<AttachedFile> findByFilePathAndOwnerIdAndOwnerClass(String filePath, Long ownerId, String ownerClass);
 }

@@ -1,13 +1,18 @@
 package kms.onlinezoostore.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -35,20 +40,4 @@ public class AttachedFile {
     @NotBlank(message = "Owner class should not be empty")
     @Column(name = "owner_class", nullable = false)
     private String ownerClass;
-
-
-//    @ManyToOne
-//    @JoinColumn(name="owner_entity_id", referencedColumnName="id")
-//    @Where(clause = "owner_entity_class = 'Product'")
-//    private Product ownerProduct;
-//
-//    @OneToOne
-//    @JoinColumn(name="owner_entity_id", referencedColumnName="id")
-//    @Where(clause = "owner_entity_class = 'ProductCategory'")
-//    private ProductCategory ownerProductCategory;
-//
-//    @OneToOne
-//    @JoinColumn(name="owner_entity_id", referencedColumnName="id")
-//    @Where(clause = "owner_entity_class = 'Brand'")
-//    private Brand ownerBrand;
 }

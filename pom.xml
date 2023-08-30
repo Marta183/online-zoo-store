@@ -38,6 +38,7 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- SPRING BOOT -->
@@ -153,7 +154,6 @@
           </configuration>
         </plugin>
 
-<!--        TODO: проверить, попадут ли депенденси без этого плагина в джар файл-->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>

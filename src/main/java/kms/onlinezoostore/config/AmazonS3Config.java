@@ -26,7 +26,7 @@ public class AmazonS3Config {
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
         return AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.EU_CENTRAL_1) //region) // TODO:
+                .withRegion(Regions.valueOf(region))
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
     }

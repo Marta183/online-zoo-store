@@ -65,12 +65,6 @@ public class ProductCategoryController {
         return productService.findPageByMultipleCriteria(params, pageable);
     }
 
-//    @GetMapping("/{categoryId}/products/max-price")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<Product> findMaxProductPriceByCategoryId(@PathVariable Long categoryId) {
-//        return
-//    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductCategoryDto create(@RequestBody @Valid ProductCategoryDto productCategoryDto) { //}, BindingResult bindingResult) {

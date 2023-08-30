@@ -5,6 +5,8 @@ import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.dto.mappers.BrandMapper;
 import kms.onlinezoostore.entities.Brand;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
+import kms.onlinezoostore.exceptions.files.FileNotFoundException;
+import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.BrandService;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -92,11 +94,11 @@ public class BrandServiceImpl implements BrandService {
 
         // delete entity
         brandRepository.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
 
         // delete attached files
         attachedImageService.deleteAllByOwner(brandDto);
-
-        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
+        log.debug("Deleted image for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
 
@@ -104,44 +106,52 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public AttachedFileDto findImageByOwnerId(Long id) {
-        // log
+        log.debug("Finding image by {} ID {}", ENTITY_CLASS_NAME, id);
+
         BrandDto brandDto = brandRepository.findById(id)
                 .map(brandMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(brandDto);
-        // log
+        log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
+
         return attachedFileDto;
     }
 
     @Override
     @Transactional
     public AttachedFileDto uploadImageByOwnerId(Long id, MultipartFile image) {
-        // log
+        log.debug("Uploading image for {} ID {}", ENTITY_CLASS_NAME, id);
+
         BrandDto brandDto = brandRepository.findById(id)
                 .map(brandMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        // delete existing image //TODO: rewrite with one method in the repo
-        AttachedFileDto existingImage = attachedImageService.findFirstByOwner(brandDto);
-        if (Objects.nonNull(existingImage)) {
-            // log
+        // delete existing image
+        log.debug("Replacing existing image for {} ID {}", ENTITY_CLASS_NAME, id);
+        try {
             attachedImageService.deleteAllByOwner(brandDto);
+        } catch (FileNotFoundException ex) {
+            throw new FileUploadException("Cannot replace an existing image because of: " + ex.getMessage());
         }
+
         // upload new image
         AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(brandDto, image);
-        // log
+        log.debug("Uploaded new image with ID {} for {} ID {}", uploadedImage.getId(), ENTITY_CLASS_NAME, id);
+
         return uploadedImage;
     }
 
     @Override
     @Transactional
     public void deleteImageByOwnerId(Long id) {
-        // log
+        log.debug("Deleting all images for {} ID {}", ENTITY_CLASS_NAME, id);
+
         BrandDto brandDto = brandRepository.findById(id)
                 .map(brandMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         attachedImageService.deleteAllByOwner(brandDto);
+        log.debug("Deleted all images for {} ID {}", ENTITY_CLASS_NAME, id);
     }
 }

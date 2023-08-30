@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -131,7 +132,8 @@ public class ProductServiceImpl implements ProductService {
         AttachedFile newMainImage = attachedFileMapper.mapToEntity(updatedProductDto.getMainImage());
         AttachedFile oldMainImage = existingProduct.getMainImage();
         if (!newMainImage.equals(oldMainImage)) {
-            // log
+            log.debug("Main image has changed for {} with ID {}:\n old image ID {}\n new image ID {}",
+                        ENTITY_CLASS_NAME, id, newMainImage.getId(), oldMainImage.getId());
             // make sure that new mainImage's owner is current product
             attachedImageService.findByIdAndOwner(newMainImage.getId(), productMapper.mapToDto(existingProduct)); // attachedImageService.findByFilePathAndOwner(newMainImagePath, updatedProductDto);
         }
@@ -155,11 +157,11 @@ public class ProductServiceImpl implements ProductService {
 
         // delete entity
         productRep.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
 
         // delete attached files
         attachedImageService.deleteAllByOwner(existingProductDto);
-
-        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
+        log.debug("Deleted images for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
     private void processParamsForCriteriaBuilder(MultiValueMap<String, String> params) {
@@ -195,63 +197,78 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Set<AttachedFileDto> findAllImagesByOwnerId(Long productId) {
-        // log
+        log.debug("Finding all images by {} ID {}", ENTITY_CLASS_NAME, productId);
+
         ProductDto productDto = productRep.findById(productId)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
-        Set<AttachedFileDto>  attachedFilesDto = attachedImageService.findAllByOwner(productDto);
-        // log
+        Set<AttachedFileDto> attachedFilesDto = attachedImageService.findAllByOwner(productDto);
+
+        log.debug("Found {} images by {} ID {}", attachedFilesDto.size(), ENTITY_CLASS_NAME, productId);
         return attachedFilesDto;
     }
 
     @Override
     public AttachedFileDto findImageByIdAndOwnerId(Long productId, Long imageId) {
-        // log
+        log.debug("Finding image by ID {} by {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
+
         ProductDto productDto = productRep.findById(productId)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         AttachedFileDto attachedFileDto = attachedImageService.findByIdAndOwner(imageId, productDto);
-        // log
+
+        log.debug("Found image by ID {} by {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
         return attachedFileDto;
     }
 
     @Override
     @Transactional
     public Set<AttachedFileDto> uploadImagesByOwnerId(Long productId, List<MultipartFile> images) {
-        // log
+        log.debug("Uploading {} images for {} ID {}", images.size(), ENTITY_CLASS_NAME, productId);
+
         ProductDto productDto = productRep.findById(productId)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         Set<AttachedFileDto> uploadedImages = attachedImageService.uploadFilesByOwner(productDto, images);
-        // log
+
+        log.debug("Uploaded for {} ID {} images with IDs {}", ENTITY_CLASS_NAME, productId,
+                uploadedImages.stream().map(AttachedFileDto::getId).collect(Collectors.toList()));
+
         return uploadedImages;
     }
 
     @Override
     @Transactional
     public void deleteAllImagesByOwnerId(Long productId) {
-        // log
+        log.debug("Deleting all images for {} ID {}", ENTITY_CLASS_NAME, productId);
+
         Product product = productRep.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         product.setMainImage(null);
 
         attachedImageService.deleteAllByOwner(productMapper.mapToDto(product));
+
+        log.debug("Deleted all images for {} ID {}", ENTITY_CLASS_NAME, productId);
     }
 
     @Override
     @Transactional
     public void deleteImageByIdAndOwnerId(Long productId, Long imageId) {
-        // log
+        log.debug("Deleting image by ID {} for {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
+
         Product product = productRep.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         if (Objects.nonNull(product.getMainImage()) && product.getMainImage().getId() == imageId) {
+            log.debug("Found image by ID {} for {} ID {} is the main image. Deleting main image", imageId, ENTITY_CLASS_NAME, productId);
             product.setMainImage(null);
         }
         attachedImageService.deleteByIdAndOwner(imageId, productMapper.mapToDto(product));
+
+        log.debug("Deleted image by ID {} for {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
     }
 }

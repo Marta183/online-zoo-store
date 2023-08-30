@@ -1,7 +1,9 @@
 package kms.onlinezoostore.dto;
 
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
 import java.util.Objects;
@@ -16,17 +18,12 @@ public class AttachedFileDto {
     @Size(max = 255, message = "File path should be less then 255 characters.")
     private final String filePath;
 
-//    @Size(max = 100, message = "File name should be less then 100 characters.")
-//    private final String fileName;
-//
-//    private final AttachedImageOwnerImpl_DELETE owner; // TODO: rewrite to the factory method
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AttachedFileDto that = (AttachedFileDto) o;
+        // using both fields as filePath shouldn't be changed for particular id
         return Objects.equals(getId(), that.getId())
                 && Objects.equals(getFilePath(), that.getFilePath());
     }

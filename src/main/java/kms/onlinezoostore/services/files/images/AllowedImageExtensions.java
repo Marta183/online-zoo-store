@@ -9,6 +9,7 @@ public enum AllowedImageExtensions {
     BMP;
 
     public static String valuesAsString() {
-        return String.join(", ", Arrays.stream(values()).map(AllowedImageExtensions::name).toArray(String[]::new));
+        return String.join(", ", Arrays.stream(values()).map(AllowedImageExtensions::name)
+                .toArray(String[]::new));
     }
 }

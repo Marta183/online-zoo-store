@@ -60,6 +60,12 @@ public class ProductController {
         productService.deleteById(id);
     }
 
+//    @GetMapping("/max-price")
+//    @ResponseStatus(HttpStatus.OK)
+//    public List<Product> findMaxProductPrice(@PathVariable Long categoryId) {
+//        return
+//    }
+
 
     //// IMAGES ////
 

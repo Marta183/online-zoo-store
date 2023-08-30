@@ -6,6 +6,8 @@ import kms.onlinezoostore.dto.mappers.ProductCategoryMapper;
 import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
+import kms.onlinezoostore.exceptions.files.FileNotFoundException;
+import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -113,11 +115,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         // delete entity
         categoryRepository.deleteById(id);
+        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
 
         // delete attached files
         attachedImageService.deleteAllByOwner(existingCategoryDto);
-
-        log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
+        log.debug("Deleted image for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
     private void checkUniqueNameWithinParentCategory(ProductCategoryDto categoryDto) {
@@ -145,45 +147,52 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public AttachedFileDto findImageByOwnerId(Long id) {
-        // log
+        log.debug("Finding image by {} ID {}", ENTITY_CLASS_NAME, id);
+
         ProductCategoryDto productCategoryDto = categoryRepository.findById(id)
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(productCategoryDto);
-        // log
+        log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
+
         return attachedFileDto;
     }
 
     @Override
     @Transactional
     public AttachedFileDto uploadImageByOwnerId(Long id, MultipartFile image) {
-        // log
+        log.debug("Uploading image for {} ID {}", ENTITY_CLASS_NAME, id);
+
         ProductCategoryDto productCategoryDto = categoryRepository.findById(id)
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         // delete existing image
-        AttachedFileDto existingImage = attachedImageService.findFirstByOwner(productCategoryDto);
-        if (Objects.nonNull(existingImage)) {
-            // log
+        log.debug("Replacing existing image for {} ID {}", ENTITY_CLASS_NAME, id);
+        try {
             attachedImageService.deleteAllByOwner(productCategoryDto);
+        } catch (FileNotFoundException ex) {
+            throw new FileUploadException("Cannot replace an existing image because of: " + ex.getMessage());
         }
 
         // upload new image
         AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(productCategoryDto, image);
-        // log
+        log.debug("Uploaded new image with ID {} for {} ID {}", uploadedImage.getId(), ENTITY_CLASS_NAME, id);
+
         return uploadedImage;
     }
 
     @Override
     @Transactional
     public void deleteImageByOwnerId(Long id) {
-        // log
+        log.debug("Deleting all images for {} ID {}", ENTITY_CLASS_NAME, id);
+
         ProductCategoryDto productCategoryDto = categoryRepository.findById(id)
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         attachedImageService.deleteAllByOwner(productCategoryDto);
+        log.debug("Deleted all images for {} ID {}", ENTITY_CLASS_NAME, id);
     }
 }
