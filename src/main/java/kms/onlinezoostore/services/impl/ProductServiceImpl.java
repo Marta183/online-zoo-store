@@ -1,47 +1,48 @@
 package kms.onlinezoostore.services.impl;
 
+import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ProductDto;
+import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.dto.mappers.ProductMapper;
+import kms.onlinezoostore.entities.AttachedFile;
 import kms.onlinezoostore.entities.Product;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.repositories.specifications.ProductSpecifications;
 import kms.onlinezoostore.services.ProductService;
+import kms.onlinezoostore.services.files.images.AttachedImageService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
-
+    private final ProductMapper productMapper;
     private final ProductRepository productRep;
+    private final AttachedFileMapper attachedFileMapper;
+    private final AttachedImageService attachedImageService;
     private final UniqueFieldService uniqueFieldService;
+
     private static final String ENTITY_CLASS_NAME = "PRODUCT";
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, UniqueFieldService uniqueFieldService) {
-        this.productRep = productRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
-
     @Override
-
     public ProductDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
         ProductDto productDto = productRep.findById(id)
-                .map(ProductMapper.INSTANCE::mapToDto)
+                .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -54,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<ProductDto> page =  productRep.findAll(pageable)
-                .map(ProductMapper.INSTANCE::mapToDto);
+                .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
@@ -66,7 +67,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<ProductDto> page =  productRep.findAllByCategoryId(categoryId, pageable)
-                .map(ProductMapper.INSTANCE::mapToDto);
+                .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
@@ -78,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<ProductDto> page =  productRep.findAllByBrandId(brandId, pageable)
-                .map(ProductMapper.INSTANCE::mapToDto);
+                .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
@@ -92,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
         processParamsForCriteriaBuilder(params);
 
         Page<ProductDto> page = productRep.findAll(ProductSpecifications.build(params), pageable)
-                .map(ProductMapper.INSTANCE::mapToDto);
+                .map(productMapper::mapToDto);
 
         log.debug("Found {} page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
@@ -105,12 +106,14 @@ public class ProductServiceImpl implements ProductService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", productDto.getName());
 
-        Product product = ProductMapper.INSTANCE.mapToEntity(productDto);
+        // saving entity
+        Product product = productMapper.mapToEntity(productDto);
+        product.setMainImage(null);
 
         Product savedProduct = productRep.save(product);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedProduct.getId());
 
-        return ProductMapper.INSTANCE.mapToDto(savedProduct);
+        return productMapper.mapToDto(savedProduct);
     }
 
     @Override
@@ -120,15 +123,26 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        // check unique name
         if (!existingProduct.getName().equals(updatedProductDto.getName())) {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", updatedProductDto.getName());
         }
 
-        Product updatedProduct = ProductMapper.INSTANCE.mapToEntity(updatedProductDto);
+        // control main image
+        AttachedFile newMainImage = attachedFileMapper.mapToEntity(updatedProductDto.getMainImage());
+        AttachedFile oldMainImage = existingProduct.getMainImage();
+        if (!newMainImage.equals(oldMainImage)) {
+            log.debug("Main image has changed for {} with ID {}:\n old image ID {}\n new image ID {}",
+                        ENTITY_CLASS_NAME, id, newMainImage.getId(), oldMainImage.getId());
+            // make sure that new mainImage's owner is current product
+            attachedImageService.findByIdAndOwner(newMainImage.getId(), productMapper.mapToDto(existingProduct)); // attachedImageService.findByFilePathAndOwner(newMainImagePath, updatedProductDto);
+        }
 
-        updatedProduct.setId(id);
-        updatedProduct.setCreatedAt(existingProduct.getCreatedAt());
-        productRep.save(updatedProduct);
+        // saving entity
+        Product productToUpdate = productMapper.mapToEntity(updatedProductDto);
+        productToUpdate.setId(id);
+        productToUpdate.setCreatedAt(existingProduct.getCreatedAt());
+        productRep.save(productToUpdate);
 
         log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
     }
@@ -138,10 +152,16 @@ public class ProductServiceImpl implements ProductService {
     public void deleteById(Long id) {
         log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        ProductDto existingProductDto = productRep.findById(id).map(productMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        // delete entity
         productRep.deleteById(id);
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
+
+        // delete attached files
+        attachedImageService.deleteAllByOwner(existingProductDto);
+        log.debug("Deleted images for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
     private void processParamsForCriteriaBuilder(MultiValueMap<String, String> params) {
@@ -170,5 +190,85 @@ public class ProductServiceImpl implements ProductService {
                 mapIterator.remove(); // remove map.entry
             }
         }
+    }
+
+
+    //// IMAGES ////
+
+    @Override
+    public Set<AttachedFileDto> findAllImagesByOwnerId(Long productId) {
+        log.debug("Finding all images by {} ID {}", ENTITY_CLASS_NAME, productId);
+
+        ProductDto productDto = productRep.findById(productId)
+                .map(productMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
+
+        Set<AttachedFileDto> attachedFilesDto = attachedImageService.findAllByOwner(productDto);
+
+        log.debug("Found {} images by {} ID {}", attachedFilesDto.size(), ENTITY_CLASS_NAME, productId);
+        return attachedFilesDto;
+    }
+
+    @Override
+    public AttachedFileDto findImageByIdAndOwnerId(Long productId, Long imageId) {
+        log.debug("Finding image by ID {} by {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
+
+        ProductDto productDto = productRep.findById(productId)
+                .map(productMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
+
+        AttachedFileDto attachedFileDto = attachedImageService.findByIdAndOwner(imageId, productDto);
+
+        log.debug("Found image by ID {} by {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
+        return attachedFileDto;
+    }
+
+    @Override
+    @Transactional
+    public Set<AttachedFileDto> uploadImagesByOwnerId(Long productId, List<MultipartFile> images) {
+        log.debug("Uploading {} images for {} ID {}", images.size(), ENTITY_CLASS_NAME, productId);
+
+        ProductDto productDto = productRep.findById(productId)
+                .map(productMapper::mapToDto)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
+
+        Set<AttachedFileDto> uploadedImages = attachedImageService.uploadFilesByOwner(productDto, images);
+
+        log.debug("Uploaded for {} ID {} images with IDs {}", ENTITY_CLASS_NAME, productId,
+                uploadedImages.stream().map(AttachedFileDto::getId).collect(Collectors.toList()));
+
+        return uploadedImages;
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllImagesByOwnerId(Long productId) {
+        log.debug("Deleting all images for {} ID {}", ENTITY_CLASS_NAME, productId);
+
+        Product product = productRep.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
+
+        product.setMainImage(null);
+
+        attachedImageService.deleteAllByOwner(productMapper.mapToDto(product));
+
+        log.debug("Deleted all images for {} ID {}", ENTITY_CLASS_NAME, productId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImageByIdAndOwnerId(Long productId, Long imageId) {
+        log.debug("Deleting image by ID {} for {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
+
+        Product product = productRep.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
+
+        if (Objects.nonNull(product.getMainImage()) && product.getMainImage().getId() == imageId) {
+            log.debug("Found image by ID {} for {} ID {} is the main image. Deleting main image", imageId, ENTITY_CLASS_NAME, productId);
+            product.setMainImage(null);
+        }
+        attachedImageService.deleteByIdAndOwner(imageId, productMapper.mapToDto(product));
+
+        log.debug("Deleted image by ID {} for {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
     }
 }

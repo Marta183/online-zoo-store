@@ -1,14 +1,14 @@
 package kms.onlinezoostore.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,11 +33,7 @@ public class ProductCategory {
 
 //    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
 //    @JsonIgnore
-//    private List<ProductCategory> innerCategories;
-//
-//    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    private List<Product> products;
+//    private List<ProductCategory> innerCategories; //TODO: use it
 
 //    @Transient
 //    private Double maxPrice;

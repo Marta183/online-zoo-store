@@ -3,22 +3,18 @@ package kms.onlinezoostore.controllers;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.WeightDto;
 import kms.onlinezoostore.services.WeightService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = WeightController.REST_URL)
 public class WeightController {
     static final String REST_URL = "/api/v1/weights";
     private final WeightService weightService;
-
-    @Autowired
-    public WeightController(WeightService weightService) {
-        this.weightService = weightService;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

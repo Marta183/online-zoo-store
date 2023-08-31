@@ -1,7 +1,9 @@
 package kms.onlinezoostore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -9,7 +11,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-public class ProductCategoryDto {
+public class ProductCategoryDto implements AttachedImageOwner {
     private final Long id;
 
     @NotBlank(message = "Name should not be empty")
@@ -17,4 +19,10 @@ public class ProductCategoryDto {
     private final String name;
 
     private final ProductCategoryDto parent;
+
+    @Override
+    @JsonIgnore
+    public String getImageOwnerClassName() {
+        return "ProductCategory";
+    }
 }

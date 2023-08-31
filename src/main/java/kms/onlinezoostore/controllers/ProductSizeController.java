@@ -3,22 +3,19 @@ package kms.onlinezoostore.controllers;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.ProductSizeDto;
 import kms.onlinezoostore.services.ProductSizeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = ProductSizeController.REST_URL)
 public class ProductSizeController {
     static final String REST_URL = "/api/v1/product-sizes";
     private final ProductSizeService productSizeService;
 
-    @Autowired
-    public ProductSizeController(ProductSizeService productSizeService) {
-        this.productSizeService = productSizeService;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

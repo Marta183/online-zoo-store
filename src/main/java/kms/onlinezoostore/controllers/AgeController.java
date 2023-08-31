@@ -3,22 +3,18 @@ package kms.onlinezoostore.controllers;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.AgeDto;
 import kms.onlinezoostore.services.AgeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = AgeController.REST_URL)
 public class AgeController {
     static final String REST_URL = "/api/v1/ages";
     private final AgeService ageService;
-
-    @Autowired
-    public AgeController(AgeService ageService) {
-        this.ageService = ageService;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

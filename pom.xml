@@ -22,6 +22,7 @@
 
     <start-class>kms.onlinezoostore.SpringBootApp</start-class>
 
+    <amazonaws.version>1.12.528</amazonaws.version>
     <liquibase.version>4.23.0</liquibase.version>
     <lombok.version>1.18.28</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -37,6 +38,7 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- SPRING BOOT -->
@@ -86,12 +88,14 @@
       <version>${jackson.version}</version>
     </dependency>
 
+    <!-- MAPSTRUCT -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
     </dependency>
 
+    <!-- LOMBOK -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -99,10 +103,25 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- LIQUIBASE -->
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
       <version>${liquibase.version}</version>
+    </dependency>
+
+    <!-- AMAZON S3 -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>${amazonaws.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-bom</artifactId>
+      <version>${amazonaws.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
     </dependency>
 
   </dependencies>

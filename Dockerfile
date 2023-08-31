@@ -11,7 +11,7 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jdk-alpine
 COPY --from=build /target/online-zoo-store-api.jar online-zoo-store-api.jar
 EXPOSE 8088
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "online-zoo-store-api.jar"]
+CMD ["java", "-jar", "online-zoo-store-api.jar"]
 
 #FROM openjdk:11-jre-slim
 #WORKDIR /app

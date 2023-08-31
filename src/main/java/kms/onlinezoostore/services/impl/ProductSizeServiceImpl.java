@@ -7,8 +7,8 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ProductSizeRepository;
 import kms.onlinezoostore.services.ProductSizeService;
 import kms.onlinezoostore.utils.UniqueFieldService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,25 +17,20 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductSizeServiceImpl implements ProductSizeService {
+    private final ProductSizeMapper productSizeMapper;
 
     private final ProductSizeRepository productSizeRepository;
     private final UniqueFieldService uniqueFieldService;
     private static final String ENTITY_CLASS_NAME = "PRODUCT_SIZE";
 
-    @Autowired
-    public ProductSizeServiceImpl(ProductSizeRepository productSizeRepository, UniqueFieldService uniqueFieldService) {
-        this.productSizeRepository = productSizeRepository;
-        this.uniqueFieldService = uniqueFieldService;
-    }
-
     @Override
     public ProductSizeDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        ProductSizeDto sizeDto = productSizeRepository.findById(id)
-                .map(ProductSizeMapper.INSTANCE::mapToDto)
+        ProductSizeDto sizeDto = productSizeRepository.findById(id).map(productSizeMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         log.debug("Found {} by ID {}", ENTITY_CLASS_NAME, id);
@@ -47,7 +42,7 @@ public class ProductSizeServiceImpl implements ProductSizeService {
         log.debug("Finding all {}", ENTITY_CLASS_NAME);
 
         return productSizeRepository.findAll()
-                .stream().map(ProductSizeMapper.INSTANCE::mapToDto)
+                .stream().map(productSizeMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -58,12 +53,12 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", productSizeDto.getName());
 
-        ProductSize productSize = ProductSizeMapper.INSTANCE.mapToEntity(productSizeDto);
+        ProductSize productSize = productSizeMapper.mapToEntity(productSizeDto);
 
         ProductSize savedProductSize = productSizeRepository.save(productSize);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedProductSize.getId());
 
-        return ProductSizeMapper.INSTANCE.mapToDto(savedProductSize);
+        return productSizeMapper.mapToDto(savedProductSize);
     }
 
     @Override
@@ -78,7 +73,7 @@ public class ProductSizeServiceImpl implements ProductSizeService {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productSizeRepository, "name", updatedSizeDto.getName());
         }
 
-        ProductSize updatedSize = ProductSizeMapper.INSTANCE.mapToEntity(updatedSizeDto);
+        ProductSize updatedSize = productSizeMapper.mapToEntity(updatedSizeDto);
         updatedSize.setId(id);
         productSizeRepository.save(updatedSize);
 
