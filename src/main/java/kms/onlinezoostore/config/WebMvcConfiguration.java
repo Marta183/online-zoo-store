@@ -10,13 +10,13 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry
-                .addMapping("/*")
-                .allowedOrigins("*")
-                .allowCredentials(false)
+                .addMapping("/**")
+                .allowedOrigins("https://thunderous-pie-a8e8fd.netlify.app")
+                .allowCredentials(true)
                 .allowedHeaders("*")
                 .exposedHeaders("*")
                 .allowedMethods("*")
-                .maxAge(60*30)
+                .maxAge(3600)
                 ;
     }
 }
