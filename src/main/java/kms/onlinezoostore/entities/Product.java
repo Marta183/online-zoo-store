@@ -72,10 +72,18 @@ public class Product {
     @JoinColumn(name = "size_id", referencedColumnName = "id")
     private ProductSize productSize;
 
+    @ManyToOne
+    @JoinColumn(name = "prescription_id", referencedColumnName = "id")
+    private Prescription prescription;
+
     @Column(name = "description")
     private String description;
-    @Column(name = "prescription")
-    private String prescription;
+
+    @Column(name = "instructions")
+    private String instructions;
+
+    @Column(name = "contraindications")
+    private String contraindications;
 
     @Column(name = "new_arrival")
     private boolean newArrival;

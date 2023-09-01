@@ -13,11 +13,6 @@ public class ProductSpecifications {
                 -> criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + namePart.trim().toLowerCase() + "%");
     }
 
-    private static Specification<Product> prescriptionLike(String prescriptionPart) {
-        return (root, criteriaQuery, criteriaBuilder)
-                -> criteriaBuilder.like(criteriaBuilder.lower(root.get("prescription")), "%" + prescriptionPart.trim().toLowerCase() + "%");
-    }
-
     private static Specification<Product> nameStartingWith(String nameStartingWith) {
         return (root, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), nameStartingWith.toLowerCase() + "%");
@@ -83,6 +78,11 @@ public class ProductSpecifications {
                 -> criteriaBuilder.in(root.get("age").get("id")).value(ageIds);
     }
 
+    private static Specification<Product> hasPrescriptions(List<String> prescriptionIds) {
+        return (root, criteriaQuery, criteriaBuilder)
+                -> criteriaBuilder.in(root.get("prescription").get("id")).value(prescriptionIds);
+    }
+
     private static Specification<Product> init() {
         return (root, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.isTrue(criteriaBuilder.literal(true));
@@ -96,10 +96,6 @@ public class ProductSpecifications {
 
         if (params.containsKey("nameLike")) {
             spec = Specification.where(spec).and(ProductSpecifications.nameLike(params.getFirst("nameLike")));
-        }
-
-        if (params.containsKey("prescriptionLike")) {
-            spec = Specification.where(spec).and(ProductSpecifications.prescriptionLike(params.getFirst("prescriptionLike")));
         }
 
         if (params.containsKey("nameStartsWith")) {
@@ -147,6 +143,10 @@ public class ProductSpecifications {
 
         if (params.containsKey("ageId")) {
             spec = Specification.where(spec).and(ProductSpecifications.hasAges(params.get("ageId")));
+        }
+
+        if (params.containsKey("prescriptionId")) {
+            spec = Specification.where(spec).and(ProductSpecifications.hasPrescriptions(params.get("prescriptionId")));
         }
 
         return spec;

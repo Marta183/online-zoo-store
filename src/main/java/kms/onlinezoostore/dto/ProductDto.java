@@ -1,10 +1,12 @@
 package kms.onlinezoostore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import kms.onlinezoostore.entities.Prescription;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,9 +40,11 @@ public class ProductDto implements AttachedImageOwner {
     private final AgeDto age;
     private final WeightDto weight;
     private final ProductSizeDto productSize;
+    private final PrescriptionDto prescription;
 
     private final String description;
-    private final String prescription;
+    private final String instructions;
+    private final String contraindications;
 
     private final boolean newArrival;
     private final boolean notAvailable;
