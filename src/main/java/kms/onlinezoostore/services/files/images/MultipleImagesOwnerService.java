@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Set;
 
-public interface AttachedImagesOwnerService {
+public interface MultipleImagesOwnerService {
 
     Set<AttachedFileDto> findAllImagesByOwnerId(Long ownerId);
 

@@ -166,6 +166,7 @@ public class ProductServiceImpl implements ProductService {
 
     private void processParamsForCriteriaBuilder(MultiValueMap<String, String> params) {
         log.debug("Processing {} params for criteria builder", ENTITY_CLASS_NAME);
+
         deleteInvalidParams(params);
 
         if (params.containsKey("minPrice")

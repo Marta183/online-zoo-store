@@ -1,11 +1,11 @@
 package kms.onlinezoostore.services;
 
 import kms.onlinezoostore.dto.BrandDto;
-import kms.onlinezoostore.services.files.images.AttachedImageOwnerService;
+import kms.onlinezoostore.services.files.images.SingleImageOwnerService;
 
 import java.util.List;
 
-public interface BrandService extends AttachedImageOwnerService {
+public interface BrandService extends SingleImageOwnerService {
 
     BrandDto findById(Long id);
     List<BrandDto> findAll();

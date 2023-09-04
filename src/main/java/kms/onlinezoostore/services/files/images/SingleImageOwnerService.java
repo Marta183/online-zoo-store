@@ -3,7 +3,7 @@ package kms.onlinezoostore.services.files.images;
 import kms.onlinezoostore.dto.AttachedFileDto;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface AttachedImageOwnerService {
+public interface SingleImageOwnerService {
 
     AttachedFileDto findImageByOwnerId(Long ownerId);
 

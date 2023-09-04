@@ -1,12 +1,12 @@
 package kms.onlinezoostore.services;
 
 import kms.onlinezoostore.dto.ProductDto;
-import kms.onlinezoostore.services.files.images.AttachedImagesOwnerService;
+import kms.onlinezoostore.services.files.images.MultipleImagesOwnerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 
-public interface ProductService extends AttachedImagesOwnerService {
+public interface ProductService extends MultipleImagesOwnerService {
 
     ProductDto findById(Long id);
 
