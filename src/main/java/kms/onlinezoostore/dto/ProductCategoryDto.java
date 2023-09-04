@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Objects;
+
 @Getter
 @ToString
 @AllArgsConstructor
@@ -24,5 +26,19 @@ public class ProductCategoryDto implements AttachedImageOwner {
     @JsonIgnore
     public String getImageOwnerClassName() {
         return "ProductCategory";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductCategoryDto that = (ProductCategoryDto) o;
+        return Objects.equals(getId(), that.getId())
+                && Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 }

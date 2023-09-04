@@ -32,7 +32,6 @@ public class AttachedFile {
     private String filePath;
 
     @Column(name = "file_name", nullable = false)
-    @Size(max = 100, message = "File name should be less then 100 characters.")
     private String fileName;
 
     @NotNull(message = "Owner ID should not be empty")

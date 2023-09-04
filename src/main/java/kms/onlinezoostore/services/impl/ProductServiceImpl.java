@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Finding {} product page ", ENTITY_CLASS_NAME);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<ProductDto> page =  productRep.findAll(pageable)
+        Page<ProductDto> page = productRep.findAll(pageable)
                 .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
@@ -66,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Finding {} product page by category ID {}", ENTITY_CLASS_NAME, categoryId);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<ProductDto> page =  productRep.findAllByCategoryId(categoryId, pageable)
+        Page<ProductDto> page = productRep.findAllByCategoryId(categoryId, pageable)
                 .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Finding {} product page by brand ID {}", ENTITY_CLASS_NAME, brandId);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<ProductDto> page =  productRep.findAllByBrandId(brandId, pageable)
+        Page<ProductDto> page = productRep.findAllByBrandId(brandId, pageable)
                 .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());

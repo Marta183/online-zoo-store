@@ -1,18 +1,17 @@
 package kms.onlinezoostore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import kms.onlinezoostore.entities.Prescription;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -55,5 +54,19 @@ public class ProductDto implements AttachedImageOwner {
     @JsonIgnore
     public String getImageOwnerClassName() {
         return "Product";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductDto that = (ProductDto) o;
+        return Objects.equals(getId(), that.getId())
+                && Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 }

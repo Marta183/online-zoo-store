@@ -113,8 +113,12 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(brandDto);
-        log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
 
+        if (Objects.isNull(attachedFileDto)) {
+            log.debug("Not found image by {} ID {}", ENTITY_CLASS_NAME, id);
+        } else {
+            log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
+        }
         return attachedFileDto;
     }
 
