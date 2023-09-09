@@ -1,0 +1,58 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Missis_MK (generated)" id="1694291314754-1">
+        <dropForeignKeyConstraint baseTableName="product_categories" constraintName="product_categories_group_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-3">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_age_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-5">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_attached_files_id_fk"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-7">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_brand_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-9">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_color_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-11">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_material_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-13">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_prescriptions_id_fk"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-15">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_size_id_fkey"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-17">
+        <dropForeignKeyConstraint baseTableName="products" constraintName="products_weight_id_fkey"/>
+    </changeSet>
+
+    <changeSet author="Missis_MK (generated)" id="1694291314754-2">
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="product_categories" constraintName="product_categories_product_categories_id_fk" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="product_categories"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-4">
+        <addForeignKeyConstraint baseColumnNames="age_id" baseTableName="products" constraintName="products_age_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ages"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-6">
+        <addForeignKeyConstraint baseColumnNames="main_image_id" baseTableName="products" constraintName="products_attached_files_id_fk" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="attached_files"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-8">
+        <addForeignKeyConstraint baseColumnNames="brand_id" baseTableName="products" constraintName="products_brand_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="brands"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-10">
+        <addForeignKeyConstraint baseColumnNames="color_id" baseTableName="products" constraintName="products_color_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="colors"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-12">
+        <addForeignKeyConstraint baseColumnNames="material_id" baseTableName="products" constraintName="products_material_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="materials"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-14">
+        <addForeignKeyConstraint baseColumnNames="prescription_id" baseTableName="products" constraintName="products_prescriptions_id_fk" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="prescriptions"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-16">
+        <addForeignKeyConstraint baseColumnNames="size_id" baseTableName="products" constraintName="products_size_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sizes"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1694291314754-18">
+        <addForeignKeyConstraint baseColumnNames="weight_id" baseTableName="products" constraintName="products_weight_id_fkey" onDelete="SET NULL" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="weights"/>
+    </changeSet>
+</databaseChangeLog>
