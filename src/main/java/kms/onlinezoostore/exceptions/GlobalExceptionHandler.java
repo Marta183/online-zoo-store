@@ -21,6 +21,14 @@ public class GlobalExceptionHandler {
         return new ErrorMessage("Duplicate value! " + ex.getMessage());
     }
 
+    @ExceptionHandler(EntityCannotBeDeleted.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handleEntityDuplicateException(EntityCannotBeDeleted ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody

@@ -12,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Page<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
     Page<Product> findAllByBrandId(Long brandId, Pageable pageable);
+
+    Long countByCategoryId(Long categoryId);
 }

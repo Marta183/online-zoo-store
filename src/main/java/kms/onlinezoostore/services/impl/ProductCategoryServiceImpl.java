@@ -4,11 +4,13 @@ import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ProductCategoryDto;
 import kms.onlinezoostore.dto.mappers.ProductCategoryMapper;
 import kms.onlinezoostore.entities.ProductCategory;
+import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.exceptions.files.FileNotFoundException;
 import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
+import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class ProductCategoryServiceImpl implements ProductCategoryService {
     private final ProductCategoryMapper productCategoryMapper;
     private final ProductCategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final AttachedImageService attachedImageService;
     private static final String ENTITY_CLASS_NAME = "PRODUCT_CATEGORY";
 
@@ -75,11 +78,17 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public ProductCategoryDto create(ProductCategoryDto categoryDto) {
         log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, categoryDto.getName());
 
-        checkUniqueNameWithinParentCategory(categoryDto);
+        // check if parent exists
+        ProductCategoryDto parentCategoryDto = categoryDto.getParent();
+        if (Objects.nonNull(parentCategoryDto)) {
+            parentCategoryDto = findById(parentCategoryDto.getId());
+        }
 
-        ProductCategory productCategory = productCategoryMapper.mapToEntity(categoryDto);
+        checkUniqueNameWithinParentCategory(categoryDto.getName(), parentCategoryDto);
 
-        ProductCategory savedCategory = categoryRepository.save(productCategory);
+        // saving
+        ProductCategory category = productCategoryMapper.mapToEntity(categoryDto);
+        ProductCategory savedCategory = categoryRepository.save(category);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedCategory.getId());
 
         return productCategoryMapper.mapToDto(savedCategory);
@@ -93,8 +102,14 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         ProductCategory existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        // check if parent exists
+        ProductCategoryDto parentCategoryDto = updatedCategoryDto.getParent();
+        if (Objects.nonNull(parentCategoryDto)) {
+            parentCategoryDto = findById(parentCategoryDto.getId());
+        }
+
         if (!existingCategory.getName().equals(updatedCategoryDto.getName())) {
-            checkUniqueNameWithinParentCategory(updatedCategoryDto);
+            checkUniqueNameWithinParentCategory(updatedCategoryDto.getName(), parentCategoryDto);
         }
 
         ProductCategory updatedCategory = productCategoryMapper.mapToEntity(updatedCategoryDto);
@@ -113,6 +128,12 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        Long numberOfProducts = productRepository.countByCategoryId(id);
+        if (numberOfProducts > 0) {
+            throw new EntityCannotBeDeleted("Cannot delete category by id " + id +
+                    ": there are " + numberOfProducts + " products with the current category");
+        }
+
         // delete entity
         categoryRepository.deleteById(id);
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
@@ -122,22 +143,14 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         log.debug("Deleted image for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
-    private void checkUniqueNameWithinParentCategory(ProductCategoryDto categoryDto) {
-        String name = categoryDto.getName();
+    private void checkUniqueNameWithinParentCategory(String name, ProductCategoryDto parentCategoryDto) {
         log.debug("Checking unique name within parent category for {}: {}", ENTITY_CLASS_NAME, name);
 
-        String parentName = null;
-        Long parentId = null;
-        if (categoryDto.getParent() != null) {
-            ProductCategory parentCategory = categoryRepository.findById(categoryDto.getParent().getId()).orElse(null);
-            parentName = (parentCategory == null) ? null : parentCategory.getName();
-            parentId = (parentCategory == null) ? null : parentCategory.getId();
-        }
-
-        log.debug("For {}: {} found parent category with ID {}", ENTITY_CLASS_NAME, name, parentId);
+        Long parentId = (parentCategoryDto == null) ? null : parentCategoryDto.getId();
+        String parentName = (parentCategoryDto == null) ? null : parentCategoryDto.getName();
 
         if (categoryRepository.countAllByParentIdAndNameIgnoreCase(parentId, name) != 0) {
-            String message = String.format("Name \'%s\' is already exist in the group \'%s\'", name, parentName);
+            String message = String.format("Name '%s' is already exist in the group '%s'", name, parentName);
             throw new EntityDuplicateException(ENTITY_CLASS_NAME, "name", message);
         }
     }
