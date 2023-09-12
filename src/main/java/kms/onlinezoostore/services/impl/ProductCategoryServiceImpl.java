@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,9 +69,13 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public List<ProductCategoryDto> findAllByParentId(Long idParentCategory) {
         log.debug("Finding {} by parent ID {}", ENTITY_CLASS_NAME, idParentCategory);
 
-        return categoryRepository.findAllByParentId(idParentCategory)
-                .stream().map(productCategoryMapper::mapToDto)
-                .collect(Collectors.toList());
+        ProductCategory category = categoryRepository.findById(idParentCategory)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, idParentCategory));
+
+        Set<ProductCategory> innerCategories = category.getInnerCategories();
+        log.debug("Found {} {} by parent ID {}", innerCategories.size(), ENTITY_CLASS_NAME, idParentCategory);
+
+        return innerCategories.stream().map(productCategoryMapper::mapToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -128,11 +133,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        Long numberOfProducts = productRepository.countByCategoryId(id);
-        if (numberOfProducts > 0) {
-            throw new EntityCannotBeDeleted("Cannot delete category by id " + id +
-                    ": there are " + numberOfProducts + " products with the current category");
-        }
+        // category can't be deleted if exist products with current category
+        verifyCategoryHaveNotProductsOrThrowException(id);
+
+        // category can't be deleted if exist products with any of inner categories
+        verifyInnerCategoriesHaveNotProductsOrThrowException(id);
 
         // delete entity
         categoryRepository.deleteById(id);
@@ -141,6 +146,26 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         // delete attached files
         attachedImageService.deleteAllByOwner(existingCategoryDto);
         log.debug("Deleted image for {} with ID {}", ENTITY_CLASS_NAME, id);
+    }
+
+    private void verifyCategoryHaveNotProductsOrThrowException(Long id) {
+        Long numberOfProducts = productRepository.countByCategoryId(id);
+        if (numberOfProducts > 0) {
+            throw new EntityCannotBeDeleted("Cannot delete category by id " + id +
+                    ": there are " + numberOfProducts + " product with the current category");
+        }
+    }
+
+    private void verifyInnerCategoriesHaveNotProductsOrThrowException(Long parentId) {
+        List<ProductCategory> categories = categoryRepository.findInnerCategoriesWithProductCountByParentId(parentId);
+        categories.forEach(innerCategory -> {
+            if (innerCategory.getProductCount() > 0) {
+                throw new EntityCannotBeDeleted("Cannot delete inner category by id " + innerCategory.getId() +
+                        ": there are " + innerCategory.getProductCount() + " product with the current category");
+            } else {
+                verifyInnerCategoriesHaveNotProductsOrThrowException(innerCategory.getId());
+            }
+        });
     }
 
     private void checkUniqueNameWithinParentCategory(String name, ProductCategoryDto parentCategoryDto) {

@@ -14,8 +14,6 @@ import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
 import kms.onlinezoostore.services.impl.ProductCategoryServiceImpl;
-import kms.onlinezoostore.utils.UniqueFieldService;
-import kms.onlinezoostore.utils.UniqueFieldServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +32,7 @@ import java.util.Objects;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,8 +61,6 @@ class ProductCategoryServiceImplTest {
     @Mock
     private AttachedImageService attachedImageService;
     @Spy
-    private UniqueFieldService uniqueFieldService = new UniqueFieldServiceImpl();
-    @Spy
     private ProductCategoryMapper categoryMapper = Mappers.getMapper(ProductCategoryMapper.class);
     @InjectMocks
     private ProductCategoryServiceImpl categoryService;
@@ -76,8 +73,9 @@ class ProductCategoryServiceImplTest {
     @BeforeEach
     public void setup(){
         categoryParent = new ProductCategory(1L, "test1", null);
-        categoryParentDto = categoryMapper.mapToDto(categoryParent);
         categoryInner = new ProductCategory(2L, "test2", categoryParent);
+        categoryParent.setInnerCategories(Set.of(categoryInner));
+        categoryParentDto = categoryMapper.mapToDto(categoryParent);
         categoryInnerDto = categoryMapper.mapToDto(categoryInner);
     }
 
@@ -153,28 +151,18 @@ class ProductCategoryServiceImplTest {
 
     @Test
     void findAllByParentId_ShouldReturnProductCategoryList() {
+        Long parentId = categoryParent.getId();
         List<ProductCategory> categoryList = new ArrayList<>() {{ add(categoryInner); }};
+        List<ProductCategoryDto> expectedList = categoryList.stream().map(categoryMapper::mapToDto).collect(Collectors.toList());
 
-        List<ProductCategoryDto> expectedCategoryDtoList = categoryList.stream()
-                .map((el) -> categoryMapper.mapToDto(el))
-                .collect(Collectors.toList());
-
-        when(categoryRepository.findAllByParentId(anyLong())).thenReturn(categoryList);
+        when(categoryRepository.findById(parentId)).thenReturn(Optional.of(categoryParent));
 
         // act
-        List<ProductCategoryDto> actualCategoryDtoList = categoryService.findAllByParentId(1L);
+        List<ProductCategoryDto> actualList = categoryService.findAllByParentId(parentId);
 
-        assertEquals(expectedCategoryDtoList.size(), actualCategoryDtoList.size(), "ProductCategoryDto list size: expected and actual is not equal.");
-        assertIterableEquals(expectedCategoryDtoList, actualCategoryDtoList, "ProductCategoryDto list: expected and actual don't have the same elements in the same order.");
-    }
-
-    @Test
-    void findAllByParentId_ShouldReturnEmptyList() {
-        when(categoryRepository.findAllByParentId(anyLong())).thenReturn(Collections.emptyList());
-
-        List<ProductCategoryDto> actualProductCategoryDtoList = categoryService.findAllByParentId(1L);
-
-        assertEquals(0, actualProductCategoryDtoList.size(), "Actual categoryParentDto list is not empty");
+        assertNotNull(actualList);
+        assertEquals(expectedList.size(), actualList.size(), "ProductCategoryDto list size: expected and actual is not equal.");
+        assertIterableEquals(expectedList, actualList, "ProductCategoryDto list: expected and actual don't have the same elements in the same order.");
     }
 
     @ParameterizedTest
@@ -288,6 +276,7 @@ class ProductCategoryServiceImplTest {
     void deleteById_WhenDataIsCorrect() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryInner));
         when(productRepository.countByCategoryId(1L)).thenReturn(0L);
+        when(categoryRepository.findInnerCategoriesWithProductCountByParentId(categoryParent.getId())).thenReturn(Collections.emptyList());
 
         categoryService.deleteById(1L);
 
@@ -306,11 +295,25 @@ class ProductCategoryServiceImplTest {
     }
 
     @Test
-    void deleteById_ShouldThrowException_WhenExistsAnyProductWithCategoryId() {
+    void deleteById_ShouldThrowException_WhenExistsAnyProductByCategoryId() {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(categoryInner));
         when(productRepository.countByCategoryId(anyLong())).thenReturn(1L);
 
         assertThrows(EntityCannotBeDeleted.class, () -> categoryService.deleteById(anyLong()));
+
+        verify(categoryRepository, never()).deleteById(anyLong());
+        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
+    }
+
+    @Test
+    void deleteById_ShouldThrowException_WhenExistsAnyProductForInnerCategories() {
+        ProductCategory categoryWithProducts = new ProductCategory(5L, "test5", categoryParent, 1L);
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(categoryParent));
+        when(productRepository.countByCategoryId(anyLong())).thenReturn(0L);
+        when(categoryRepository.findInnerCategoriesWithProductCountByParentId(categoryParent.getId()))
+                .thenReturn(List.of(categoryWithProducts));
+
+        assertThrows(EntityCannotBeDeleted.class, () -> categoryService.deleteById(categoryParent.getId()));
 
         verify(categoryRepository, never()).deleteById(anyLong());
         verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
