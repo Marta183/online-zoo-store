@@ -13,7 +13,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -39,6 +43,9 @@ public class Product {
 
     @Column(name = "price")
     private Double price;
+
+    @Column(name = "price_with_discount")
+    private Double priceWithDiscount;
 
     @OneToOne
     @JoinColumn(name = "main_image_id", referencedColumnName = "id")

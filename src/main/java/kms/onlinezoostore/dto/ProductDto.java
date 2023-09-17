@@ -1,7 +1,8 @@
 package kms.onlinezoostore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,8 +26,11 @@ public class ProductDto implements AttachedImageOwner {
     private final String name;
 
     @NotNull(message = "Price should not be empty.")
-    @DecimalMin(value = "0.00", inclusive = false, message = "Price should be greater than 0.")
+    @Positive(message = "Price should be greater than 0.00")
     private final Double price;
+
+    @PositiveOrZero(message = "Price with discount should be positive or 0.")
+    private final Double priceWithDiscount;
 
     private final AttachedFileDto mainImage;
 

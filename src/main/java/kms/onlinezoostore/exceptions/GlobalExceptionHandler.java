@@ -1,8 +1,9 @@
 package kms.onlinezoostore.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,14 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(ex.getMessage());
     }
 
+    @ExceptionHandler(PriceConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handlePriceConflictException(PriceConflictException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
@@ -37,12 +46,19 @@ public class GlobalExceptionHandler {
         return new ErrorMessage("Not exists in DB: " + ex.getMessage());
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    protected ErrorMessage DataIntegrityViolationException(DataIntegrityViolationException ex) {
+    protected ErrorMessage handleBindException(BindException ex) {
         log.error(ex.getMessage());
-        return new ErrorMessage("Data integrity violation: " + ex.getMessage());
+        String errorMessage = "Validation error occurred: ";
+        for (FieldError fieldError : ex.getFieldErrors()) {
+            errorMessage += fieldError.getDefaultMessage() + "; ";
+        }
+        if (errorMessage.endsWith("; ")) {
+            errorMessage = errorMessage.substring(0, errorMessage.length()-2);
+        }
+        return new ErrorMessage(errorMessage);
     }
 
 //    @ExceptionHandler(Throwable.class)

@@ -33,6 +33,11 @@ public class ProductSpecifications {
                 -> criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice);
     }
 
+    private static Specification<Product> priceWithDiscount() {
+        return (root, criteriaQuery, criteriaBuilder)
+                -> criteriaBuilder.greaterThan(root.get("priceWithDiscount"), 0);
+    }
+
     private static Specification<Product> isNewArrival(String newArrival) {
         return (root, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.equal(root.get("newArrival"), Boolean.parseBoolean(newArrival));
@@ -108,6 +113,10 @@ public class ProductSpecifications {
             spec = Specification.where(spec).and(ProductSpecifications.priceGreaterOrEquals(params.getFirst("minPrice")));
         } else if (params.containsKey("maxPrice")) {
             spec = Specification.where(spec).and(ProductSpecifications.priceLessOrEquals(params.getFirst("maxPrice")));
+        }
+
+        if (params.containsKey("onSale") && params.getFirst("onSale").equalsIgnoreCase("true")) {
+            spec = Specification.where(spec).and(ProductSpecifications.priceWithDiscount());
         }
 
         if (params.containsKey("newArrival")) {

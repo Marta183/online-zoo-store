@@ -6,6 +6,7 @@ public enum AllowedImageExtensions {
     PNG,
     JPG,
     JPEG,
+    GIF,
     BMP;
 
     public static String valuesAsString() {
