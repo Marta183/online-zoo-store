@@ -52,7 +52,7 @@ class ProductSizeServiceImplTest {
     private ProductSizeDto productSizeDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         productSize = new ProductSize(1L, "test1");
         productSizeDto = productSizeMapper.mapToDto(productSize);
     }
@@ -79,7 +79,7 @@ class ProductSizeServiceImplTest {
         productSizeList.add(new ProductSize(2L, "test2"));
         productSizeList.add(new ProductSize(3L, "test3"));
 
-        List<ProductSizeDto> productSizeDtoList = productSizeList.stream().map((el) -> productSizeMapper.mapToDto(el)).collect(Collectors.toList());
+        List<ProductSizeDto> productSizeDtoList = productSizeList.stream().map(productSizeMapper::mapToDto).collect(Collectors.toList());
 
         when(productSizeRepository.findAll()).thenReturn(productSizeList);
 

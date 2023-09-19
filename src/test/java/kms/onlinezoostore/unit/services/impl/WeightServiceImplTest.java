@@ -52,7 +52,7 @@ class WeightServiceImplTest {
     private WeightDto weightDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         weight = new Weight(1L, "test1");
         weightDto = weightMapper.mapToDto(weight);
     }
@@ -79,7 +79,7 @@ class WeightServiceImplTest {
         weightList.add(new Weight(2L, "test2"));
         weightList.add(new Weight(3L, "test3"));
 
-        List<WeightDto> weightDtoList = weightList.stream().map((el) -> weightMapper.mapToDto(el)).collect(Collectors.toList());
+        List<WeightDto> weightDtoList = weightList.stream().map(weightMapper::mapToDto).collect(Collectors.toList());
 
         when(weightRepository.findAll()).thenReturn(weightList);
 

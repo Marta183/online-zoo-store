@@ -71,7 +71,7 @@ class ProductCategoryServiceImplTest {
     private ProductCategoryDto categoryInnerDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         categoryParent = new ProductCategory(1L, "test1", null);
         categoryInner = new ProductCategory(2L, "test2", categoryParent);
         categoryParent.setInnerCategories(Set.of(categoryInner));
@@ -128,7 +128,7 @@ class ProductCategoryServiceImplTest {
         categoryList.add(new ProductCategory(4L, "test4", null));
 
         List<ProductCategoryDto> expectedCategoryDtoList = categoryList.stream()
-                .map((el) -> categoryMapper.mapToDto(el))
+                .map(categoryMapper::mapToDto)
                 .collect(Collectors.toList());
 
         when(categoryRepository.findAllByNameContainsIgnoreCase(anyString())).thenReturn(categoryList);

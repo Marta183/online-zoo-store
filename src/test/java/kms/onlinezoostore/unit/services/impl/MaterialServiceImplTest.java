@@ -52,7 +52,7 @@ class MaterialServiceImplTest {
     private MaterialDto materialDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         material = new Material(1L, "test1");
         materialDto = materialMapper.mapToDto(material);
     }
@@ -79,7 +79,7 @@ class MaterialServiceImplTest {
         materialList.add(new Material(2L, "test2"));
         materialList.add(new Material(3L, "test3"));
 
-        List<MaterialDto> materialDtoList = materialList.stream().map((el) -> materialMapper.mapToDto(el)).collect(Collectors.toList());
+        List<MaterialDto> materialDtoList = materialList.stream().map(materialMapper::mapToDto).collect(Collectors.toList());
 
         when(materialRepository.findAll()).thenReturn(materialList);
 

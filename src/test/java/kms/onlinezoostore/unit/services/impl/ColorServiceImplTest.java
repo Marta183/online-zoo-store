@@ -52,7 +52,7 @@ class ColorServiceImplTest {
     private ColorDto colorDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         color = new Color(1L, "test1");
         colorDto = colorMapper.mapToDto(color);
     }
@@ -79,7 +79,7 @@ class ColorServiceImplTest {
         colorList.add(new Color(2L, "test2"));
         colorList.add(new Color(3L, "test3"));
 
-        List<ColorDto> colorDtoList = colorList.stream().map((el) -> colorMapper.mapToDto(el)).collect(Collectors.toList());
+        List<ColorDto> colorDtoList = colorList.stream().map(colorMapper::mapToDto).collect(Collectors.toList());
 
         when(colorRepository.findAll()).thenReturn(colorList);
 

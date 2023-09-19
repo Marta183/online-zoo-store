@@ -52,7 +52,7 @@ class AgeServiceImplTest {
     private AgeDto ageDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         age = new Age(1L, "test1");
         ageDto = ageMapper.mapToDto(age);
     }
@@ -79,7 +79,7 @@ class AgeServiceImplTest {
         ageList.add(new Age(2L, "test2"));
         ageList.add(new Age(3L, "test3"));
 
-        List<AgeDto> ageDtoList = ageList.stream().map((el) -> ageMapper.mapToDto(el)).collect(Collectors.toList());
+        List<AgeDto> ageDtoList = ageList.stream().map(ageMapper::mapToDto).collect(Collectors.toList());
 
         when(ageRepository.findAll()).thenReturn(ageList);
 
@@ -119,38 +119,6 @@ class AgeServiceImplTest {
 
         verify(ageRepository, never()).save(any(Age.class));
     }
-
-//    @Test
-//    void create_ShouldThrowException_WhenNameIsTooLong() {
-//        when(ageRepository.count(any(Specification.class))).thenReturn(0L);
-//        AgeDto newAgeDto = new AgeDto(0L, RandomStringUtils.randomAlphanumeric(61));
-//
-//        assertThrows(EntityDuplicateException.class, () -> ageService.create(newAgeDto));
-//
-//        verify(ageRepository, never()).save(any(Age.class));
-//    }
-//
-//    @ParameterizedTest
-//    @MethodSource("generateAgesDtoWithBlankName")
-//    void create_ShouldThrowException_WhenNameIsBlank(List<AgeDto> invalidAgeDtoList) {
-//        when(ageRepository.count(any(Specification.class))).thenReturn(0L);
-//
-//        for (AgeDto el : invalidAgeDtoList) {
-//            assertThrows(EntityDuplicateException.class, () -> ageService.create(el));
-//
-//            verify(ageRepository, never()).save(any(Age.class));
-//        }
-//
-//    }
-//
-//    public static List<AgeDto> generateAgesDtoWithBlankName() {
-//        List<AgeDto> list = new ArrayList<>();
-//        list.add(new AgeDto(0L, ""));
-//        list.add(new AgeDto(0L, " "));
-//        list.add(new AgeDto(0L, "    "));
-//        list.add(new AgeDto(0L, "\n"));
-//        return list;
-//    }
 
     @Test
     void update_DataIsCorrect() {

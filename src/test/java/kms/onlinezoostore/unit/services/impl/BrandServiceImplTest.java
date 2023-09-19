@@ -65,7 +65,7 @@ class BrandServiceImplTest {
     private BrandDto brandDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         brand = new Brand(1L, "test1");
         brandDto = brandMapper.mapToDto(brand);
     }
@@ -92,7 +92,7 @@ class BrandServiceImplTest {
         brandList.add(new Brand(2L, "test2"));
         brandList.add(new Brand(3L, "test3"));
 
-        List<BrandDto> brandDtoList = brandList.stream().map((el) -> brandMapper.mapToDto(el)).collect(Collectors.toList());
+        List<BrandDto> brandDtoList = brandList.stream().map(brandMapper::mapToDto).collect(Collectors.toList());
 
         when(brandRepository.findAll()).thenReturn(brandList);
 

@@ -52,7 +52,7 @@ class PrescriptionServiceImplTest {
     private PrescriptionDto prescriptionDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         prescription = new Prescription(1L, "test1");
         prescriptionDto = prescriptionMapper.mapToDto(prescription);
     }
@@ -79,7 +79,7 @@ class PrescriptionServiceImplTest {
         prescriptionList.add(new Prescription(2L, "test2"));
         prescriptionList.add(new Prescription(3L, "test3"));
 
-        List<PrescriptionDto> prescriptionDtoList = prescriptionList.stream().map((el) -> prescriptionMapper.mapToDto(el)).collect(Collectors.toList());
+        List<PrescriptionDto> prescriptionDtoList = prescriptionList.stream().map(prescriptionMapper::mapToDto).collect(Collectors.toList());
 
         when(prescriptionRepository.findAll()).thenReturn(prescriptionList);
 
