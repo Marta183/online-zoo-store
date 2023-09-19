@@ -124,8 +124,8 @@ public class AttachedImageServiceTest {
 
         AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner( imageOwner, image);
 
-        assertNotNull(uploadedImage, "");
-        assertTrue(uploadedImage.getFileName().contains(image.getName()), "");
+        assertNotNull(uploadedImage);
+        assertTrue(uploadedImage.getFileName().contains(image.getName()));
 
         verify(attachedFileRepository).save(any(AttachedFile.class));
     }

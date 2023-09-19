@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.BindException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Iterator;
@@ -120,11 +119,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto create(ProductDto productDto) {
         log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, productDto.getName());
 
-        findDependentEntitiesByForeignKeyOrThrowException(productDto);
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", productDto.getName());
 
         verifyPrices(productDto);
 
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", productDto.getName());
+        verifyInnerEntitiesOrThrowException(productDto);
 
         // saving entity
         Product product = productMapper.mapToEntity(productDto);
@@ -143,10 +142,6 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        findDependentEntitiesByForeignKeyOrThrowException(updatedProductDto);
-
-        verifyPrices(updatedProductDto);
-
         // check unique name
         if (!existingProduct.getName().equals(updatedProductDto.getName())) {
             uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", updatedProductDto.getName());
@@ -158,8 +153,12 @@ public class ProductServiceImpl implements ProductService {
         if (Objects.nonNull(newMainImage) && !newMainImage.equals(oldMainImage)) {
             log.debug("Main image has changed for {} with ID {}: new image ID {}", ENTITY_CLASS_NAME, id, newMainImage.getId());
             // make sure that new mainImage's owner is current product
-            attachedImageService.findByIdAndOwner(newMainImage.getId(), productMapper.mapToDto(existingProduct)); // attachedImageService.findByFilePathAndOwner(newMainImagePath, updatedProductDto);
+            attachedImageService.findByIdAndOwner(newMainImage.getId(), productMapper.mapToDto(existingProduct));
         }
+
+        verifyPrices(updatedProductDto);
+
+        verifyInnerEntitiesOrThrowException(updatedProductDto);
 
         // saving entity
         Product productToUpdate = productMapper.mapToEntity(updatedProductDto);
@@ -216,7 +215,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    private void findDependentEntitiesByForeignKeyOrThrowException(ProductDto productDto) {
+    private void verifyInnerEntitiesOrThrowException(ProductDto productDto) {
 
         productCategoryService.findById(productDto.getCategory().getId());
 
