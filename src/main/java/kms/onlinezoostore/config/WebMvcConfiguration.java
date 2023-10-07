@@ -11,8 +11,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins("https://thunderous-pie-a8e8fd.netlify.app")
-                .allowCredentials(true)
+//                .allowedOrigins("*") // allow access from any source
+                .allowedOrigins("https://thunderous-pie-a8e8fd.netlify.app", "http://localhost:3000")
+                .allowCredentials(true) // allow sending cookies and authentication headers
                 .allowedHeaders("*")
                 .exposedHeaders("*")
                 .allowedMethods("*")
