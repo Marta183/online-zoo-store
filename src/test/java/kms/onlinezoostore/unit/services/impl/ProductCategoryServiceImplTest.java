@@ -122,6 +122,33 @@ class ProductCategoryServiceImplTest {
     }
 
     @Test
+    void findAllMainCategories_ShouldReturnProductCategoryList() {
+        List<ProductCategory> expectedCategoryList = getCategoryList().stream()
+                .filter(el -> el.getParent() == null)
+                .collect(Collectors.toList());
+
+        List<ProductCategoryDto> expectedCategoryDtoList = expectedCategoryList.stream()
+                .map((el) -> categoryMapper.mapToDto(el))
+                .collect(Collectors.toList());
+
+        when(categoryRepository.findAllByParentIsNull()).thenReturn(expectedCategoryList);
+
+        List<ProductCategoryDto> actualProductCategoryDtoList = categoryService.findAllMainCategories();
+
+        assertEquals(expectedCategoryDtoList.size(), actualProductCategoryDtoList.size(), "ProductCategoryDto list size: expected and actual is not equal.");
+        assertIterableEquals(expectedCategoryDtoList, actualProductCategoryDtoList, "ProductCategoryDto list: expected and actual don't have the same elements in the same order.");
+    }
+
+    @Test
+    void findAllMainCategories_ShouldReturnEmptyList() {
+        when(categoryRepository.findAllByParentIsNull()).thenReturn(Collections.emptyList());
+
+        List<ProductCategoryDto> actualProductCategoryDtoList = categoryService.findAllMainCategories();
+
+        assertEquals(0, actualProductCategoryDtoList.size(), "Actual categoryParentDto list is not empty");
+    }
+
+    @Test
     void findAllByNameLike_ShouldReturnProductCategoryList() {
         List<ProductCategory> categoryList = new ArrayList<>(){{ add(categoryParent); add(categoryInner); }};
         categoryList.add(new ProductCategory(3L, "test3", null));
@@ -160,7 +187,6 @@ class ProductCategoryServiceImplTest {
         // act
         List<ProductCategoryDto> actualList = categoryService.findAllByParentId(parentId);
 
-        assertNotNull(actualList);
         assertEquals(expectedList.size(), actualList.size(), "ProductCategoryDto list size: expected and actual is not equal.");
         assertIterableEquals(expectedList, actualList, "ProductCategoryDto list: expected and actual don't have the same elements in the same order.");
     }

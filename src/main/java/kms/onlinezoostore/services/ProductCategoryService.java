@@ -9,6 +9,7 @@ public interface ProductCategoryService extends SingleImageOwnerService {
 
     ProductCategoryDto findById(Long id);
     List<ProductCategoryDto> findAll();
+    List<ProductCategoryDto> findAllMainCategories();
     List<ProductCategoryDto> findAllByNameLike(String nameLike);
     List<ProductCategoryDto> findAllByParentId(Long idParentCategory);
 

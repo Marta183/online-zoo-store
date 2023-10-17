@@ -12,6 +12,7 @@ import java.util.List;
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
 
     List<ProductCategory> findAllByNameContainsIgnoreCase(String nameLike);
+    List<ProductCategory> findAllByParentIsNull();
 
     long countAllByParentIdAndNameIgnoreCase(Long parentId, String name);
 

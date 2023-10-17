@@ -36,6 +36,12 @@ public class ProductCategoryController {
         return categoryService.findAll();
     }
 
+    @GetMapping("/main")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductCategoryDto> findAllMain() {
+        return categoryService.findAllMainCategories();
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductCategoryDto findById(@PathVariable Long id) {

@@ -57,6 +57,15 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    public List<ProductCategoryDto> findAllMainCategories() {
+        log.debug("Finding all main {}", ENTITY_CLASS_NAME);
+
+        return categoryRepository.findAllByParentIsNull()
+                .stream().map(productCategoryMapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ProductCategoryDto> findAllByNameLike(String nameLike) {
         log.debug("Finding {} by name like: {}", ENTITY_CLASS_NAME, nameLike);
 
