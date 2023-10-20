@@ -408,29 +408,6 @@ class ProductServiceImplTest {
     // ADD INNER CLASS //
     /////////////////////
 
-    @Test
-    void findAllImagesByOwnerId_ShouldReturnAttachedFileDtoSet() {
-        Set<AttachedFileDto> expectedResult = new HashSet<>() {{
-            add(new AttachedFileDto(1L, "path1", "name1"));
-            add(new AttachedFileDto(2L, "path2", "name2"));
-            add(new AttachedFileDto(3L, "path3", "name3"));
-        }};
-
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        when(attachedImageService.findAllByOwner(productDto)).thenReturn(expectedResult);
-
-        Set<AttachedFileDto> actualResult = productService.findAllImagesByOwnerId(productDto.getId());
-
-        assertEquals(expectedResult.size(), actualResult.size(), "AttachedFileDto set size: expected and actual is not equal.");
-        assertIterableEquals(expectedResult, actualResult, "AttachedFileDto set: expected and actual don't have the same elements in the same order.");
-    }
-
-    @Test
-    void findAllImagesByOwnerId_ShouldThrowException_WhenIdNotFound() {
-        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> productService.findAllImagesByOwnerId(anyLong()));
-    }
 
     @Test
     void findImageByIdAndOwnerId_ShouldReturnAttachedFileDto() {

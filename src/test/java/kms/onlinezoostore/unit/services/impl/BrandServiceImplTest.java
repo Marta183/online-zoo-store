@@ -122,6 +122,7 @@ class BrandServiceImplTest {
         assertNotNull(actualSavedBrandDto);
         assertNotNull(actualSavedBrandDto.getId());
         assertEquals(brandDto.getName(), actualSavedBrandDto.getName(), "BrandDto name: expected and actual is not equal.");
+        assertNull(actualSavedBrandDto.getImage(), "BrandDto image: expected value is not null.");
     }
 
     @Test
@@ -154,7 +155,7 @@ class BrandServiceImplTest {
     @Test
     void update_ShouldThrowException_WhenNameIsNotUnique() {
         Brand brandExisting = new Brand(1L, "test1");
-        BrandDto brandDtoToUpdate = new BrandDto(1L, "test2");
+        BrandDto brandDtoToUpdate = new BrandDto(1L, "test2", null);
 
         when(brandRepository.count(any(Specification.class))).thenReturn(1L);
         when(brandRepository.findById(anyLong())).thenReturn(Optional.of(brandExisting));
@@ -187,37 +188,6 @@ class BrandServiceImplTest {
     /////////////////////
     // ADD INNER CLASS //
     /////////////////////
-
-    @Test
-    void findImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {
-        when(brandRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> brandService.findImageByOwnerId(1L));
-
-        verify(attachedImageService, never()).findFirstByOwner(any(AttachedImageOwner.class));
-    }
-
-    @Test
-    void findImageByOwnerId_ShouldReturnNull_WhenImageNotFound() {
-        when(brandRepository.findById(1L)).thenReturn(Optional.of(brand));
-        when(attachedImageService.findFirstByOwner(brandDto)).thenReturn(null);
-
-        AttachedFileDto actualImageDto = brandService.findImageByOwnerId(1L);
-
-        assertNull(actualImageDto, "ImageDto is not null");
-    }
-
-    @Test
-    void findImageByOwnerId_ShouldReturnAttachedFileDto_WhenImageExists() {
-        AttachedFileDto imageDto = new AttachedFileDto(1L, "testPath", "testName");
-
-        when(brandRepository.findById(1L)).thenReturn(Optional.of(brand));
-        when(attachedImageService.findFirstByOwner(brandDto)).thenReturn(imageDto);
-
-        AttachedFileDto actualImageDto = brandService.findImageByOwnerId(1L);
-
-        assertEquals(imageDto, actualImageDto, "ImageDto: expected and actual is not equal.");
-    }
 
     @Test
     void uploadImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {

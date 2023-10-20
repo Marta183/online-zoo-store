@@ -210,6 +210,7 @@ class ProductCategoryServiceImplTest {
         assertNotNull(actualCategoryDto.getId());
         assertEquals(category.getName(), actualCategoryDto.getName(), "ProductCategoryDto name: expected and actual is not equal.");
         assertEquals(categoryMapper.mapToDto(parent), actualCategoryDto.getParent(), "ProductCategoryDto parent: expected and actual is not equal.");
+        assertNull(actualCategoryDto.getImage(), "ProductCategoryDto image: expected value is not null.");
     }
 
     @ParameterizedTest
@@ -242,7 +243,7 @@ class ProductCategoryServiceImplTest {
     void update_DataIsCorrect(ProductCategory category) {
         ProductCategory parent = category.getParent();
         ProductCategoryDto parentDto = categoryMapper.mapToDto(category.getParent());
-        ProductCategoryDto categoryDtoToUpdate = new ProductCategoryDto(category.getId(), category.getName() + "/", parentDto);
+        ProductCategoryDto categoryDtoToUpdate = new ProductCategoryDto(category.getId(), category.getName() + "/", parentDto, null);
 
         if (Objects.isNull(parent)) {
             when(categoryRepository.countAllByParentIdAndNameIgnoreCase(null, categoryDtoToUpdate.getName())).thenReturn(0L);
@@ -282,7 +283,7 @@ class ProductCategoryServiceImplTest {
     void update_ShouldThrowException_WhenNameIsNotUnique(ProductCategory category) {
         ProductCategory parent = category.getParent();
         ProductCategoryDto parentDto = categoryMapper.mapToDto(category.getParent());
-        ProductCategoryDto categoryDtoToUpdate = new ProductCategoryDto(category.getId(), category.getName() + "/", parentDto);
+        ProductCategoryDto categoryDtoToUpdate = new ProductCategoryDto(category.getId(), category.getName() + "/", parentDto, null);
 
         if (Objects.isNull(parent)) {
             when(categoryRepository.countAllByParentIdAndNameIgnoreCase(null, categoryDtoToUpdate.getName())).thenReturn(1L);
@@ -333,7 +334,9 @@ class ProductCategoryServiceImplTest {
 
     @Test
     void deleteById_ShouldThrowException_WhenExistsAnyProductForInnerCategories() {
-        ProductCategory categoryWithProducts = new ProductCategory(5L, "test5", categoryParent, 1L);
+        ProductCategory categoryWithProducts = new ProductCategory(5L, "test5", categoryParent);
+        categoryWithProducts.setProductCount(1L);
+
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(categoryParent));
         when(productRepository.countByCategoryId(anyLong())).thenReturn(0L);
         when(categoryRepository.findInnerCategoriesWithProductCountByParentId(categoryParent.getId()))
@@ -368,37 +371,6 @@ class ProductCategoryServiceImplTest {
     /////////////////////
     // ADD INNER CLASS //
     /////////////////////
-
-    @Test
-    void findImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> categoryService.findImageByOwnerId(1L));
-
-        verify(attachedImageService, never()).findFirstByOwner(any(AttachedImageOwner.class));
-    }
-
-    @Test
-    void findImageByOwnerId_ShouldReturnNull_WhenImageNotFound() {
-        when(categoryRepository.findById(categoryInner.getId())).thenReturn(Optional.of(categoryInner));
-        when(attachedImageService.findFirstByOwner(categoryInnerDto)).thenReturn(null);
-
-        AttachedFileDto actualImageDto = categoryService.findImageByOwnerId(categoryInner.getId());
-
-        assertNull(actualImageDto, "ImageDto is not null");
-    }
-
-    @Test
-    void findImageByOwnerId_ShouldReturnAttachedFileDto_WhenImageExists() {
-        AttachedFileDto imageDto = new AttachedFileDto(1L, "testPath", "testName");
-
-        when(categoryRepository.findById(categoryInner.getId())).thenReturn(Optional.of(categoryInner));
-        when(attachedImageService.findFirstByOwner(categoryInnerDto)).thenReturn(imageDto);
-
-        AttachedFileDto actualImageDto = categoryService.findImageByOwnerId(categoryInner.getId());
-
-        assertEquals(imageDto, actualImageDto, "ImageDto: expected and actual is not equal.");
-    }
 
     @Test
     void uploadImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {

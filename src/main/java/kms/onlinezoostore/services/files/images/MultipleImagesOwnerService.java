@@ -8,8 +8,6 @@ import java.util.Set;
 
 public interface MultipleImagesOwnerService {
 
-    Set<AttachedFileDto> findAllImagesByOwnerId(Long ownerId);
-
     AttachedFileDto findImageByIdAndOwnerId(Long imageId, Long ownerId);
 
     Set<AttachedFileDto> uploadImagesByOwnerId(Long ownerId, List<MultipartFile> images);

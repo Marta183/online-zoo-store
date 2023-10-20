@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +59,7 @@ public class BrandServiceImpl implements BrandService {
         uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(brandRepository, "name", brandDto.getName());
 
         Brand brand = brandMapper.mapToEntity(brandDto);
-
+        brand.setImages(new ArrayList<>());
         Brand savedbrand = brandRepository.save(brand);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedbrand.getId());
 
@@ -79,6 +79,7 @@ public class BrandServiceImpl implements BrandService {
 
         Brand updatedBrand = brandMapper.mapToEntity(updatedBrandDto);
         updatedBrand.setId(id);
+        updatedBrand.setImages(existingBrand.getImages());
         brandRepository.save(updatedBrand);
 
         log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
@@ -104,23 +105,6 @@ public class BrandServiceImpl implements BrandService {
 
     //// IMAGES ////
 
-    @Override
-    public AttachedFileDto findImageByOwnerId(Long id) {
-        log.debug("Finding image by {} ID {}", ENTITY_CLASS_NAME, id);
-
-        BrandDto brandDto = brandRepository.findById(id)
-                .map(brandMapper::mapToDto)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-
-        AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(brandDto);
-
-        if (Objects.isNull(attachedFileDto)) {
-            log.debug("Not found image by {} ID {}", ENTITY_CLASS_NAME, id);
-        } else {
-            log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
-        }
-        return attachedFileDto;
-    }
 
     @Override
     @Transactional

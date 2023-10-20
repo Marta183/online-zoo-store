@@ -127,8 +127,8 @@ public class ProductServiceImpl implements ProductService {
 
         // saving entity
         Product product = productMapper.mapToEntity(productDto);
+        product.setImages(null);
         product.setMainImage(null);
-
         Product savedProduct = productRep.save(product);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedProduct.getId());
 
@@ -163,6 +163,7 @@ public class ProductServiceImpl implements ProductService {
         // saving entity
         Product productToUpdate = productMapper.mapToEntity(updatedProductDto);
         productToUpdate.setId(id);
+        productToUpdate.setImages(existingProduct.getImages());
         productToUpdate.setCreatedAt(existingProduct.getCreatedAt());
         productRep.save(productToUpdate);
 
@@ -258,20 +259,6 @@ public class ProductServiceImpl implements ProductService {
 
 
     //// IMAGES ////
-
-    @Override
-    public Set<AttachedFileDto> findAllImagesByOwnerId(Long productId) {
-        log.debug("Finding all images by {} ID {}", ENTITY_CLASS_NAME, productId);
-
-        ProductDto productDto = productRep.findById(productId)
-                .map(productMapper::mapToDto)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
-
-        Set<AttachedFileDto> attachedFilesDto = attachedImageService.findAllByOwner(productDto);
-
-        log.debug("Found {} images by {} ID {}", attachedFilesDto.size(), ENTITY_CLASS_NAME, productId);
-        return attachedFilesDto;
-    }
 
     @Override
     public AttachedFileDto findImageByIdAndOwnerId(Long productId, Long imageId) {

@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -32,6 +33,7 @@ public class ProductDto implements AttachedImageOwner {
     @PositiveOrZero(message = "Price with discount should be positive or 0.")
     private final Double priceWithDiscount;
 
+    private final List<AttachedFileDto> images;
     private final AttachedFileDto mainImage;
 
     @NotNull(message = "Category should not be empty.")

@@ -21,6 +21,8 @@ public class BrandDto implements AttachedImageOwner {
     @Size(max = 60, message = "Name should be less then 60 characters")
     private final String name;
 
+    private final AttachedFileDto image;
+
     @Override
     @JsonIgnore
     public String getImageOwnerClassName() {

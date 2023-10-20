@@ -16,7 +16,11 @@ import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,6 +47,11 @@ public class ProductCategory {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private Set<Product> products;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    @Where(clause = "owner_class = 'ProductCategory'")
+    private List<AttachedFile> images;
+
     @Transient
     private Long productCount;
 
@@ -50,15 +59,15 @@ public class ProductCategory {
         this.id = id;
         this.name = name;
         this.parent = parent;
+        images = new ArrayList<>(1);
     }
 
-    public ProductCategory(Long id, String name, ProductCategory parent, Long productCount) {
+    public ProductCategory(Long id, String name, ProductCategory parent, List<AttachedFile> images) {
         this.id = id;
         this.name = name;
         this.parent = parent;
-        this.productCount = productCount;
+        if (images != null && !images.isEmpty()) {
+            this.images = Collections.singletonList(images.get(0));
+        }
     }
-
-//    @Transient
-//    private Double maxPrice;
 }

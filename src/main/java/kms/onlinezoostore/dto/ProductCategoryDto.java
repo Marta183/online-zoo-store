@@ -21,6 +21,7 @@ public class ProductCategoryDto implements AttachedImageOwner {
     private final String name;
 
     private final ProductCategoryDto parent;
+    private final AttachedFileDto image;
 
     @Override
     @JsonIgnore

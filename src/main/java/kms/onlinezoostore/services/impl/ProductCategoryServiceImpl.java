@@ -102,6 +102,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         // saving
         ProductCategory category = productCategoryMapper.mapToEntity(categoryDto);
+        category.setImages(null);
         ProductCategory savedCategory = categoryRepository.save(category);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedCategory.getId());
 
@@ -128,6 +129,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         ProductCategory updatedCategory = productCategoryMapper.mapToEntity(updatedCategoryDto);
         updatedCategory.setId(id);
+        updatedCategory.setImages(existingCategory.getImages());
         categoryRepository.save(updatedCategory);
 
         log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
@@ -192,23 +194,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     //// IMAGES ////
 
-    @Override
-    public AttachedFileDto findImageByOwnerId(Long id) {
-        log.debug("Finding image by {} ID {}", ENTITY_CLASS_NAME, id);
-
-        ProductCategoryDto productCategoryDto = categoryRepository.findById(id)
-                .map(productCategoryMapper::mapToDto)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
-
-        AttachedFileDto attachedFileDto = attachedImageService.findFirstByOwner(productCategoryDto);
-
-        if (Objects.isNull(attachedFileDto)) {
-            log.debug("Not found image by {} ID {}", ENTITY_CLASS_NAME, id);
-        } else {
-            log.debug("Found image with ID {} by {} ID {}", attachedFileDto.getId(), ENTITY_CLASS_NAME, id);
-        }
-        return attachedFileDto;
-    }
 
     @Override
     @Transactional

@@ -62,7 +62,7 @@ public class AttachedImageServiceTest {
     @BeforeEach
     public void setup() {
         attachedFile = new AttachedFile(1L, "path1", "name1", 1L, "Brand");
-        imageOwner = new BrandDto(1L, "test");
+        imageOwner = new BrandDto(1L, "test", null);
     }
 
     @Test
