@@ -34,7 +34,7 @@ public class Brand {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @Where(clause = "owner_class = 'Brand'")
     private List<AttachedFile> images;

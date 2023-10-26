@@ -100,7 +100,7 @@ class ProductCategoryServiceImplTest {
         List<ProductCategory> categoryList = getCategoryList();
 
         List<ProductCategoryDto> expectedCategoryDtoList = categoryList.stream()
-                .map((el) -> categoryMapper.mapToDto(el))
+                .map(categoryMapper::mapToDto)
                 .collect(Collectors.toList());
 
         when(categoryRepository.findAll()).thenReturn(categoryList);
@@ -128,7 +128,7 @@ class ProductCategoryServiceImplTest {
                 .collect(Collectors.toList());
 
         List<ProductCategoryDto> expectedCategoryDtoList = expectedCategoryList.stream()
-                .map((el) -> categoryMapper.mapToDto(el))
+                .map(categoryMapper::mapToDto)
                 .collect(Collectors.toList());
 
         when(categoryRepository.findAllByParentIsNull()).thenReturn(expectedCategoryList);
@@ -368,9 +368,11 @@ class ProductCategoryServiceImplTest {
         return categoryList;
     }
 
+
     /////////////////////
     // ADD INNER CLASS //
     /////////////////////
+
 
     @Test
     void uploadImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {
