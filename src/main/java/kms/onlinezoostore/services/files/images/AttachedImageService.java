@@ -71,20 +71,6 @@ public class AttachedImageService implements AttachedFileService {
     }
 
     @Override
-    public AttachedFileDto findFirstByOwner(AttachedImageOwner owner) {
-        log.debug("Finding first {} by owner {}", SERVICE_NAME, owner.toStringImageOwner());
-
-        AttachedFileDto image = findAllByOwner(owner).stream().findFirst().orElse(null);
-
-        if (Objects.isNull(image)) {
-            log.debug("Not found any {} by owner {}", SERVICE_NAME, owner.toStringImageOwner());
-        } else {
-            log.debug("Found first {} with ID {} by owner {}", SERVICE_NAME, image.getId(), owner.toStringImageOwner());
-        }
-        return image;
-    }
-
-    @Override
     @Transactional
     public Set<AttachedFileDto> uploadFilesByOwner(AttachedImageOwner owner, List<MultipartFile> images) {
         log.debug("Uploading {} {} for owner {}", SERVICE_NAME, images.size(), owner.toStringImageOwner());

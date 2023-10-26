@@ -13,7 +13,6 @@ public interface AttachedFileService {
 
     Set<AttachedFileDto> findAll();
     Set<AttachedFileDto> findAllByOwner(AttachedImageOwner owner);
-    AttachedFileDto findFirstByOwner(AttachedImageOwner owner);
     AttachedFileDto findByIdAndOwner(Long imageId, AttachedImageOwner owner);
 
     Set<AttachedFileDto> uploadFilesByOwner(AttachedImageOwner owner, List<MultipartFile> multipartFiles);

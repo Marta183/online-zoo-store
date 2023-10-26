@@ -25,7 +25,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityCannotBeDeleted.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    protected ErrorMessage handleEntityDuplicateException(EntityCannotBeDeleted ex) {
+    protected ErrorMessage handleEntityCannotBeDeleted(EntityCannotBeDeleted ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityCannotBeUpdated.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handleEntityCannotBeUpdated(EntityCannotBeUpdated ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage(ex.getMessage());
     }
