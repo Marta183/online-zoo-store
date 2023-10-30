@@ -63,23 +63,6 @@ public class ProductCategoryController {
         return categoryService.findAllByParentId(id);
     }
 
-    @GetMapping("/{id}/products")
-    @ResponseStatus(HttpStatus.OK)
-    public Page<ProductDto> findProductPageByCriteria(@PathVariable Long id, Pageable pageable,
-                                                      @RequestParam MultiValueMap<String, String> params) {
-        params.remove("pageNumber");
-        params.remove("pageSize");
-        params.remove("sort");
-
-        if (params.isEmpty()) {
-            return productService.findPageByCategoryId(id, pageable);
-        }
-
-        params.remove("categoryId"); // acceptably only as a pathVariable
-        params.add("categoryId", id.toString());
-        return productService.findPageByMultipleCriteria(params, pageable);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductCategoryDto create(@RequestBody @Valid ProductCategoryDto productCategoryDto) { //}, BindingResult bindingResult) {

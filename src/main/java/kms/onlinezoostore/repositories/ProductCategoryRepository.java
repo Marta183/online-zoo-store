@@ -22,4 +22,15 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
             "WHERE pc.parent.id = :parentId " +
             "GROUP BY pc.id, pc.name, pc.parent ")
     List<ProductCategory> findInnerCategoriesWithProductCountByParentId(@Param("parentId") Long parentId);
+
+    @Query(value = "WITH RECURSIVE categoriesCTE AS ( " +
+            "SELECT id " +
+            "FROM product_categories " +
+            "WHERE id in :parentIds " +
+            "UNION ALL " +
+            "SELECT inners.id " +
+            "FROM categoriesCTE parents, product_categories inners " +
+            "WHERE inners.parent_id = parents.id)" +
+            "SELECT id FROM categoriesCTE ", nativeQuery = true)
+    List<Long> findNestedCategoryIds(@Param("parentIds") List<Long> parentIds);
 }

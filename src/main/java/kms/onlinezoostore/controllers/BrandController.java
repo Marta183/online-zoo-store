@@ -46,23 +46,6 @@ public class BrandController {
         return brandService.findById(id);
     }
 
-    @GetMapping("/{id}/products")
-    @ResponseStatus(HttpStatus.OK)
-    public Page<ProductDto> findProductPageByCriteria(@PathVariable Long id, Pageable pageable,
-                                                      @RequestParam MultiValueMap<String, String> params) {
-        params.remove("pageNumber");
-        params.remove("pageSize");
-        params.remove("sort");
-
-        if (params.isEmpty()) {
-            return productService.findPageByBrandId(id, pageable);
-        }
-
-        params.remove("brandId"); // acceptably only as a pathVariable
-        params.add("brandId", id.toString());
-        return productService.findPageByMultipleCriteria(params, pageable);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BrandDto create(@RequestBody @Valid BrandDto brandDto) {

@@ -8,6 +8,7 @@ import kms.onlinezoostore.entities.AttachedFile;
 import kms.onlinezoostore.entities.Product;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.exceptions.PriceConflictException;
+import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.repositories.specifications.ProductSpecifications;
 import kms.onlinezoostore.services.*;
@@ -35,7 +36,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
-    private final ProductRepository productRep;
+    private final ProductRepository productRepository;
+    private final ProductCategoryRepository categoryRepository;
     private final AttachedFileMapper attachedFileMapper;
 
     private final UniqueFieldService uniqueFieldService;
@@ -56,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto findById(Long id) {
         log.debug("Finding {} by ID {}", ENTITY_CLASS_NAME, id);
 
-        ProductDto productDto = productRep.findById(id)
+        ProductDto productDto = productRepository.findById(id)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
@@ -69,31 +71,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Finding {} product page ", ENTITY_CLASS_NAME);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<ProductDto> page = productRep.findAll(pageable)
-                .map(productMapper::mapToDto);
-
-        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
-        return page;
-    }
-
-    @Override
-    public Page<ProductDto> findPageByCategoryId(Long categoryId, Pageable pageable) {
-        log.debug("Finding {} product page by category ID {}", ENTITY_CLASS_NAME, categoryId);
-        log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
-
-        Page<ProductDto> page = productRep.findAllByCategoryId(categoryId, pageable)
-                .map(productMapper::mapToDto);
-
-        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
-        return page;
-    }
-
-    @Override
-    public Page<ProductDto> findPageByBrandId(Long brandId, Pageable pageable) {
-        log.debug("Finding {} product page by brand ID {}", ENTITY_CLASS_NAME, brandId);
-        log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
-
-        Page<ProductDto> page = productRep.findAllByBrandId(brandId, pageable)
+        Page<ProductDto> page = productRepository.findAll(pageable)
                 .map(productMapper::mapToDto);
 
         log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
@@ -107,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
 
         processParamsForCriteriaBuilder(params);
 
-        Page<ProductDto> page = productRep.findAll(ProductSpecifications.build(params), pageable)
+        Page<ProductDto> page = productRepository.findAll(ProductSpecifications.build(params), pageable)
                 .map(productMapper::mapToDto);
 
         log.debug("Found {} page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
@@ -119,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto create(ProductDto productDto) {
         log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, productDto.getName());
 
-        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", productDto.getName());
+        uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRepository, "name", productDto.getName());
 
         verifyPrices(productDto);
 
@@ -129,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.mapToEntity(productDto);
         product.setImages(null);
         product.setMainImage(null);
-        Product savedProduct = productRep.save(product);
+        Product savedProduct = productRepository.save(product);
         log.debug("New {} saved in DB with ID {}", ENTITY_CLASS_NAME, savedProduct.getId());
 
         return productMapper.mapToDto(savedProduct);
@@ -140,11 +118,11 @@ public class ProductServiceImpl implements ProductService {
     public void update(Long id, ProductDto updatedProductDto) {
         log.debug("Updating {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        Product existingProduct = productRep.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         // check unique name
         if (!existingProduct.getName().equals(updatedProductDto.getName())) {
-            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRep, "name", updatedProductDto.getName());
+            uniqueFieldService.checkIsFieldValueUniqueOrElseThrow(productRepository, "name", updatedProductDto.getName());
         }
 
         // control main image
@@ -165,7 +143,7 @@ public class ProductServiceImpl implements ProductService {
         productToUpdate.setId(id);
         productToUpdate.setImages(existingProduct.getImages());
         productToUpdate.setCreatedAt(existingProduct.getCreatedAt());
-        productRep.save(productToUpdate);
+        productRepository.save(productToUpdate);
 
         log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
     }
@@ -175,11 +153,11 @@ public class ProductServiceImpl implements ProductService {
     public void deleteById(Long id) {
         log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        ProductDto existingProductDto = productRep.findById(id).map(productMapper::mapToDto)
+        ProductDto existingProductDto = productRepository.findById(id).map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         // delete entity
-        productRep.deleteById(id);
+        productRepository.deleteById(id);
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
 
         // delete attached files
@@ -191,6 +169,10 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Processing {} params for criteria builder", ENTITY_CLASS_NAME);
 
         deleteInvalidParams(params);
+
+        if (params.containsKey("categoryId")) {
+            addInnerCategoriesIdToParams(params);
+        }
 
         if (params.containsKey("minPrice")
                 && Objects.nonNull(params.getFirst("minPrice"))
@@ -214,6 +196,16 @@ public class ProductServiceImpl implements ProductService {
                 mapIterator.remove(); // remove map.entry
             }
         }
+    }
+
+    private void addInnerCategoriesIdToParams(MultiValueMap<String, String> params) {
+        List<Long> receivedIds = params.get("categoryId")
+                .stream().map(Long::parseLong).collect(Collectors.toList());
+
+        List<String> foundIds = categoryRepository.findNestedCategoryIds(receivedIds)
+                .stream().map(String::valueOf).collect(Collectors.toList());
+
+        params.replace("categoryId", foundIds);
     }
 
     private void verifyInnerEntitiesOrThrowException(ProductDto productDto) {
@@ -264,7 +256,7 @@ public class ProductServiceImpl implements ProductService {
     public AttachedFileDto findImageByIdAndOwnerId(Long productId, Long imageId) {
         log.debug("Finding image by ID {} by {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
 
-        ProductDto productDto = productRep.findById(productId)
+        ProductDto productDto = productRepository.findById(productId)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
@@ -279,7 +271,7 @@ public class ProductServiceImpl implements ProductService {
     public Set<AttachedFileDto> uploadImagesByOwnerId(Long productId, List<MultipartFile> images) {
         log.debug("Uploading {} images for {} ID {}", images.size(), ENTITY_CLASS_NAME, productId);
 
-        ProductDto productDto = productRep.findById(productId)
+        ProductDto productDto = productRepository.findById(productId)
                 .map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
@@ -296,7 +288,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteAllImagesByOwnerId(Long productId) {
         log.debug("Deleting all images for {} ID {}", ENTITY_CLASS_NAME, productId);
 
-        Product product = productRep.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         product.setMainImage(null);
@@ -311,7 +303,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteImageByIdAndOwnerId(Long productId, Long imageId) {
         log.debug("Deleting image by ID {} for {} ID {}", imageId, ENTITY_CLASS_NAME, productId);
 
-        Product product = productRep.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, productId));
 
         if (Objects.nonNull(product.getMainImage()) && product.getMainImage().getId().equals(imageId)) {
