@@ -2,6 +2,7 @@ package kms.onlinezoostore.services.impl;
 
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ConstantDto;
+import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.dto.mappers.ConstantMapper;
 import kms.onlinezoostore.entities.Constant;
 import kms.onlinezoostore.entities.enums.ConstantKeys;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ public class ConstantServiceImpl implements ConstantService {
     private final ConstantMapper constantMapper;
     private final ConstantRepository constantRepository;
     private final AttachedImageService attachedImageService;
+    private final AttachedFileMapper attachedFileMapper;
     private static final String ENTITY_CLASS_NAME = "CONSTANT";
 
     @Override
@@ -54,7 +57,7 @@ public class ConstantServiceImpl implements ConstantService {
 
     @Override
     @Transactional
-    public void updateValue(ConstantKeys key, Object updatedValue) {
+    public ConstantDto updateValue(ConstantKeys key, Object updatedValue) {
         log.debug("Updating {} value with key {}", ENTITY_CLASS_NAME, key);
 
         Constant existingConstant = constantRepository.findByKey(key)
@@ -67,6 +70,7 @@ public class ConstantServiceImpl implements ConstantService {
         }
 
         log.debug("{} with key {} updated in DB", ENTITY_CLASS_NAME, key);
+        return constantMapper.mapToDto(existingConstant);
     }
 
     private void updateValue(Constant constantToUpdate, Object updatedValue) {
@@ -87,7 +91,8 @@ public class ConstantServiceImpl implements ConstantService {
         if (Objects.isNull(image)) {
             constantToUpdate.setValue(null);
         } else {
-            uploadImageByOwner(constantToUpdate, image);
+            AttachedFileDto uploadedImage = uploadImageByOwner(constantToUpdate, image);
+            constantToUpdate.setImages(Collections.singletonList(attachedFileMapper.mapToEntity(uploadedImage)));
         }
     }
 

@@ -37,7 +37,7 @@ public class ConstantController {
 
     @PutMapping("/{key}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateValue(@PathVariable ConstantKeys key, @RequestParam(name = "value") Object updatedValue) {
-        constantService.updateValue(key, updatedValue);
+    public ConstantDto updateValue(@PathVariable ConstantKeys key, @RequestParam(name = "value") Object updatedValue) {
+        return constantService.updateValue(key, updatedValue);
     }
 }

@@ -2,6 +2,7 @@ package kms.onlinezoostore.unit.services.impl;
 
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ConstantDto;
+import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.dto.mappers.ConstantMapper;
 import kms.onlinezoostore.entities.AttachedFile;
 import kms.onlinezoostore.entities.Constant;
@@ -42,12 +43,14 @@ import static org.mockito.Mockito.only;
 @ExtendWith(MockitoExtension.class)
 class ConstantServiceImplTest {
 
-    @Spy
-    private ConstantMapper constantMapper = Mappers.getMapper(ConstantMapper.class);
     @Mock
     private ConstantRepository constantRepository;
     @Mock
     private AttachedImageService attachedImageService;
+    @Spy
+    private ConstantMapper constantMapper = Mappers.getMapper(ConstantMapper.class);
+    @Spy
+    private AttachedFileMapper attachedFileMapper = Mappers.getMapper(AttachedFileMapper.class);
     @InjectMocks
     private ConstantServiceImpl constantService;
 
@@ -104,19 +107,20 @@ class ConstantServiceImplTest {
     }
 
     @Test
-    void updateValue_WhenValueIsString() {
-        Object newValue = new String("test");
-        Constant currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
+    void updateValue_ShouldReturnConstantDto_WhenValueIsString() {
+        Object newValue = new String("new");
+        Constant existing = new Constant(1L, ConstantKeys.CURRENCY, "old", false, null);
+        ConstantDto expected = new ConstantDto(1L, ConstantKeys.CURRENCY, "new");
 
-        when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
+        when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(existing));
 
-        constantService.updateValue(ConstantKeys.CURRENCY, newValue);
+        ConstantDto actual = constantService.updateValue(ConstantKeys.CURRENCY, newValue);
 
-        assertEquals(newValue, currency.getValue(), "Constant: expected and actual value is not equal.");
+        assertEquals(expected, actual, "Constant: expected and actual value is not equal.");
     }
 
     @Test
-    void updateValue_WhenValueIsNullForString() {
+    void updateValue_ShouldReturnConstantDto_WhenValueIsNullForString() {
         Constant currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
 
         when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
@@ -136,7 +140,7 @@ class ConstantServiceImplTest {
     }
 
     @Test
-    void updateValue_WhenValueIsNullForImage() {
+    void updateValue_ShouldReturnConstantDto_WhenValueIsNullForImage() {
         Constant logo = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(new AttachedFile()));
         ConstantDto logoDto = constantMapper.mapToDto(logo);
 
@@ -151,23 +155,25 @@ class ConstantServiceImplTest {
     }
 
     @Test
-    void updateValue_WhenValueIsNewImage() {
+    void updateValue_ShouldReturnConstantDto_WhenValueIsNewImage() {
         AttachedFile oldImage = new AttachedFile(2L, "oldPath", "oldName", 1L, "Constant");
+        Constant existing = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(oldImage));
+        ConstantDto existingDto = constantMapper.mapToDto(existing);
         MultipartFile multipartFile = new MockMultipartFile("newName", new byte[1]);
         AttachedFileDto newImageDto = new AttachedFileDto(3L, "newPath", "newName");
-        Constant logo = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(oldImage));
-        ConstantDto logoDto = constantMapper.mapToDto(logo);
+        ConstantDto expected = new ConstantDto(1L, ConstantKeys.LOGO, newImageDto);
 
-        when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(logo));
-        doNothing().when(attachedImageService).deleteAllByOwner(logoDto);
-        when(attachedImageService.uploadFileByOwner(logoDto, multipartFile)).thenReturn(newImageDto);
+        when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(existing));
+        doNothing().when(attachedImageService).deleteAllByOwner(existingDto);
+        when(attachedImageService.uploadFileByOwner(existingDto, multipartFile)).thenReturn(newImageDto);
 
         // act
-        constantService.updateValue(ConstantKeys.LOGO, multipartFile);
+        ConstantDto actual = constantService.updateValue(ConstantKeys.LOGO, multipartFile);
 
-        assertNotNull(newImageDto);
+        assertNotNull(actual);
+        assertEquals(expected, actual, "Constant: expected and actual is not equal.");
 
-        verify(attachedImageService, times(1)).deleteAllByOwner(logoDto);
-        verify(attachedImageService, times(1)).uploadFileByOwner(logoDto, multipartFile);
+        verify(attachedImageService, times(1)).deleteAllByOwner(existingDto);
+        verify(attachedImageService, times(1)).uploadFileByOwner(existingDto, multipartFile);
     }
 }

@@ -11,5 +11,5 @@ public interface ConstantService {
 
     ConstantDto findByKey(ConstantKeys key);
 
-    void updateValue(ConstantKeys key, Object updatedValue);
+    ConstantDto updateValue(ConstantKeys key, Object updatedValue);
 }
