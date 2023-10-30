@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -140,43 +141,28 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public void deleteById(Long id) {
         log.debug("Deleting {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        ProductCategoryDto existingCategoryDto = categoryRepository.findById(id)
-                .map(productCategoryMapper::mapToDto)
+        ProductCategory existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        // category can't be deleted if exist products with current category
-        verifyCategoryHaveNotProductsOrThrowException(id);
-
-        // category can't be deleted if exist products with any of inner categories
-        verifyInnerCategoriesHaveNotProductsOrThrowException(id);
+        // category can't be deleted if exist products with current category or any of inner categories
+        verifyNoProductsInCategoryAndInnersOrThrowException(id);
 
         // delete entity
         categoryRepository.deleteById(id);
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
 
         // delete attached files
-        attachedImageService.deleteAllByOwner(existingCategoryDto);
+        attachedImageService.deleteAllByOwner(productCategoryMapper.mapToDto(existingCategory));
         log.debug("Deleted image for {} with ID {}", ENTITY_CLASS_NAME, id);
     }
 
-    private void verifyCategoryHaveNotProductsOrThrowException(Long id) {
-        Long numberOfProducts = productRepository.countByCategoryId(id);
-        if (numberOfProducts > 0) {
-            throw new EntityCannotBeDeleted("Cannot delete category by id " + id +
-                    ": there are " + numberOfProducts + " product with the current category");
-        }
-    }
+    private void verifyNoProductsInCategoryAndInnersOrThrowException(Long id) {
+        List<Long> categoryIds = categoryRepository.findNestedCategoryIds(Collections.singletonList(id));
+        Long numberOfProducts = productRepository.countByCategoryIds(categoryIds);
 
-    private void verifyInnerCategoriesHaveNotProductsOrThrowException(Long parentId) {
-        List<ProductCategory> categories = categoryRepository.findInnerCategoriesWithProductCountByParentId(parentId);
-        categories.forEach(innerCategory -> {
-            if (innerCategory.getProductCount() > 0) {
-                throw new EntityCannotBeDeleted("Cannot delete inner category by id " + innerCategory.getId() +
-                        ": there are " + innerCategory.getProductCount() + " product with the current category");
-            } else {
-                verifyInnerCategoriesHaveNotProductsOrThrowException(innerCategory.getId());
-            }
-        });
+        if (numberOfProducts > 0)
+            throw new EntityCannotBeDeleted("Cannot delete category by id " + id +
+                    ": there are " + numberOfProducts + " product bounded to the category or it's inner categories");
     }
 
     private void checkUniqueNameWithinParentCategory(String name, ProductCategoryDto parentCategoryDto) {

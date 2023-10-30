@@ -301,9 +301,10 @@ class ProductCategoryServiceImplTest {
 
     @Test
     void deleteById_WhenDataIsCorrect() {
+        List<Long> categoryIds = Collections.singletonList(1L);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryInner));
-        when(productRepository.countByCategoryId(1L)).thenReturn(0L);
-        when(categoryRepository.findInnerCategoriesWithProductCountByParentId(categoryParent.getId())).thenReturn(Collections.emptyList());
+        when(categoryRepository.findNestedCategoryIds(categoryIds)).thenReturn(categoryIds);
+        when(productRepository.countByCategoryIds(categoryIds)).thenReturn(0L);
 
         categoryService.deleteById(1L);
 
@@ -322,27 +323,13 @@ class ProductCategoryServiceImplTest {
     }
 
     @Test
-    void deleteById_ShouldThrowException_WhenExistsAnyProductByCategoryId() {
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(categoryInner));
-        when(productRepository.countByCategoryId(anyLong())).thenReturn(1L);
+    void deleteById_ShouldThrowException_WhenExistsAnyProduct() {
+        List<Long> categoryIds = Collections.singletonList(1L);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryInner));
+        when(categoryRepository.findNestedCategoryIds(categoryIds)).thenReturn(categoryIds);
+        when(productRepository.countByCategoryIds(categoryIds)).thenReturn(1L);
 
-        assertThrows(EntityCannotBeDeleted.class, () -> categoryService.deleteById(anyLong()));
-
-        verify(categoryRepository, never()).deleteById(anyLong());
-        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
-    }
-
-    @Test
-    void deleteById_ShouldThrowException_WhenExistsAnyProductForInnerCategories() {
-        ProductCategory categoryWithProducts = new ProductCategory(5L, "test5", categoryParent);
-        categoryWithProducts.setProductCount(1L);
-
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(categoryParent));
-        when(productRepository.countByCategoryId(anyLong())).thenReturn(0L);
-        when(categoryRepository.findInnerCategoriesWithProductCountByParentId(categoryParent.getId()))
-                .thenReturn(List.of(categoryWithProducts));
-
-        assertThrows(EntityCannotBeDeleted.class, () -> categoryService.deleteById(categoryParent.getId()));
+        assertThrows(EntityCannotBeDeleted.class, () -> categoryService.deleteById(1L));
 
         verify(categoryRepository, never()).deleteById(anyLong());
         verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
