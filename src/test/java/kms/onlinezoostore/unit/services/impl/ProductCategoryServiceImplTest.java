@@ -7,8 +7,6 @@ import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
@@ -43,8 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.any;
@@ -369,20 +365,7 @@ class ProductCategoryServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () -> categoryService.uploadImageByOwnerId(1L, multipartFile));
 
-        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
-        verify(attachedImageService, never()).uploadFileByOwner(any(AttachedImageOwner.class), any(MultipartFile.class));
-    }
-
-    @Test
-    void uploadImageByOwnerId_ShouldThrowException_WhenImageNotUpload() {
-        MultipartFile multipartFile = new MockMultipartFile("testName", new byte[1]);
-
-        when(categoryRepository.findById(categoryInner.getId())).thenReturn(Optional.of(categoryInner));
-        doThrow(FileNotFoundException.class).when(attachedImageService).deleteAllByOwner(categoryInnerDto);
-
-        assertThrows(FileUploadException.class, () -> categoryService.uploadImageByOwnerId(categoryInner.getId(), multipartFile));
-
-        verify(attachedImageService, never()).uploadFileByOwner(categoryInnerDto, multipartFile);
+        verify(attachedImageService, never()).replaceFileByOwner(any(AttachedImageOwner.class), any(MultipartFile.class));
     }
 
     @Test
@@ -391,12 +374,9 @@ class ProductCategoryServiceImplTest {
         AttachedFileDto imageDto = new AttachedFileDto(1L, "testPath", "testName");
 
         when(categoryRepository.findById(categoryInner.getId())).thenReturn(Optional.of(categoryInner));
-        doNothing().when(attachedImageService).deleteAllByOwner(categoryInnerDto);
-        when(attachedImageService.uploadFileByOwner(categoryInnerDto, multipartFile)).thenReturn(imageDto);
+        when(attachedImageService.replaceFileByOwner(categoryInnerDto, multipartFile)).thenReturn(imageDto);
 
         AttachedFileDto actualImageDto = categoryService.uploadImageByOwnerId(categoryInner.getId(), multipartFile);
-
-        verify(attachedImageService, times(1)).uploadFileByOwner(categoryInnerDto, multipartFile);
 
         assertNotNull(actualImageDto);
         assertNotNull(actualImageDto.getId());

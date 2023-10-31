@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+
 
 import java.util.List;
 
@@ -37,7 +39,13 @@ public class ConstantController {
 
     @PutMapping("/{key}")
     @ResponseStatus(HttpStatus.OK)
-    public ConstantDto updateValue(@PathVariable ConstantKeys key, @RequestParam(name = "value") Object updatedValue) {
+    public Object updateValue(@PathVariable ConstantKeys key, @RequestParam(name = "value") Object updatedValue) {
         return constantService.updateValue(key, updatedValue);
+    }
+
+    @DeleteMapping("/{key}/image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllImages(@PathVariable ConstantKeys key) {
+        constantService.deleteImages(key);
     }
 }

@@ -7,8 +7,6 @@ import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
@@ -190,16 +188,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 .map(productCategoryMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        // delete existing image
-        log.debug("Replacing existing image for {} ID {}", ENTITY_CLASS_NAME, id);
-        try {
-            attachedImageService.deleteAllByOwner(productCategoryDto);
-        } catch (FileNotFoundException ex) {
-            throw new FileUploadException("Cannot replace an existing image because of: " + ex.getMessage());
-        }
+        AttachedFileDto uploadedImage = attachedImageService.replaceFileByOwner(productCategoryDto, image);
 
-        // upload new image
-        AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(productCategoryDto, image);
         log.debug("Uploaded new image with ID {} for {} ID {}", uploadedImage.getId(), ENTITY_CLASS_NAME, id);
 
         return uploadedImage;

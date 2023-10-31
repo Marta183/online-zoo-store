@@ -20,4 +20,6 @@ public interface AttachedFileService {
 
     void deleteAllByOwner(AttachedImageOwner owner);
     void deleteByIdAndOwner(Long imageId, AttachedImageOwner owner);
+
+    AttachedFileDto replaceFileByOwner(AttachedImageOwner owner, MultipartFile newImage);
 }

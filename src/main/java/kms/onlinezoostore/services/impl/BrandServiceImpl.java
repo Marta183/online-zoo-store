@@ -5,8 +5,6 @@ import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.dto.mappers.BrandMapper;
 import kms.onlinezoostore.entities.Brand;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.BrandService;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -115,16 +113,8 @@ public class BrandServiceImpl implements BrandService {
                 .map(brandMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        // delete existing image
-        log.debug("Replacing existing image for {} ID {}", ENTITY_CLASS_NAME, id);
-        try {
-            attachedImageService.deleteAllByOwner(brandDto);
-        } catch (FileNotFoundException ex) {
-            throw new FileUploadException("Cannot replace an existing image because of: " + ex.getMessage());
-        }
+        AttachedFileDto uploadedImage = attachedImageService.replaceFileByOwner(brandDto, image);
 
-        // upload new image
-        AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(brandDto, image);
         log.debug("Uploaded new image with ID {} for {} ID {}", uploadedImage.getId(), ENTITY_CLASS_NAME, id);
 
         return uploadedImage;

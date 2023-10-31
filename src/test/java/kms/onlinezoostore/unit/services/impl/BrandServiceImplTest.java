@@ -6,8 +6,6 @@ import kms.onlinezoostore.dto.mappers.BrandMapper;
 import kms.onlinezoostore.entities.Brand;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.BrandRepository;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -40,8 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.any;
@@ -197,34 +193,18 @@ class BrandServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () -> brandService.uploadImageByOwnerId(1L, multipartFile));
 
-        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
-        verify(attachedImageService, never()).uploadFileByOwner(any(AttachedImageOwner.class), any(MultipartFile.class));
-    }
-
-    @Test
-    void uploadImageByOwnerId_ShouldThrowException_WhenImageNotUpload() {
-        MultipartFile multipartFile = new MockMultipartFile("testName", new byte[1]);
-
-        when(brandRepository.findById(brand.getId())).thenReturn(Optional.of(brand));
-        doThrow(FileNotFoundException.class).when(attachedImageService).deleteAllByOwner(brandDto);
-
-        assertThrows(FileUploadException.class, () -> brandService.uploadImageByOwnerId(brand.getId(), multipartFile));
-
-        verify(attachedImageService, never()).uploadFileByOwner(brandDto, multipartFile);
+        verify(attachedImageService, never()).replaceFileByOwner(any(AttachedImageOwner.class), any(MultipartFile.class));
     }
 
     @Test
     void uploadImageByOwnerId_ShouldReturnAttachedFileDto_WhenDataIsCorrect() {
         MultipartFile multipartFile = new MockMultipartFile("testName", new byte[1]);
-        AttachedFileDto imageDto = new AttachedFileDto(brand.getId(), "testPath", "testName");
+        AttachedFileDto imageDto = new AttachedFileDto(1L, "testPath", "testName");
 
         when(brandRepository.findById(brand.getId())).thenReturn(Optional.of(brand));
-        doNothing().when(attachedImageService).deleteAllByOwner(brandDto);
-        when(attachedImageService.uploadFileByOwner(brandDto, multipartFile)).thenReturn(imageDto);
+        when(attachedImageService.replaceFileByOwner(brandDto, multipartFile)).thenReturn(imageDto);
 
         AttachedFileDto actualImageDto = brandService.uploadImageByOwnerId(brand.getId(), multipartFile);
-
-        verify(attachedImageService, times(1)).uploadFileByOwner(brandDto, multipartFile);
 
         assertNotNull(actualImageDto);
         assertNotNull(actualImageDto.getId());

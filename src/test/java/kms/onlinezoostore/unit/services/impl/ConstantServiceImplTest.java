@@ -12,6 +12,7 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ConstantRepository;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
 import kms.onlinezoostore.services.impl.ConstantServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -28,8 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,7 +37,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.only;
 
 @ExtendWith(MockitoExtension.class)
 class ConstantServiceImplTest {
@@ -54,11 +52,18 @@ class ConstantServiceImplTest {
     @InjectMocks
     private ConstantServiceImpl constantService;
 
+    private Constant currency;
+
+    @BeforeEach
+    public void setup() {
+        currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
+    }
+
     @Test
     void findAll_ShouldReturnConstantList() {
         List<Constant> constantList = new ArrayList<>() {{
             add(new Constant(1L, ConstantKeys.LOGO, "11", false, null));
-            add(new Constant(1L, ConstantKeys.CURRENCY, "22", true, null));
+            add(currency);
         }};
         List<ConstantDto> expectedConstantDtoList = constantList.stream().map(constantMapper::mapToDto).collect(Collectors.toList());
 
@@ -82,11 +87,9 @@ class ConstantServiceImplTest {
 
     @Test
     void findByKey_ShouldReturnConstantDto_WhenKeyExists() {
-        Constant currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
-        ConstantDto expectedConstantDto = constantMapper.mapToDto(currency);
-
         when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
 
+        ConstantDto expectedConstantDto = constantMapper.mapToDto(currency);
         ConstantDto actualConstantDto = constantService.findByKey(ConstantKeys.CURRENCY);
 
         assertEquals(expectedConstantDto, actualConstantDto, "ConstantDto: expected and actual is not equal.");
@@ -109,49 +112,20 @@ class ConstantServiceImplTest {
     @Test
     void updateValue_ShouldReturnConstantDto_WhenValueIsString() {
         Object newValue = new String("new");
-        Constant existing = new Constant(1L, ConstantKeys.CURRENCY, "old", false, null);
         ConstantDto expected = new ConstantDto(1L, ConstantKeys.CURRENCY, "new");
 
-        when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(existing));
+        when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
 
-        ConstantDto actual = constantService.updateValue(ConstantKeys.CURRENCY, newValue);
+        ConstantDto actual = (ConstantDto) constantService.updateValue(ConstantKeys.CURRENCY, newValue);
 
         assertEquals(expected, actual, "Constant: expected and actual value is not equal.");
     }
 
     @Test
-    void updateValue_ShouldReturnConstantDto_WhenValueIsNullForString() {
-        Constant currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
-
-        when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
-
-        constantService.updateValue(ConstantKeys.CURRENCY, null);
-
-        assertNull(currency.getValue(), "Constant: actual value is not null.");
-    }
-
-    @Test
     void updateValue_ShouldThrowException_WhenValueTypeIsUnsupportable() {
-        Constant currency = new Constant(1L, ConstantKeys.CURRENCY, "test", false, null);
-
         when(constantRepository.findByKey(ConstantKeys.CURRENCY)).thenReturn(Optional.of(currency));
 
-        assertThrows(EntityCannotBeUpdated.class, () -> constantService.updateValue(ConstantKeys.CURRENCY, 11));
-    }
-
-    @Test
-    void updateValue_ShouldReturnConstantDto_WhenValueIsNullForImage() {
-        Constant logo = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(new AttachedFile()));
-        ConstantDto logoDto = constantMapper.mapToDto(logo);
-
-        when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(logo));
-        doNothing().when(attachedImageService).deleteAllByOwner(logoDto);
-
-        constantService.updateValue(ConstantKeys.LOGO, null);
-
-        assertNull(logo.getValue(), "Constant: actual value is not null.");
-
-        verify(attachedImageService, only()).deleteAllByOwner(logoDto);
+        assertThrows(EntityCannotBeUpdated.class, () -> constantService.updateValue(ConstantKeys.CURRENCY, 1));
     }
 
     @Test
@@ -160,20 +134,35 @@ class ConstantServiceImplTest {
         Constant existing = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(oldImage));
         ConstantDto existingDto = constantMapper.mapToDto(existing);
         MultipartFile multipartFile = new MockMultipartFile("newName", new byte[1]);
-        AttachedFileDto newImageDto = new AttachedFileDto(3L, "newPath", "newName");
-        ConstantDto expected = new ConstantDto(1L, ConstantKeys.LOGO, newImageDto);
+        AttachedFileDto expectedImageDto = new AttachedFileDto(3L, "newPath", "newName");
 
         when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(existing));
-        doNothing().when(attachedImageService).deleteAllByOwner(existingDto);
-        when(attachedImageService.uploadFileByOwner(existingDto, multipartFile)).thenReturn(newImageDto);
+        when(attachedImageService.replaceFileByOwner(existingDto, multipartFile)).thenReturn(expectedImageDto);
 
         // act
-        ConstantDto actual = constantService.updateValue(ConstantKeys.LOGO, multipartFile);
+        AttachedFileDto actualConstantDto = (AttachedFileDto) constantService.updateValue(ConstantKeys.LOGO, multipartFile);
 
-        assertNotNull(actual);
-        assertEquals(expected, actual, "Constant: expected and actual is not equal.");
+        assertEquals(expectedImageDto, actualConstantDto, "Constant: expected and actual is not equal.");
 
-        verify(attachedImageService, times(1)).deleteAllByOwner(existingDto);
-        verify(attachedImageService, times(1)).uploadFileByOwner(existingDto, multipartFile);
+    }
+
+    @Test
+    void deleteImages_ShouldThrowException_WhenKeyNotFound() {
+        when(constantRepository.findByKey(any(ConstantKeys.class))).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> constantService.deleteImages(ConstantKeys.CURRENCY));
+    }
+
+    @Test
+    void deleteImages_WhenDataIsCorrect() {
+        Constant logo = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(new AttachedFile()));
+        ConstantDto logoDto = constantMapper.mapToDto(logo);
+
+        when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(logo));
+        doNothing().when(attachedImageService).deleteAllByOwner(logoDto);
+
+        constantService.deleteImages(ConstantKeys.LOGO);
+
+        verify(attachedImageService, times(1)).deleteAllByOwner(logoDto);
     }
 }

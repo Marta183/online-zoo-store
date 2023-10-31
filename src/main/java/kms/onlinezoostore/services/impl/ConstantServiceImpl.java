@@ -8,8 +8,6 @@ import kms.onlinezoostore.entities.Constant;
 import kms.onlinezoostore.entities.enums.ConstantKeys;
 import kms.onlinezoostore.exceptions.EntityCannotBeUpdated;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileNotFoundException;
-import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.repositories.ConstantRepository;
 import kms.onlinezoostore.services.ConstantService;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -19,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,63 +53,54 @@ public class ConstantServiceImpl implements ConstantService {
 
     @Override
     @Transactional
-    public ConstantDto updateValue(ConstantKeys key, Object updatedValue) {
+    public Object updateValue(ConstantKeys key, Object updatedValue) {
         log.debug("Updating {} value with key {}", ENTITY_CLASS_NAME, key);
 
         Constant existingConstant = constantRepository.findByKey(key)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, key.toString()));
 
-        if (existingConstant.isAttachedFile()) {
-            updateValue(existingConstant, (MultipartFile) updatedValue);
-        } else {
-            updateValue(existingConstant, updatedValue);
-        }
+        verifyValueType(existingConstant, updatedValue);
 
-        log.debug("{} with key {} updated in DB", ENTITY_CLASS_NAME, key);
-        return constantMapper.mapToDto(existingConstant);
+        return existingConstant.isAttachedFile() ?
+                updateValue(existingConstant, (MultipartFile) updatedValue) :
+                updateValue(existingConstant, (String) updatedValue);
     }
 
-    private void updateValue(Constant constantToUpdate, Object updatedValue) {
-        if (Objects.isNull(updatedValue)) {
-            constantToUpdate.setValue(null);
-        } else if (updatedValue instanceof String) {
-            constantToUpdate.setValue((String) updatedValue);
-        } else {
-            throw new EntityCannotBeUpdated("Unsupportable type of argument. Constant with key "
-                    + constantToUpdate.getKey() + " can not be updated");
-        }
+    @Override
+    @Transactional
+    public void deleteImages(ConstantKeys key) {
+        log.debug("Deleting {} value with key {}", ENTITY_CLASS_NAME, key);
+
+        Constant existingConstant = constantRepository.findByKey(key)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, key.toString()));
+
+        attachedImageService.deleteAllByOwner(constantMapper.mapToDto(existingConstant));
+        log.debug("Deleted all images for {} with key {}", ENTITY_CLASS_NAME, key);
     }
 
-    private void updateValue(Constant constantToUpdate, MultipartFile image) {
+    private void verifyValueType(Constant constant, Object updatedValue) {
+        if (constant.isAttachedFile() && updatedValue instanceof MultipartFile)
+            return;
+        if (!constant.isAttachedFile() && updatedValue instanceof String)
+            return;
 
-        deleteImageByOwner(constantToUpdate);
-
-        if (Objects.isNull(image)) {
-            constantToUpdate.setValue(null);
-        } else {
-            AttachedFileDto uploadedImage = uploadImageByOwner(constantToUpdate, image);
-            constantToUpdate.setImages(Collections.singletonList(attachedFileMapper.mapToEntity(uploadedImage)));
-        }
+        throw new EntityCannotBeUpdated("Unsupportable type of argument. Constant with key "
+                + constant.getKey() + " can not be updated");
     }
 
-    private void deleteImageByOwner(Constant constant) {
-        ConstantKeys key = constant.getKey();
-        log.debug("Deleting all images for {} key {}", ENTITY_CLASS_NAME, key);
+    private ConstantDto updateValue(Constant constantToUpdate, String updatedValue) {
+        constantToUpdate.setValue(updatedValue);
+        log.debug("Updated string value for {} with key {} ", ENTITY_CLASS_NAME, constantToUpdate.getKey());
 
-        try {
-            attachedImageService.deleteAllByOwner(constantMapper.mapToDto(constant));
-        } catch (FileNotFoundException ex) {
-            throw new FileUploadException("Cannot delete an existing image because of: " + ex.getMessage());
-        }
-        log.debug("Deleted image for {} key {}", ENTITY_CLASS_NAME, key);
+        return constantMapper.mapToDto(constantToUpdate);
     }
 
-    private AttachedFileDto uploadImageByOwner(Constant constant, MultipartFile image) {
-        log.debug("Uploading image for {} key {}", ENTITY_CLASS_NAME, constant.getKey());
+    private AttachedFileDto updateValue(Constant constant, MultipartFile image) {
+        log.debug("Updating image for {} key {}", ENTITY_CLASS_NAME, constant.getKey());
 
-        AttachedFileDto uploadedImage = attachedImageService.uploadFileByOwner(constantMapper.mapToDto(constant), image);
+        AttachedFileDto uploadedImage = attachedImageService.replaceFileByOwner(constantMapper.mapToDto(constant), image);
 
-        log.debug("Uploaded new image with ID {} for {} key {}", uploadedImage.getId(), ENTITY_CLASS_NAME, constant.getKey());
+        log.debug("Updated image ID = {} for {} with key {}", uploadedImage.getId(), ENTITY_CLASS_NAME, constant.getKey());
         return uploadedImage;
     }
 }

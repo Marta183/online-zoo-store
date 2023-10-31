@@ -5,6 +5,8 @@ import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.entities.AttachedFile;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.exceptions.files.FileEmptyException;
+import kms.onlinezoostore.exceptions.files.FileNotFoundException;
+import kms.onlinezoostore.exceptions.files.FileUploadException;
 import kms.onlinezoostore.exceptions.files.InvalidFileException;
 import kms.onlinezoostore.repositories.AttachedFileRepository;
 import kms.onlinezoostore.services.files.AttachedFileService;
@@ -88,9 +90,19 @@ public class AttachedImageService implements AttachedFileService {
     @Transactional
     public AttachedFileDto uploadFileByOwner(AttachedImageOwner owner, MultipartFile image) {
         log.debug("Uploading {} for owner {}", SERVICE_NAME, owner.toStringImageOwner());
-        
+
         // validating
-        controlFileValidOrThrowException(image);
+        verifyFileValidOrThrowException(image);
+
+        // loading into remote file service
+        AttachedFileDto savedFileDto = uploadFileToFileSystemAndSaveInDB(owner, image);
+        log.debug("New {} saved in DB with ID {}", SERVICE_NAME, savedFileDto.getId());
+
+        return savedFileDto;
+    }
+
+    private AttachedFileDto uploadFileToFileSystemAndSaveInDB(AttachedImageOwner owner, MultipartFile image) {
+        log.debug("Uploading {} for owner {}", SERVICE_NAME, owner.toStringImageOwner());
 
         // loading into remote file service
         log.debug("Uploading {} by owner {} to file system", SERVICE_NAME, owner.toStringImageOwner());
@@ -105,8 +117,29 @@ public class AttachedImageService implements AttachedFileService {
 
         AttachedFile savedFile = attachedFileRepository.save(attachedFile);
         log.debug("New {} saved in DB with ID {}", SERVICE_NAME, savedFile.getId());
-        
+
         return attachedFileMapper.mapToDto(savedFile);
+    }
+
+    @Override
+    @Transactional
+    public AttachedFileDto replaceFileByOwner(AttachedImageOwner owner, MultipartFile newImage) {
+        log.debug("Replacing existing image for {} ", owner.toStringImageOwner());
+
+        verifyFileValidOrThrowException(newImage);
+
+        // delete existing image
+        try {
+            deleteAllByOwner(owner);
+        } catch (FileNotFoundException ex) {
+            throw new FileUploadException("Cannot replace an existing image because of: " + ex.getMessage());
+        }
+
+        // upload new image
+        AttachedFileDto uploadedImage = uploadFileToFileSystemAndSaveInDB(owner, newImage);
+        log.debug("Replaced existing image for {} ", owner.toStringImageOwner());
+
+        return uploadedImage;
     }
 
     @Override
@@ -118,11 +151,11 @@ public class AttachedImageService implements AttachedFileService {
         log.debug("Found {} {} for owner {}", images.size(), SERVICE_NAME, owner.toStringImageOwner());
 
         for (AttachedFile image : images) {
-            fileService.deleteFile(image.getFileName());
-            log.debug("Deleted from file system {} by ID {} for owner {}", SERVICE_NAME, image.getId(), owner.toStringImageOwner());
-
             attachedFileRepository.deleteById(image.getId());
             log.debug("Deleted from repository {} by ID {} for owner {}", SERVICE_NAME, image.getId(), owner.toStringImageOwner());
+
+            fileService.deleteFile(image.getFileName());
+            log.debug("Deleted from file system {} by ID {} for owner {}", SERVICE_NAME, image.getId(), owner.toStringImageOwner());
         }
     }
 
@@ -134,14 +167,14 @@ public class AttachedImageService implements AttachedFileService {
         AttachedFile image = attachedFileRepository.findByIdAndOwnerIdAndOwnerClass(imageId, owner.getId(), owner.getImageOwnerClassName())
                 .orElseThrow(() -> new EntityNotFoundException(messageEntityNotFound(imageId, owner)));
 
-        fileService.deleteFile(image.getFileName());
-        log.debug("Deleted from file system {} by ID {} for owner {}", SERVICE_NAME, imageId, owner.toStringImageOwner());
-        
         attachedFileRepository.deleteById(imageId);
         log.debug("Deleted from DB {} by ID {} for owner {}", SERVICE_NAME, imageId, owner.toStringImageOwner());
+
+        fileService.deleteFile(image.getFileName());
+        log.debug("Deleted from file system {} by ID {} for owner {}", SERVICE_NAME, imageId, owner.toStringImageOwner());
     }
 
-    private void controlFileValidOrThrowException(MultipartFile multipartFile) {
+    private void verifyFileValidOrThrowException(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             throw new FileEmptyException("Uploaded file is empty. Cannot save an empty file.");
         }

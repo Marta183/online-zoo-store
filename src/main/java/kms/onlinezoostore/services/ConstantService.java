@@ -11,5 +11,7 @@ public interface ConstantService {
 
     ConstantDto findByKey(ConstantKeys key);
 
-    ConstantDto updateValue(ConstantKeys key, Object updatedValue);
+    Object updateValue(ConstantKeys key, Object updatedValue);
+
+    void deleteImages(ConstantKeys key);
 }
