@@ -12,7 +12,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         registry
                 .addMapping("/**")
 //                .allowedOrigins("*") // allow access from any source
-                .allowedOrigins("https://thunderous-pie-a8e8fd.netlify.app", "http://localhost:3000")
+                .allowedOrigins("https://clydeurov.github.io", "https://vvolk-valeria.github.io", "http://localhost:3000")
                 .allowCredentials(true) // allow sending cookies and authentication headers
                 .allowedHeaders("*")
                 .exposedHeaders("*")
