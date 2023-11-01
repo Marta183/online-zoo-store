@@ -1,0 +1,41 @@
+package kms.onlinezoostore.controllers;
+
+import kms.onlinezoostore.dto.ProductCharacteristicDto;
+import kms.onlinezoostore.services.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = ProductCharacteristicController.REST_URL)
+public class ProductCharacteristicController {
+    static final String REST_URL = "/api/v1/product-characteristics";
+    private final AgeService ageService;
+    private final BrandService brandService;
+    private final ColorService colorService;
+    private final MaterialService materialService;
+    private final PrescriptionService prescriptionService;
+    private final ProductCategoryService productCategoryService;
+    private final ProductSizeService productSizeService;
+    private final WeightService weightService;
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ProductCharacteristicDto> findAll() {
+
+        ProductCharacteristicDto productCharacteristicDto = ProductCharacteristicDto.builder()
+                .ages(ageService.findAll())
+                .brands(brandService.findAll())
+                .colors(colorService.findAll())
+                .materials(materialService.findAll())
+                .prescriptions(prescriptionService.findAll())
+                .productCategories(productCategoryService.findAll())
+                .productSizes(productSizeService.findAll())
+                .weights(weightService.findAll())
+                .build();
+
+        return ResponseEntity.ok(productCharacteristicDto);
+    }
+}
