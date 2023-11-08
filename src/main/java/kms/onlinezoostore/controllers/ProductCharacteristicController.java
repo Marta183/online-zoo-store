@@ -26,14 +26,14 @@ public class ProductCharacteristicController {
     public ResponseEntity<ProductCharacteristicDto> findAll() {
 
         ProductCharacteristicDto productCharacteristicDto = ProductCharacteristicDto.builder()
-                .ages(ageService.findAll())
-                .brands(brandService.findAll())
-                .colors(colorService.findAll())
-                .materials(materialService.findAll())
-                .prescriptions(prescriptionService.findAll())
-                .productCategories(productCategoryService.findAll())
-                .productSizes(productSizeService.findAll())
-                .weights(weightService.findAll())
+                .age(ageService.findAll())
+                .brand(brandService.findAll())
+                .color(colorService.findAll())
+                .material(materialService.findAll())
+                .prescription(prescriptionService.findAll())
+                .category(productCategoryService.findAll())
+                .size(productSizeService.findAll())
+                .weight(weightService.findAll())
                 .build();
 
         return ResponseEntity.ok(productCharacteristicDto);

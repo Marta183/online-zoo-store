@@ -10,13 +10,13 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ProductCharacteristicDto {
-    private final List<AgeDto> ages;
-    private final List<BrandDto> brands;
-    private final List<ColorDto> colors;
-    private final List<MaterialDto> materials;
-    private final List<PrescriptionDto> prescriptions;
-    private final List<ProductCategoryDto> productCategories;
-    private final List<ProductSizeDto> productSizes;
-    private final List<WeightDto> weights;
+    private final List<AgeDto> age;
+    private final List<BrandDto> brand;
+    private final List<ColorDto> color;
+    private final List<MaterialDto> material;
+    private final List<PrescriptionDto> prescription;
+    private final List<ProductCategoryDto> category;
+    private final List<ProductSizeDto> size;
+    private final List<WeightDto> weight;
 }
 
