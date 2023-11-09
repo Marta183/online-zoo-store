@@ -1,4 +1,4 @@
-package kms.onlinezoostore.controllers;
+package kms.onlinezoostore.controllers.v1;
 
 import kms.onlinezoostore.dto.ProductCharacteristicDto;
 import kms.onlinezoostore.services.*;

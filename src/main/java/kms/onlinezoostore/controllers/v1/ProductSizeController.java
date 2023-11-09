@@ -1,4 +1,4 @@
-package kms.onlinezoostore.controllers;
+package kms.onlinezoostore.controllers.v1;
 
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.ProductSizeDto;

@@ -68,13 +68,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductDto> findPage(Pageable pageable) {
-        log.debug("Finding {} product page ", ENTITY_CLASS_NAME);
+        log.debug("Finding {} page ", ENTITY_CLASS_NAME);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<ProductDto> page = productRepository.findAll(pageable)
-                .map(productMapper::mapToDto);
+        Page<ProductDto> page = productRepository.findAll(pageable).map(productMapper::mapToDto);
 
-        log.debug("Found {} product page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
+        log.debug("Found {} page with number of products: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
     }
 

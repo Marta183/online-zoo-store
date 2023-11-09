@@ -1,16 +1,11 @@
-package kms.onlinezoostore.controllers;
+package kms.onlinezoostore.controllers.v1;
 
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.BrandDto;
-import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.BrandService;
-import kms.onlinezoostore.services.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +27,6 @@ public class BrandController {
     static final String REST_URL = "/api/v1/brands";
 
     private final BrandService brandService;
-    private final ProductService productService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

@@ -1,4 +1,4 @@
-package kms.onlinezoostore.controllers;
+package kms.onlinezoostore.controllers.v1;
 
 import kms.onlinezoostore.dto.ConstantDto;
 import kms.onlinezoostore.entities.enums.ConstantKeys;
@@ -45,7 +45,7 @@ public class ConstantController {
 
     @DeleteMapping("/{key}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllImages(@PathVariable ConstantKeys key) {
+    public void deleteImagesByKey(@PathVariable ConstantKeys key) {
         constantService.deleteImages(key);
     }
 }
