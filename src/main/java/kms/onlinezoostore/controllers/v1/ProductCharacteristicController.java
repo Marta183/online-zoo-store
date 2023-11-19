@@ -5,7 +5,10 @@ import kms.onlinezoostore.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,14 +29,14 @@ public class ProductCharacteristicController {
     public ResponseEntity<ProductCharacteristicDto> findAll() {
 
         ProductCharacteristicDto productCharacteristicDto = ProductCharacteristicDto.builder()
-                .age(ageService.findAll())
-                .brand(brandService.findAll())
-                .color(colorService.findAll())
-                .material(materialService.findAll())
-                .prescription(prescriptionService.findAll())
-                .category(productCategoryService.findAll())
-                .size(productSizeService.findAll())
-                .weight(weightService.findAll())
+                .ages(ageService.findAll())
+                .brands(brandService.findAll())
+                .colors(colorService.findAll())
+                .materials(materialService.findAll())
+                .prescriptions(prescriptionService.findAll())
+                .categories(productCategoryService.findAll())
+                .sizes(productSizeService.findAll())
+                .weights(weightService.findAll())
                 .build();
 
         return ResponseEntity.ok(productCharacteristicDto);
