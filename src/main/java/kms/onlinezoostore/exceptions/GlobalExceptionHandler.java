@@ -38,20 +38,20 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(ex.getMessage());
     }
 
-    @ExceptionHandler(PriceConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ResponseBody
-    protected ErrorMessage handlePriceConflictException(PriceConflictException ex) {
-        log.warn(ex.getMessage());
-        return new ErrorMessage(ex.getMessage());
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     protected ErrorMessage handleEntityNotFoundException(EntityNotFoundException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage("Not exists in DB: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(PriceConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handlePriceConflictException(PriceConflictException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(BindException.class)
@@ -68,13 +68,4 @@ public class GlobalExceptionHandler {
         }
         return new ErrorMessage(errorMessage);
     }
-
-//    @ExceptionHandler(Throwable.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    @ResponseBody
-//    protected ErrorMessage handleUnhandledException(Throwable ex) {
-//        log.info("Fatal exception ===> {}", ex);
-//        log.error(ex.getMessage());
-//        return new ErrorMessage("We apologize. Something is not right");
-//    }
 }
