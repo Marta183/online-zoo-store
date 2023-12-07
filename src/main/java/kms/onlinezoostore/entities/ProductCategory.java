@@ -19,7 +19,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +40,7 @@ public class ProductCategory {
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private ProductCategory parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<ProductCategory> innerCategories;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
@@ -60,14 +59,5 @@ public class ProductCategory {
         this.name = name;
         this.parent = parent;
         images = new ArrayList<>(1);
-    }
-
-    public ProductCategory(Long id, String name, ProductCategory parent, List<AttachedFile> images) {
-        this.id = id;
-        this.name = name;
-        this.parent = parent;
-        if (images != null && !images.isEmpty()) {
-            this.images = Collections.singletonList(images.get(0));
-        }
     }
 }

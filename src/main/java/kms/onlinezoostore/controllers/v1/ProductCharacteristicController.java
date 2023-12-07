@@ -4,7 +4,6 @@ import kms.onlinezoostore.dto.ProductCharacteristicDto;
 import kms.onlinezoostore.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,9 +25,8 @@ public class ProductCharacteristicController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ProductCharacteristicDto> findAll() {
-
-        ProductCharacteristicDto productCharacteristicDto = ProductCharacteristicDto.builder()
+    public ProductCharacteristicDto findAll() {
+        return ProductCharacteristicDto.builder()
                 .ages(ageService.findAll())
                 .brands(brandService.findAll())
                 .colors(colorService.findAll())
@@ -38,7 +36,5 @@ public class ProductCharacteristicController {
                 .sizes(productSizeService.findAll())
                 .weights(weightService.findAll())
                 .build();
-
-        return ResponseEntity.ok(productCharacteristicDto);
     }
 }

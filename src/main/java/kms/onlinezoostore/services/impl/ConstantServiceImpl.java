@@ -2,7 +2,6 @@ package kms.onlinezoostore.services.impl;
 
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ConstantDto;
-import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.dto.mappers.ConstantMapper;
 import kms.onlinezoostore.entities.Constant;
 import kms.onlinezoostore.entities.enums.ConstantKeys;
@@ -28,7 +27,7 @@ public class ConstantServiceImpl implements ConstantService {
     private final ConstantMapper constantMapper;
     private final ConstantRepository constantRepository;
     private final AttachedImageService attachedImageService;
-    private final AttachedFileMapper attachedFileMapper;
+
     private static final String ENTITY_CLASS_NAME = "CONSTANT";
 
     @Override
@@ -68,7 +67,7 @@ public class ConstantServiceImpl implements ConstantService {
 
     @Override
     @Transactional
-    public void deleteImages(ConstantKeys key) {
+    public void deleteImage(ConstantKeys key) {
         log.debug("Deleting {} value with key {}", ENTITY_CLASS_NAME, key);
 
         Constant existingConstant = constantRepository.findByKey(key)

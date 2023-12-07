@@ -13,5 +13,5 @@ public interface ConstantService {
 
     Object updateValue(ConstantKeys key, Object updatedValue);
 
-    void deleteImages(ConstantKeys key);
+    void deleteImage(ConstantKeys key);
 }

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-
 import java.util.List;
 
 @RestController
@@ -46,6 +45,6 @@ public class ConstantController {
     @DeleteMapping("/{key}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteImagesByKey(@PathVariable ConstantKeys key) {
-        constantService.deleteImages(key);
+        constantService.deleteImage(key);
     }
 }

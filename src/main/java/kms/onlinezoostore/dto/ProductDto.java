@@ -1,5 +1,6 @@
 package kms.onlinezoostore.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Positive;
@@ -54,6 +55,7 @@ public class ProductDto implements AttachedImageOwner {
     private final boolean newArrival;
     private final boolean notAvailable;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private final LocalDateTime createdAt;
 
     @Override

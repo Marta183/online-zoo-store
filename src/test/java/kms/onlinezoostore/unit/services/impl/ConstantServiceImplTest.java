@@ -147,21 +147,21 @@ class ConstantServiceImplTest {
     }
 
     @Test
-    void deleteImages_ShouldThrowException_WhenKeyNotFound() {
+    void deleteImage_ShouldThrowException_WhenKeyNotFound() {
         when(constantRepository.findByKey(any(ConstantKeys.class))).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> constantService.deleteImages(ConstantKeys.CURRENCY));
+        assertThrows(EntityNotFoundException.class, () -> constantService.deleteImage(ConstantKeys.CURRENCY));
     }
 
     @Test
-    void deleteImages_WhenDataIsCorrect() {
+    void deleteImage_WhenDataIsCorrect() {
         Constant logo = new Constant(1L, ConstantKeys.LOGO, "1L", true, Collections.singletonList(new AttachedFile()));
         ConstantDto logoDto = constantMapper.mapToDto(logo);
 
         when(constantRepository.findByKey(ConstantKeys.LOGO)).thenReturn(Optional.of(logo));
         doNothing().when(attachedImageService).deleteAllByOwner(logoDto);
 
-        constantService.deleteImages(ConstantKeys.LOGO);
+        constantService.deleteImage(ConstantKeys.LOGO);
 
         verify(attachedImageService, times(1)).deleteAllByOwner(logoDto);
     }
