@@ -1,5 +1,6 @@
 package kms.onlinezoostore.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.Objects;
 @Getter
 @ToString
 @AllArgsConstructor
+@Schema(name = "Weight")
 public class WeightDto {
 
     private final Long id;

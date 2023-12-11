@@ -6,7 +6,7 @@ import kms.onlinezoostore.dto.user.UserCreateRequestDto;
 import java.security.Principal;
 
 public interface AuthenticationService {
-    String signup(UserCreateRequestDto userDto, String applicationUrl);
+    void signup(UserCreateRequestDto userDto, String applicationUrl);
 
     AuthenticationResponse login(AuthenticationRequest request);
 
@@ -16,7 +16,7 @@ public interface AuthenticationService {
 
     void resendAccountVerificationLink(String email, String applicationUrl);
 
-    String forgotPassword(String email, String applicationUrl);
+    void forgotPassword(String email, String applicationUrl);
 
     void resetPassword(String verificationToken, ResetPasswordRequestDto request);
 }

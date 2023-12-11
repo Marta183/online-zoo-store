@@ -117,7 +117,8 @@ public class ProductServiceImpl implements ProductService {
     public void update(Long id, ProductDto updatedProductDto) {
         log.debug("Updating {} with ID {}", ENTITY_CLASS_NAME, id);
 
-        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         // check unique name
         if (!existingProduct.getName().equals(updatedProductDto.getName())) {

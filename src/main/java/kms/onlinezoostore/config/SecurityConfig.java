@@ -39,13 +39,17 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_URLs = {
             "/api/v1/auth/**",
-//            "/v1/api-docs",
+            "/api-docs",
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
             "/configuration/ui",
             "/configuration/security",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/swagger-resources",
-            "/swagger-resources/**"
+            "/swagger-resources/**",
+            "/webjars/**    "
     };
 
     @Bean

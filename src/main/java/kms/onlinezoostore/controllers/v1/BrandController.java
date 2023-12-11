@@ -1,5 +1,7 @@
 package kms.onlinezoostore.controllers.v1;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.BrandDto;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
+@Tag(name = "Brands")
 @RequiredArgsConstructor
 @RequestMapping(value = BrandController.REST_URL)
 public class BrandController {
@@ -30,30 +33,36 @@ public class BrandController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all brands", description = "Get a list of all brands")
     public List<BrandDto> findAll() {
         return brandService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get brand by ID", description = "Get brand details by ID")
     public BrandDto findById(@PathVariable Long id) {
         return brandService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new brand", description = "Create a new brand with the provided details")
     public BrandDto create(@RequestBody @Valid BrandDto brandDto) {
         return brandService.create(brandDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable Long id, @RequestBody @Valid BrandDto brandDto) {
+    @Operation(summary = "Update brand by ID", description = "Update an existing brand by ID and details")
+    public void update(@PathVariable Long id,
+                       @RequestBody @Valid BrandDto brandDto) {
         brandService.update(id, brandDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete brand by ID", description = "Delete an existing brand by ID")
     public void deleteById(@PathVariable Long id) {
         brandService.deleteById(id);
     }
@@ -63,12 +72,17 @@ public class BrandController {
 
     @PostMapping(value = "/{id}/image")
     @ResponseStatus(HttpStatus.CREATED)
-    public AttachedFileDto uploadImage(@PathVariable Long id, @RequestParam("image") MultipartFile image) {
+    @Operation(summary = "Upload brand image",
+               description = "Upload a new image for the brand by providing the brand ID and the image file")
+    public AttachedFileDto uploadImage(@PathVariable Long id,
+                                       @RequestParam("image") MultipartFile image) {
         return brandService.uploadImageByOwnerId(id, image);
     }
 
     @DeleteMapping("/{id}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete brand image",
+               description = "Delete image associated with the brand by providing the brand ID")
     public void deleteAllImages(@PathVariable Long id) {
         brandService.deleteImageByOwnerId(id);
     }

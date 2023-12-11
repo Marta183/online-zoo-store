@@ -1,5 +1,7 @@
 package kms.onlinezoostore.controllers.v1;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kms.onlinezoostore.dto.ProductCharacteristicDto;
 import kms.onlinezoostore.services.*;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Product characteristics")
 @RequiredArgsConstructor
 @RequestMapping(value = ProductCharacteristicController.REST_URL)
 public class ProductCharacteristicController {
@@ -25,6 +28,9 @@ public class ProductCharacteristicController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all product characteristics",
+               description = "Retrieve lists of all product characteristics including " +
+                             "ages, brands, colors, materials, prescriptions, categories, sizes, weights")
     public ProductCharacteristicDto findAll() {
         return ProductCharacteristicDto.builder()
                 .ages(ageService.findAll())

@@ -1,8 +1,11 @@
 package kms.onlinezoostore.controllers.v1;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import kms.onlinezoostore.config.springdoc.PageableAsQueryParam;
 import kms.onlinezoostore.dto.user.ChangePasswordRequestDto;
 import kms.onlinezoostore.dto.user.UserCreateRequestDto;
 import kms.onlinezoostore.dto.user.UserResponseDto;
@@ -31,6 +34,7 @@ import java.security.Principal;
 import java.util.Objects;
 
 @RestController
+@Tag(name = "Users")
 @RequiredArgsConstructor
 @RequestMapping(value = UserController.REST_URL)
 public class UserController {
@@ -43,6 +47,8 @@ public class UserController {
     @GetMapping
     @JsonView(UserViews.Admin.class)
     @ResponseStatus(HttpStatus.OK)
+    @PageableAsQueryParam
+    @Operation(summary = "Get all users", description = "Retrieve a paginated list of users based on the specified role")
     public Page<UserResponseDto> findAll(@RequestParam(required = false) UserRole role, Pageable pageable) {
         if (Objects.isNull(role)) {
             return userService.findPage(pageable);
@@ -53,6 +59,7 @@ public class UserController {
     @GetMapping("/profile")
     @JsonView(UserViews.Client.class)
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get own profile", description = "Retrieve the profile of the authenticated user")
     public UserResponseDto getProfile(Principal connectedUser) {
         return userService.getOwnProfile(connectedUser);
     }
@@ -60,30 +67,37 @@ public class UserController {
     @PostMapping("/admin")
     @JsonView(UserViews.Admin.class)
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new admin user", description = "Create a new admin user with the provided details")
     public UserResponseDto createAdminUser(@RequestBody @Valid UserCreateRequestDto request) {
         return userService.createAdmin(request);
     }
 
     @PatchMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Update own profile", description = "Update authenticated user profile")
     public void updateOwnProfile(@RequestBody @Valid UserUpdateRequestDto request, Principal connectedUser) {
         userService.updateOwnProfile(connectedUser, request);
     }
 
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Update user password", description = "Update authenticated user password")
     public void updatePassword(@RequestBody @Valid ChangePasswordRequestDto request, Principal connectedUser) {
         userService.updatePassword(connectedUser, request);
     }
 
     @PatchMapping("/{email}/status")
     @ResponseStatus(HttpStatus.OK)
-    public void updateUserStatus(@PathVariable String email, @RequestParam @NotNull UserStatus status) {
+    @Operation(summary = "Update user status")
+    public void updateUserStatus(@PathVariable String email,
+                                 @RequestParam @NotNull UserStatus status) {
         userService.updateUserStatus(email, status);
     }
 
     @PutMapping("/revoke-all")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Revoke all users",
+               description = "Revoke all active user sessions by invalidating their authentication tokens")
     public void revokeAllUsers() {
         tokenService.revokeAllTokens();
     }

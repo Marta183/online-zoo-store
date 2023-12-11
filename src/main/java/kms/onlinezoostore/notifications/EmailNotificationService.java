@@ -16,6 +16,9 @@ public class EmailNotificationService implements NotificationService {
 
     @Async
     public void sendMessage(Object message) {
-        mailSender.send((SimpleMailMessage) message);
+        SimpleMailMessage mailMessage = (SimpleMailMessage) message;
+        mailSender.send(mailMessage);
+
+//        log.debug("Mail message has been successfully sent to {}", mailMessage.getTo());
     }
 }

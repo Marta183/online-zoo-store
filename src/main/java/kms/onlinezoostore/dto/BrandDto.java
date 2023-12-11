@@ -1,6 +1,7 @@
 package kms.onlinezoostore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
@@ -13,6 +14,7 @@ import java.util.Objects;
 @Getter
 @ToString
 @AllArgsConstructor
+@Schema(name = "Brand")
 public class BrandDto implements AttachedImageOwner {
 
     private final Long id;

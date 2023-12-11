@@ -1,6 +1,11 @@
 package kms.onlinezoostore.controllers.v1;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kms.onlinezoostore.config.springdoc.PageableAsQueryParam;
 import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ProductDto;
 import kms.onlinezoostore.services.ProductService;
@@ -26,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
+@Tag(name = "Products")
 @RequiredArgsConstructor
 @RequestMapping(value = ProductController.REST_URL)
 public class ProductController {
@@ -34,13 +40,26 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Find product by ID", description = "Get a product details by its unique ID")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved product details")
+    @ApiResponse(responseCode = "404", description = "Product not found")
     public ProductDto findProductById(@PathVariable Long id) {
         return productService.findById(id);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductDto> findPageByCriteria(@RequestParam MultiValueMap<String, String> params, Pageable pageable) {
+    @PageableAsQueryParam
+    @Operation(summary = "Find product page", description = "Retrieve a paginated list of products based on specified filtration parameters")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list of products")
+    @ApiResponse(responseCode = "400", description = "Bad request")
+    public Page<ProductDto> findPageByCriteria(
+                @Parameter(description = "Allowed filtration parameters: " +
+                    "nameLike, nameStartsWith, minPrice, maxPrice, onSale, newArrival, notAvailable" +
+                    "categoryId, brandId, colorId, materialId, weightId, sizeId, ageId, prescriptionId")
+                @RequestParam MultiValueMap<String, String> params,
+                Pageable pageable) {
+
         params.remove("pageNumber");
         params.remove("pageSize");
         params.remove("sort");
@@ -53,27 +72,35 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new product", description = "Create a new product with the provided details")
+    @ApiResponse(responseCode = "201", description = "Successfully created product")
+    @ApiResponse(responseCode = "400", description = "Bad request")
+    @ApiResponse(responseCode = "404", description = "Product characteristic not found")
+    @ApiResponse(responseCode = "409", description = "Product duplicate or price conflict")
     public ProductDto createProduct(@RequestBody @Valid ProductDto productDto) {
         return productService.create(productDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Update an existing product", description = "Update an existing product with the provided details")
+    @ApiResponse(responseCode = "200", description = "Successfully updated product")
+    @ApiResponse(responseCode = "400", description = "Bad request")
+    @ApiResponse(responseCode = "404", description = "Product or characteristic or main image not found")
+    @ApiResponse(responseCode = "409", description = "Product duplicate or price conflict")
     public void updateProduct(@PathVariable Long id, @RequestBody @Valid ProductDto productDto) {
         productService.update(id, productDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete product by ID", description = "Delete a product by its unique ID")
+    @ApiResponse(responseCode = "204", description = "Successfully deleted product")
+    @ApiResponse(responseCode = "404", description = "Product or image not found")
+    @ApiResponse(responseCode = "500", description = "Remote image service conflict")
     public void deleteProductById(@PathVariable Long id) {
         productService.deleteById(id);
     }
-
-//    @GetMapping("/max-price")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<Product> findMaxProductPrice(@PathVariable Long categoryId) {
-//        return
-//    }
 
 
     //// IMAGES ////
@@ -81,12 +108,23 @@ public class ProductController {
 
     @GetMapping("/{productId}/images/{imageId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Find product image by product ID and image ID",
+               description = "Get a specific image associated with a product by product ID and image ID")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved product image")
+    @ApiResponse(responseCode = "404", description = "Product or image not found")
     public AttachedFileDto findImage(@PathVariable Long productId, @PathVariable Long imageId) {
         return productService.findImageByIdAndOwnerId(productId, imageId);
     }
 
     @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Upload images for a product",
+               description = "Upload multiple images for a product by product ID")
+    @ApiResponse(responseCode = "201", description = "Successfully uploaded product images")
+    @ApiResponse(responseCode = "400", description = "Bad request")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    @ApiResponse(responseCode = "500", description = "Remote image service conflict")
+    @ApiResponse(responseCode = "503", description = "Images service unavailable")
     public Set<AttachedFileDto> uploadImages(@PathVariable Long productId,
                                              @RequestParam("images") List<MultipartFile> images) {
         return productService.uploadImagesByOwnerId(productId, images);
@@ -94,14 +132,23 @@ public class ProductController {
 
     @DeleteMapping("/{productId}/images")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete all images for a product",
+               description = "Delete all images associated with a product by product ID")
+    @ApiResponse(responseCode = "204", description = "Successfully deleted all product images")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    @ApiResponse(responseCode = "500", description = "Remote image service conflict")
     public void deleteAllImages(@PathVariable Long productId) {
         productService.deleteAllImagesByOwnerId(productId);
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete a specific image for a product",
+               description = "Delete a specific image associated with a product by product ID and image ID")
+    @ApiResponse(responseCode = "204", description = "Successfully deleted product image")
+    @ApiResponse(responseCode = "404", description = "Product or image not found")
+    @ApiResponse(responseCode = "500", description = "Remote image service conflict")
     public void deleteImage(@PathVariable Long productId, @PathVariable Long imageId) {
         productService.deleteImageByIdAndOwnerId(productId, imageId);
     }
-
 }

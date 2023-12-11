@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -20,11 +21,10 @@ public class AuthenticationMainEntryPoint implements AuthenticationEntryPoint {
                          @NotNull HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-//        log.error("unauthorized", authException);
-//
-//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-//                "You need to login first in order to perform this action."
-//        );
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                "You need to login first in order to perform this action."
+        );
     }
 }

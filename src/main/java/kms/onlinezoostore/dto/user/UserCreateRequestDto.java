@@ -1,5 +1,6 @@
 package kms.onlinezoostore.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 @Getter
 @ToString
 @AllArgsConstructor
+@Schema(name = "UserCreateRequest")
 public class UserCreateRequestDto {
 
     @NotBlank(message = "First name should not be empty")

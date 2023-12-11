@@ -2,6 +2,7 @@ package kms.onlinezoostore.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.media.Schema;
 import kms.onlinezoostore.dto.view.UserViews;
 import kms.onlinezoostore.entities.enums.UserRole;
 import kms.onlinezoostore.entities.enums.UserStatus;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @AllArgsConstructor
+@Schema(name = "User")
 public class UserResponseDto {
 
     @JsonView(UserViews.Admin.class)

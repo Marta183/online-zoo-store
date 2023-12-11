@@ -64,7 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final String ENTITY_CLASS_NAME = "USER";
 
     @Override
-    public String signup(UserCreateRequestDto request, String applicationUrl) {
+    public void signup(UserCreateRequestDto request, String applicationUrl) {
         log.debug("{} registration by email {}", ENTITY_CLASS_NAME, request.getEmail());
 
         User existingUser = userRepository.findByEmailIgnoreCase(request.getEmail()).orElse(null);
@@ -84,8 +84,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.debug("New {} saved in DB with email {}", ENTITY_CLASS_NAME, existingUser.getEmail());
 
         prepareAndSendConfirmationLink(REGISTRATION_CONFIRMATION, existingUser, applicationUrl);
-
-        return "Verify email by the link sent on your email address";
     }
 
     @Override
@@ -193,7 +191,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public String forgotPassword(String email, String applicationUrl) {
+    public void forgotPassword(String email, String applicationUrl) {
         log.debug("Forgot password for {} with email {}", ENTITY_CLASS_NAME, email);
 
         User existingUser = userService.findByEmail(email);
@@ -202,8 +200,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         prepareAndSendConfirmationLink(PASSWORD_RESET_CONFIRMATION, existingUser, applicationUrl);
         log.debug("Forgot password confirmation link sent for {} with email {}", ENTITY_CLASS_NAME, email);
-
-        return "Confirm reset password by the link sent on your email address";
     }
 
     @Override

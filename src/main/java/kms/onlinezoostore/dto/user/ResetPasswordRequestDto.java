@@ -1,5 +1,6 @@
 package kms.onlinezoostore.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@Schema(name = "ResetPasswordRequest")
 public class ResetPasswordRequestDto {
 
     @Email(message = "Email is invalid")

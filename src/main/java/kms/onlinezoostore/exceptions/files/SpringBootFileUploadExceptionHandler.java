@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class SpringBootFileUploadExceptionHandler {
 
     @ExceptionHandler(FileEmptyException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorMessage handleFileEmptyException(FileEmptyException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage(ex.getMessage());
@@ -37,7 +37,7 @@ public class SpringBootFileUploadExceptionHandler {
 
     // Handle exceptions that occur when the call was transmitted successfully, but Amazon S3 couldn't process it
     @ExceptionHandler(AmazonServiceException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorMessage handleAmazonServiceException(AmazonServiceException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage(ex.getMessage());
