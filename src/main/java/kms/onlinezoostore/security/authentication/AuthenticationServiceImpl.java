@@ -2,6 +2,7 @@ package kms.onlinezoostore.security.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kms.onlinezoostore.controllers.v1.AuthenticationController;
+import kms.onlinezoostore.dto.mappers.UserResponseMapper;
 import kms.onlinezoostore.dto.user.ResetPasswordRequestDto;
 import kms.onlinezoostore.dto.user.UserCreateRequestDto;
 import kms.onlinezoostore.dto.mappers.UserCreateRequestMapper;
@@ -46,6 +47,7 @@ import static kms.onlinezoostore.notifications.messages.MessageType.REGISTRATION
 @RequiredArgsConstructor
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
+    private final UserResponseMapper userResponseMapper;
     private final UserCreateRequestMapper userRequestMapper;
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
@@ -106,7 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 : null;
 
         log.info("User {} logged in successfully", authRequest.getEmail());
-        return new AuthenticationResponse(accessToken, refreshToken);
+        return new AuthenticationResponse(accessToken, refreshToken, userResponseMapper.mapToDto(user));
     }
 
     @Override

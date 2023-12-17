@@ -60,7 +60,7 @@ public class UserController {
     @JsonView(UserViews.Client.class)
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get own profile", description = "Retrieve the profile of the authenticated user")
-    public UserResponseDto getProfile(Principal connectedUser) {
+    public UserResponseDto getProfile(@NotNull Principal connectedUser) {
         return userService.getOwnProfile(connectedUser);
     }
 
@@ -75,14 +75,16 @@ public class UserController {
     @PatchMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update own profile", description = "Update authenticated user profile")
-    public void updateOwnProfile(@RequestBody @Valid UserUpdateRequestDto request, Principal connectedUser) {
+    public void updateOwnProfile(@RequestBody @Valid UserUpdateRequestDto request,
+                                 @NotNull Principal connectedUser) {
         userService.updateOwnProfile(connectedUser, request);
     }
 
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update user password", description = "Update authenticated user password")
-    public void updatePassword(@RequestBody @Valid ChangePasswordRequestDto request, Principal connectedUser) {
+    public void updatePassword(@RequestBody @Valid ChangePasswordRequestDto request,
+                               @NotNull Principal connectedUser) {
         userService.updatePassword(connectedUser, request);
     }
 

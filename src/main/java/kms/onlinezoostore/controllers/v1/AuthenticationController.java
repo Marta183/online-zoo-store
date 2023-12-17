@@ -1,5 +1,6 @@
 package kms.onlinezoostore.controllers.v1;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,10 +8,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import kms.onlinezoostore.dto.user.ResetPasswordRequestDto;
 import kms.onlinezoostore.dto.user.UserCreateRequestDto;
+import kms.onlinezoostore.dto.view.UserViews;
 import kms.onlinezoostore.security.authentication.AuthenticationRequest;
 import kms.onlinezoostore.security.authentication.AuthenticationResponse;
 import kms.onlinezoostore.security.authentication.AuthenticationService;
-import kms.onlinezoostore.utils.ApplicationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -36,11 +37,9 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "User registration",
                description = "Register a new user account and send him a confirmation letter")
-    public void signup(@RequestBody @Valid UserCreateRequestDto userRequestDto,
-                       @NotNull HttpServletRequest httpRequest) {
-        authService.signup(userRequestDto,
-                    ApplicationUtil.applicationUrl(httpRequest)
-        );
+    public void signup(@RequestParam("path") String applicationPath,
+                       @RequestBody @Valid UserCreateRequestDto userRequestDto) {
+        authService.signup(userRequestDto, applicationPath);
     }
 
     @PostMapping("/verify-email")
@@ -56,10 +55,8 @@ public class AuthenticationController {
     @Operation(summary = "Resend verification link",
                description = "Resend the account verification link to the user's email")
     public void resendVerificationLink(@NotNull @RequestParam("email") String email,
-                                       @NotNull HttpServletRequest httpRequest) {
-        authService.resendAccountVerificationLink(email,
-                ApplicationUtil.applicationUrl(httpRequest)
-        );
+                                       @NotNull @RequestParam("path") String applicationPath) {
+        authService.resendAccountVerificationLink(email, applicationPath);
     }
 
     @PostMapping("/forgot-password")
@@ -67,10 +64,8 @@ public class AuthenticationController {
     @Operation(summary = "Forgot password",
                description = "Initiate the process to reset the user's forgotten password")
     public void forgotPassword(@NonNull @RequestParam("email") String email,
-                               @NonNull HttpServletRequest httpRequest) {
-        authService.forgotPassword(email,
-                    ApplicationUtil.applicationUrl(httpRequest)
-        );
+                               @NotNull @RequestParam("path") String applicationPath) {
+        authService.forgotPassword(email, applicationPath);
     }
 
     @PostMapping("/reset-password")
@@ -83,6 +78,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    @JsonView(UserViews.Admin.class)
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "User login",
                description = "Authenticate the user and generate A/R tokens")
@@ -94,7 +90,8 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Refresh access token",
                description = "Refresh the user's access token using the refresh token")
-    public AuthenticationResponse refreshToken(@NonNull HttpServletRequest request, Principal connectedUser) {
+    public AuthenticationResponse refreshToken(@NonNull HttpServletRequest request,
+                                               @NotNull Principal connectedUser) {
         return authService.refreshToken(request, connectedUser);
     }
 }

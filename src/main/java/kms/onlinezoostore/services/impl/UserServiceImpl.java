@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Finding {} page ", ENTITY_CLASS_NAME);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<UserResponseDto> page = userRepository.findAll(pageable).map(userResponseMapper::mapToDto);
+        Page<UserResponseDto> page = userRepository.findAllByEnabledTrue(pageable).map(userResponseMapper::mapToDto);
 
         log.debug("Found {} page with number of elements: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Finding {} page ", ENTITY_CLASS_NAME);
         log.debug("  with page number: {}, page size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<UserResponseDto> page = userRepository.findAllByRole(role, pageable).map(userResponseMapper::mapToDto);
+        Page<UserResponseDto> page = userRepository.findAllByRoleAndEnabledTrue(role, pageable).map(userResponseMapper::mapToDto);
 
         log.debug("Found {} page with number of elements: {}", ENTITY_CLASS_NAME, page.getContent().size());
         return page;
