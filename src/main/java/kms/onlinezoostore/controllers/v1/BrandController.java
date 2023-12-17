@@ -73,7 +73,7 @@ public class BrandController {
     @PostMapping(value = "/{id}/image")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Upload brand image",
-               description = "Upload a new image for the brand by providing the brand ID and the image file")
+               description = "Upload a new image for the brand by providing brand ID and image file")
     public AttachedFileDto uploadImage(@PathVariable Long id,
                                        @RequestParam("image") MultipartFile image) {
         return brandService.uploadImageByOwnerId(id, image);
@@ -82,7 +82,7 @@ public class BrandController {
     @DeleteMapping("/{id}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete brand image",
-               description = "Delete image associated with the brand by providing the brand ID")
+               description = "Delete image associated with the brand by providing brand ID")
     public void deleteAllImages(@PathVariable Long id) {
         brandService.deleteImageByOwnerId(id);
     }

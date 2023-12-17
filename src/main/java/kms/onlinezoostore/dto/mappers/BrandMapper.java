@@ -35,5 +35,4 @@ public interface BrandMapper {
         }
         return Collections.singletonList(AttachedFileMapper.INSTANCE.mapToEntity(imageDto));
     }
-
 }

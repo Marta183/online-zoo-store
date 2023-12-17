@@ -3,6 +3,7 @@ package kms.onlinezoostore.controllers.v1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ColorDto;
 import kms.onlinezoostore.services.ColorService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -60,5 +63,24 @@ public class ColorController {
     @Operation(summary = "Delete color by ID", description = "Delete an existing color by ID")
     public void deleteById(@PathVariable Long id) {
         colorService.deleteById(id);
+    }
+
+    //// IMAGES ////
+
+    @PostMapping(value = "/{id}/image")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Upload color image",
+            description = "Upload a new image for the color by providing color ID and image file")
+    public AttachedFileDto uploadImage(@PathVariable Long id,
+                                       @RequestParam("image") MultipartFile image) {
+        return colorService.uploadImageByOwnerId(id, image);
+    }
+
+    @DeleteMapping("/{id}/image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete brand image",
+            description = "Delete image associated with the color by providing color ID")
+    public void deleteAllImages(@PathVariable Long id) {
+        colorService.deleteImageByOwnerId(id);
     }
 }

@@ -1,11 +1,14 @@
 package kms.onlinezoostore.unit.services.impl;
 
+import kms.onlinezoostore.dto.AttachedFileDto;
 import kms.onlinezoostore.dto.ColorDto;
 import kms.onlinezoostore.dto.mappers.ColorMapper;
 import kms.onlinezoostore.entities.Color;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.repositories.ColorRepository;
+import kms.onlinezoostore.services.files.images.AttachedImageOwner;
+import kms.onlinezoostore.services.files.images.AttachedImageService;
 import kms.onlinezoostore.services.impl.ColorServiceImpl;
 import kms.onlinezoostore.utils.UniqueFieldService;
 import kms.onlinezoostore.utils.UniqueFieldServiceImpl;
@@ -18,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +46,8 @@ class ColorServiceImplTest {
 
     @Mock
     private ColorRepository colorRepository;
+    @Mock
+    private AttachedImageService attachedImageService;
     @Spy
     private UniqueFieldService uniqueFieldService = new UniqueFieldServiceImpl();
     @Spy
@@ -141,7 +148,7 @@ class ColorServiceImplTest {
     @Test
     void update_ShouldThrowException_WhenNameIsNotUnique() {
         Color colorExisting = new Color(1L, "test1");
-        ColorDto colorDtoToUpdate = new ColorDto(1L, "test2");
+        ColorDto colorDtoToUpdate = new ColorDto(1L, "test2", null);
 
         when(colorRepository.count(any(Specification.class))).thenReturn(1L);
         when(colorRepository.findById(anyLong())).thenReturn(Optional.of(colorExisting));
@@ -158,6 +165,7 @@ class ColorServiceImplTest {
         colorService.deleteById(1L);
 
         verify(colorRepository, times(1)).deleteById(1L);
+        verify(attachedImageService, times(1)).deleteAllByOwner(colorDto);
     }
 
     @Test
@@ -167,5 +175,55 @@ class ColorServiceImplTest {
         assertThrows(EntityNotFoundException.class, () -> colorService.deleteById(1L));
 
         verify(colorRepository, never()).deleteById(anyLong());
+        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
+    }
+
+    /////////////////////
+    // ADD INNER CLASS //
+    /////////////////////
+
+    @Test
+    void uploadImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {
+        MultipartFile multipartFile = new MockMultipartFile("testName", new byte[1]);
+
+        when(colorRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> colorService.uploadImageByOwnerId(1L, multipartFile));
+
+        verify(attachedImageService, never()).replaceFileByOwner(any(AttachedImageOwner.class), any(MultipartFile.class));
+    }
+
+    @Test
+    void uploadImageByOwnerId_ShouldReturnAttachedFileDto_WhenDataIsCorrect() {
+        MultipartFile multipartFile = new MockMultipartFile("testName", new byte[1]);
+        AttachedFileDto imageDto = new AttachedFileDto(1L, "testPath", "testName");
+
+        when(colorRepository.findById(color.getId())).thenReturn(Optional.of(color));
+        when(attachedImageService.replaceFileByOwner(colorDto, multipartFile)).thenReturn(imageDto);
+
+        AttachedFileDto actualImageDto = colorService.uploadImageByOwnerId(color.getId(), multipartFile);
+
+        assertNotNull(actualImageDto);
+        assertNotNull(actualImageDto.getId());
+        assertNotNull(actualImageDto.getFilePath());
+        assertEquals(multipartFile.getName(), actualImageDto.getFileName(), "AttachedFileDto name: expected and actual is not equal.");
+    }
+
+    @Test
+    void deleteImageByOwnerId_ShouldThrowException_WhenOwnerNotFoundById() {
+        when(colorRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> colorService.deleteImageByOwnerId(1L));
+
+        verify(attachedImageService, never()).deleteAllByOwner(any(AttachedImageOwner.class));
+    }
+
+    @Test
+    void deleteImageByOwnerId_WhenDataIsCorrect() {
+        when(colorRepository.findById(1L)).thenReturn(Optional.of(color));
+
+        colorService.deleteImageByOwnerId(1L);
+
+        verify(attachedImageService, times(1)).deleteAllByOwner(colorDto);
     }
 }
