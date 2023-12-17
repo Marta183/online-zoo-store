@@ -2,6 +2,7 @@ package kms.onlinezoostore.controllers.v1;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -36,8 +37,9 @@ public class AuthenticationController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "User registration",
-               description = "Register a new user account and send him a confirmation letter")
-    public void signup(@RequestParam("path") String applicationPath,
+               description = "Register new user account and send him a confirmation letter")
+    public void signup(@Parameter(description = "Application path will be embedded to the link for email notifications", required = true)
+                       @RequestParam("path") String applicationPath,
                        @RequestBody @Valid UserCreateRequestDto userRequestDto) {
         authService.signup(userRequestDto, applicationPath);
     }
@@ -55,6 +57,7 @@ public class AuthenticationController {
     @Operation(summary = "Resend verification link",
                description = "Resend the account verification link to the user's email")
     public void resendVerificationLink(@NotNull @RequestParam("email") String email,
+                                       @Parameter(description = "Application path will be embedded to the link for email notifications", required = true)
                                        @NotNull @RequestParam("path") String applicationPath) {
         authService.resendAccountVerificationLink(email, applicationPath);
     }
@@ -64,6 +67,7 @@ public class AuthenticationController {
     @Operation(summary = "Forgot password",
                description = "Initiate the process to reset the user's forgotten password")
     public void forgotPassword(@NonNull @RequestParam("email") String email,
+                               @Parameter(description = "Application path will be embedded to the link for email notifications", required = true)
                                @NotNull @RequestParam("path") String applicationPath) {
         authService.forgotPassword(email, applicationPath);
     }
