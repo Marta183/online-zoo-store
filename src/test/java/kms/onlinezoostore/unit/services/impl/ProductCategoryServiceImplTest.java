@@ -7,6 +7,7 @@ import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
+import kms.onlinezoostore.exceptions.HierarchyException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.files.images.AttachedImageOwner;
@@ -291,6 +292,17 @@ class ProductCategoryServiceImplTest {
 
         // act
         assertThrows(EntityDuplicateException.class, () -> categoryService.update(category.getId(), categoryDtoToUpdate));
+
+        verify(categoryRepository, never()).save(any(ProductCategory.class));
+    }
+
+    @Test
+    void update_ShouldThrowException_WhenParentCategoryIsAlreadyChildOne() {
+        var categoryToUpdate = new ProductCategoryDto(categoryParent.getId(), categoryParent.getName(), categoryInnerDto, null);
+        when(categoryRepository.findById(categoryInnerDto.getId())).thenReturn(Optional.of(categoryInner));
+        when(categoryRepository.findById(categoryParentDto.getId())).thenReturn(Optional.of(categoryParent));
+
+        assertThrows(HierarchyException.class, () -> categoryService.update(categoryToUpdate.getId(), categoryToUpdate));
 
         verify(categoryRepository, never()).save(any(ProductCategory.class));
     }

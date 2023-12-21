@@ -54,6 +54,14 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(ex.getMessage());
     }
 
+    @ExceptionHandler(HierarchyException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handleHierarchyException(HierarchyException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
+    }
+
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody

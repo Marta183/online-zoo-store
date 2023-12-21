@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Transient;
 import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,7 @@ import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -51,13 +51,24 @@ public class ProductCategory {
     @Where(clause = "owner_class = 'ProductCategory'")
     private List<AttachedFile> images;
 
-    @Transient
-    private Long productCount;
-
     public ProductCategory(Long id, String name, ProductCategory parent) {
         this.id = id;
         this.name = name;
         this.parent = parent;
         images = new ArrayList<>(1);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductCategory category = (ProductCategory) o;
+        return Objects.equals(getId(), category.getId())
+                && Objects.equals(getName(), category.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 }

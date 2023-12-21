@@ -7,6 +7,7 @@ import kms.onlinezoostore.entities.ProductCategory;
 import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityDuplicateException;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
+import kms.onlinezoostore.exceptions.HierarchyException;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
 import kms.onlinezoostore.services.ProductCategoryService;
@@ -116,16 +117,27 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         ProductCategory existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
-        // check if parent exists
-        ProductCategoryDto parentCategoryDto = updatedCategoryDto.getParent();
+        // verify parent
+        var parentCategoryDto = updatedCategoryDto.getParent();
         if (Objects.nonNull(parentCategoryDto)) {
+            // check if parent exists
             parentCategoryDto = findById(parentCategoryDto.getId());
+
+           // make sure that new parent is not a child at the one moment
+            var newParent = productCategoryMapper.mapToEntity(parentCategoryDto);
+            var oldParent = existingCategory.getParent();
+            if (!newParent.equals(oldParent)
+                    && existingCategory.getInnerCategories().contains(newParent)) {
+                log.debug("Parent category has changed for {} with ID {}: new parent ID {}", ENTITY_CLASS_NAME, id, newParent.getId());
+                throw new HierarchyException("Inner category '" + parentCategoryDto + "' cannot be set as a parent for '" + existingCategory + "'");
+            }
         }
 
         if (!existingCategory.getName().equals(updatedCategoryDto.getName())) {
             checkUniqueNameWithinParentCategory(updatedCategoryDto.getName(), parentCategoryDto);
         }
 
+        // saving
         ProductCategory updatedCategory = productCategoryMapper.mapToEntity(updatedCategoryDto);
         updatedCategory.setId(id);
         updatedCategory.setImages(existingCategory.getImages());
