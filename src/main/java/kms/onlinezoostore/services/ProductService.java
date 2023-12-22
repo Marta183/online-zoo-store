@@ -13,6 +13,8 @@ public interface ProductService extends MultipleImagesOwnerService {
     Page<ProductDto> findPage(Pageable pageable);
     Page<ProductDto> findPageByMultipleCriteria(MultiValueMap<String, String> params, Pageable pageable);
 
+    Double findMaxProductPrice();
+
     ProductDto create(ProductDto productDto);
     void update(Long id, ProductDto productDto);
     void deleteById(Long id);

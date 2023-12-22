@@ -92,6 +92,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Double findMaxProductPrice() {
+        log.debug("Finding max {} price ", ENTITY_CLASS_NAME);
+
+        Double maxPrice = productRepository.findMaxPrice();
+
+        log.debug("Found max {} price with value {}", ENTITY_CLASS_NAME, maxPrice);
+        return maxPrice;
+    }
+
+    @Override
     @Transactional
     public ProductDto create(ProductDto productDto) {
         log.debug("Creating a new {}: {}", ENTITY_CLASS_NAME, productDto.getName());
@@ -209,7 +219,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void verifyInnerEntitiesOrThrowException(ProductDto productDto) {
-
         productCategoryService.findById(productDto.getCategory().getId());
 
         if (Objects.nonNull(productDto.getAge())) {
@@ -236,7 +245,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void verifyPrices(ProductDto productDto) {
-
         double price = (double) Math.round(productDto.getPrice() * 100) / 100;
         double priceWithDiscount = (productDto.getPriceWithDiscount() == null) ? 0 : (double) Math.round(productDto.getPriceWithDiscount() * 100) / 100;
 

@@ -70,6 +70,13 @@ public class ProductController {
         return productService.findPageByMultipleCriteria(params, pageable);
     }
 
+    @GetMapping("max-price")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Find max product price")
+    public Double findMaxPrice() {
+        return productService.findMaxProductPrice();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new product", description = "Create a new product with the provided details")

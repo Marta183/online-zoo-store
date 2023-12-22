@@ -128,8 +128,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             var oldParent = existingCategory.getParent();
             if (!newParent.equals(oldParent)
                     && existingCategory.getInnerCategories().contains(newParent)) {
-                log.debug("Parent category has changed for {} with ID {}: new parent ID {}", ENTITY_CLASS_NAME, id, newParent.getId());
-                throw new HierarchyException("Inner category '" + parentCategoryDto + "' cannot be set as a parent for '" + existingCategory + "'");
+                log.info("Inner {} cannot be set as a parent for {}", newParent, existingCategory);
+                throw new HierarchyException("Inner category '" + parentCategoryDto.getName() + "' cannot be set as a parent for '" + existingCategory.getName() + "'");
             }
         }
 

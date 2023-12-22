@@ -15,4 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT COUNT(p) FROM Product p WHERE p.category.id IN :categoryIds")
     Long countByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
 
+    @Query("SELECT MAX(p.price) FROM Product p")
+    Double findMaxPrice();
 }
