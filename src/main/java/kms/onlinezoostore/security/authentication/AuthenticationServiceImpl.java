@@ -185,8 +185,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private String createTempVerificationUrlForUser(User user, String applicationUrl) {
         String verificationToken = jwtProvider.generateToken(new UserInfoDetails(user), VERIFICATION);
-        String verificationUrl = applicationUrl + AuthenticationController.REST_URL
-                + "{endpoint}?token=" + verificationToken;
+        String verificationUrl = applicationUrl + "?token=" + verificationToken;
 
         log.debug("Verification url for {} with email {} is {}", ENTITY_CLASS_NAME, user.getEmail(), verificationToken);
         return verificationUrl;
