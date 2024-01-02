@@ -1,15 +1,10 @@
 package kms.onlinezoostore.security.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kms.onlinezoostore.controllers.v1.AuthenticationController;
 import kms.onlinezoostore.dto.mappers.UserResponseMapper;
-import kms.onlinezoostore.dto.user.ResetPasswordRequestDto;
-import kms.onlinezoostore.dto.user.UserCreateRequestDto;
-import kms.onlinezoostore.dto.mappers.UserCreateRequestMapper;
-import kms.onlinezoostore.entities.enums.UserRole;
+import kms.onlinezoostore.dto.user.ResetPasswordRequest;
+import kms.onlinezoostore.dto.user.UserCreateRequest;
 import kms.onlinezoostore.exceptions.authentication.AccountAlreadyVerifiedException;
-import kms.onlinezoostore.exceptions.EntityDuplicateException;
-import kms.onlinezoostore.exceptions.authentication.InvalidVerificationLink;
 import kms.onlinezoostore.entities.User;
 import kms.onlinezoostore.exceptions.authentication.VerificationLimitException;
 import kms.onlinezoostore.notifications.messages.MessageBuilder;
@@ -30,7 +25,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +42,6 @@ import static kms.onlinezoostore.notifications.messages.MessageType.REGISTRATION
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserResponseMapper userResponseMapper;
-    private final UserCreateRequestMapper userRequestMapper;
-    private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final UserService userService;
 
@@ -64,29 +56,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${max-email-verification-attempts}")
     private long maxEmailVerificationAttempts;
     private static final String ENTITY_CLASS_NAME = "USER";
-
-    @Override
-    public void signup(UserCreateRequestDto request, String applicationUrl) {
-        log.debug("{} registration by email {}", ENTITY_CLASS_NAME, request.getEmail());
-
-        User existingUser = userRepository.findByEmailIgnoreCase(request.getEmail()).orElse(null);
-        if (existingUser != null) {
-            throw (existingUser.isEnabled()) ?
-                    new EntityDuplicateException("This account has already been registered, please, login.") :
-                    new InvalidVerificationLink("This account has already been registered, please, verify your email to finish registration process");
-        }
-        User newUser = userRequestMapper.mapToEntity(request);
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setRole(UserRole.CLIENT);
-        newUser.setDefaultStatus();
-        existingUser = userRepository.save(newUser);
-        newUser = null; request = null;
-
-        log.debug("New {} saved in DB with email {}", ENTITY_CLASS_NAME, existingUser.getEmail());
-
-        prepareAndSendConfirmationLink(REGISTRATION_CONFIRMATION, existingUser, applicationUrl);
-    }
 
     @Override
     public AuthenticationResponse login(AuthenticationRequest authRequest) {
@@ -112,35 +81,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser) {
-        log.debug("Refresh token for user {}", connectedUser.getName());
+    public void signup(UserCreateRequest request, String applicationUrl) {
+        log.debug("{} registration by email {}", ENTITY_CLASS_NAME, request.getEmail());
 
-        final String refreshToken = JwtUtil.resolveTokenFromRequest(request);
-        final User user = UsersUtil.extractUser(connectedUser);
+        User savedUser = userService.createClient(request);
+        request = null;
 
-        if (tokenService.isTokenValid(refreshToken, user)) {
-            tokenService.revokeAllAccessTokensByUser(user);
-            String newAccessToken = tokenService.createToken(user, ACCESS).getTokenValue();
-            log.info("Tokens successfully refreshed for user {}", user.getEmail());
-            return new AuthenticationResponse(newAccessToken, refreshToken);
-        }
+        log.debug("New {} saved in DB with email {}", ENTITY_CLASS_NAME, savedUser.getEmail());
 
-        log.info("Trouble during refreshing tokens for user {}: received refresh token is not valid", user.getEmail());
-        throw new BadCredentialsException("Invalid refresh token. Try to login");
+        prepareAndSendConfirmationLink(REGISTRATION_CONFIRMATION, savedUser, applicationUrl);
     }
 
     @Override
-    public void verifyConfirmationLinkFromUser(String jwt) {
+    public void finishRegistrationProcess(String jwt) {
         log.debug("Verify confirmation link with token {}", jwt);
 
-        if (!jwtProvider.isTokenValid(jwt)) {
-            log.info("Confirmation token is not valid: {}", jwt);
-            throw new InvalidVerificationLink();
-        }
-        final String userEmail = jwtProvider.extractUsername(jwt);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-        final User user = ((UserInfoDetails) userDetails).getUser();
+        final User user = userService.findByJwt(jwt);
+        verifyUserAccountOnRegistrationProcess(user);
+        userService.createRelatedEntities(user);
 
+        log.debug("{} with email {} successfully verified after registration", ENTITY_CLASS_NAME, user.getEmail());
+    }
+
+    private void verifyUserAccountOnRegistrationProcess(User user) {
         if (user.isEnabled()) {
             log.info("Attempt to verify confirmation link for already verified user {}", user.getEmail());
             throw new AccountAlreadyVerifiedException("This account has already been verified, please, login.");
@@ -148,8 +111,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setEnabled(true);
         user.setConfirmationAttempts(0);
         userRepository.save(user);
-
-        log.debug("{} with email {} successfully verified after registration", ENTITY_CLASS_NAME, user.getEmail());
     }
 
     @Override
@@ -166,6 +127,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         prepareAndSendConfirmationLink(REGISTRATION_CONFIRMATION, existingUser, applicationUrl);
 
         log.debug("Resent account verification link to {} with email {}", ENTITY_CLASS_NAME, email);
+    }
+
+    @Override
+    public AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser) {
+        log.debug("Refresh token for user {}", connectedUser.getName());
+
+        final String refreshToken = JwtUtil.resolveTokenFromRequest(request);
+        final User user = UsersUtil.extractUser(connectedUser);
+
+        if (tokenService.isTokenValid(refreshToken, user)) {
+            tokenService.revokeAllAccessTokensByUser(user);
+            String newAccessToken = tokenService.createToken(user, ACCESS).getTokenValue();
+            log.info("Tokens successfully refreshed for user {}", user.getEmail());
+            return new AuthenticationResponse(newAccessToken, refreshToken);
+        }
+
+        log.info("Trouble during refreshing tokens for user {}: received refresh token is not valid", user.getEmail());
+        throw new BadCredentialsException("Invalid refresh token. Try to login");
     }
 
     private void prepareAndSendConfirmationLink(MessageType messageType, User user, String applicationUrl) {
@@ -204,19 +183,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void resetPassword(String jwt, ResetPasswordRequestDto request) {
+    public void resetPassword(String jwt, ResetPasswordRequest request) {
         log.debug("Reset password for {} with email {}", ENTITY_CLASS_NAME, request.getEmail());
 
-        if (!jwtProvider.isTokenValid(jwt)) {
-            throw new InvalidVerificationLink();
-        }
-        final String userEmail = jwtProvider.extractUsername(jwt);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-        final User user = ((UserInfoDetails) userDetails).getUser();
-
-        if (!userEmail.equals(request.getEmail())) {
-            throw new BadCredentialsException("Token doesn't belong to email " + request.getEmail());
-        }
+        final User user = userService.findByJwt(jwt);
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setConfirmationAttempts(0);
 

@@ -62,6 +62,14 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(ex.getMessage());
     }
 
+    @ExceptionHandler(UnavailableProductException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ErrorMessage handleUnavailableProductException(UnavailableProductException ex) {
+        log.warn(ex.getMessage());
+        return new ErrorMessage(ex.getMessage());
+    }
+
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody

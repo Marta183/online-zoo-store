@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Schema(name = "ResetPasswordRequest")
-public class ResetPasswordRequestDto {
+public class ResetPasswordRequest {
 
     @Email(message = "Email is invalid")
     @NotBlank(message = "Email should not be empty")

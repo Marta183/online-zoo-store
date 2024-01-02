@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @ToString
 @AllArgsConstructor
 @Schema(name = "UserCreateRequest")
-public class UserCreateRequestDto {
+public class UserCreateRequest {
 
     @NotBlank(message = "First name should not be empty")
     @Size(min = 2, max = 20, message = "First name should be greater than 2 and less than 20 symbols")

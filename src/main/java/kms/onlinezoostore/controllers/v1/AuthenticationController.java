@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import kms.onlinezoostore.dto.user.ResetPasswordRequestDto;
-import kms.onlinezoostore.dto.user.UserCreateRequestDto;
+import kms.onlinezoostore.dto.user.ResetPasswordRequest;
+import kms.onlinezoostore.dto.user.UserCreateRequest;
 import kms.onlinezoostore.dto.view.UserViews;
 import kms.onlinezoostore.security.authentication.AuthenticationRequest;
 import kms.onlinezoostore.security.authentication.AuthenticationResponse;
@@ -40,7 +40,7 @@ public class AuthenticationController {
                description = "Register new user account and send him a confirmation letter")
     public void signup(@Parameter(description = "Application path will be embedded to the link for email notifications", required = true)
                        @RequestParam("path") String applicationPath,
-                       @RequestBody @Valid UserCreateRequestDto userRequestDto) {
+                       @RequestBody @Valid UserCreateRequest userRequestDto) {
         authService.signup(userRequestDto, applicationPath);
     }
 
@@ -49,7 +49,7 @@ public class AuthenticationController {
     @Operation(summary = "Verify user email",
                description = "Verify user email to complete registration using the provided token")
     public void verifyUserEmail(@NotNull @RequestParam("token") String verificationToken) {
-        authService.verifyConfirmationLinkFromUser(verificationToken);
+        authService.finishRegistrationProcess(verificationToken);
     }
 
     @PostMapping("/resend-verification-link")
@@ -77,7 +77,7 @@ public class AuthenticationController {
     @Operation(summary = "Reset password",
                description = "Reset the user's password using the provided token")
     public void resetPassword(@NonNull @RequestParam("token") String verificationToken,
-                              @RequestBody @Valid ResetPasswordRequestDto request) {
+                              @RequestBody @Valid ResetPasswordRequest request) {
         authService.resetPassword(verificationToken, request);
     }
 

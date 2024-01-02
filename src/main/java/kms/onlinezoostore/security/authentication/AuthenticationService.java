@@ -1,22 +1,23 @@
 package kms.onlinezoostore.security.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kms.onlinezoostore.dto.user.ResetPasswordRequestDto;
-import kms.onlinezoostore.dto.user.UserCreateRequestDto;
+import kms.onlinezoostore.dto.user.ResetPasswordRequest;
+import kms.onlinezoostore.dto.user.UserCreateRequest;
+
 import java.security.Principal;
 
 public interface AuthenticationService {
-    void signup(UserCreateRequestDto userDto, String applicationUrl);
-
     AuthenticationResponse login(AuthenticationRequest request);
 
-    AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser);
-
-    void verifyConfirmationLinkFromUser(String verificationToken);
+    void signup(UserCreateRequest userDto, String applicationUrl);
 
     void resendAccountVerificationLink(String email, String applicationUrl);
 
+    void finishRegistrationProcess(String verificationToken);
+
+    AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser);
+
     void forgotPassword(String email, String applicationUrl);
 
-    void resetPassword(String verificationToken, ResetPasswordRequestDto request);
+    void resetPassword(String verificationToken, ResetPasswordRequest request);
 }

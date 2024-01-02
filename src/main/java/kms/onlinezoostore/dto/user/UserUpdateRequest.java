@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @Schema(name = "UserUpdateRequest")
-public class UserUpdateRequestDto {
+public class UserUpdateRequest {
     private final String firstName;
     private final String lastName;
 }

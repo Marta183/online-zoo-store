@@ -1,9 +1,9 @@
 package kms.onlinezoostore.services;
 
-import kms.onlinezoostore.dto.user.ChangePasswordRequestDto;
-import kms.onlinezoostore.dto.user.UserCreateRequestDto;
-import kms.onlinezoostore.dto.user.UserResponseDto;
-import kms.onlinezoostore.dto.user.UserUpdateRequestDto;
+import kms.onlinezoostore.dto.user.ChangePasswordRequest;
+import kms.onlinezoostore.dto.user.UserCreateRequest;
+import kms.onlinezoostore.dto.user.UserResponse;
+import kms.onlinezoostore.dto.user.UserUpdateRequest;
 import kms.onlinezoostore.entities.User;
 import kms.onlinezoostore.entities.enums.UserRole;
 import kms.onlinezoostore.entities.enums.UserStatus;
@@ -15,17 +15,22 @@ import java.security.Principal;
 public interface UserService {
 
     User findByEmail(String email);
+    User findByJwt(String jwt);
 
-    Page<UserResponseDto> findPage(Pageable pageable);
-    Page<UserResponseDto> findPageByRole(UserRole role, Pageable pageable);
+    Page<UserResponse> findPage(Pageable pageable);
 
-    UserResponseDto getOwnProfile(Principal connectedUser);
+    Page<UserResponse> findPageByRole(UserRole role, Pageable pageable);
 
-    void updateOwnProfile(Principal connectedUser, UserUpdateRequestDto request);
+    UserResponse getOwnProfile(Principal connectedUser);
+
+    void updateOwnProfile(Principal connectedUser, UserUpdateRequest request);
 
     void updateUserStatus(String email, UserStatus newStatus);
 
-    void updatePassword(Principal connectedUser, ChangePasswordRequestDto request);
+    void updatePassword(Principal connectedUser, ChangePasswordRequest request);
+    UserResponse createAdmin(UserCreateRequest request);
 
-    UserResponseDto createAdmin(UserCreateRequestDto request);
+    User createClient(UserCreateRequest request);
+
+    void createRelatedEntities(User user);
 }

@@ -6,10 +6,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import kms.onlinezoostore.config.springdoc.PageableAsQueryParam;
-import kms.onlinezoostore.dto.user.ChangePasswordRequestDto;
-import kms.onlinezoostore.dto.user.UserCreateRequestDto;
-import kms.onlinezoostore.dto.user.UserResponseDto;
-import kms.onlinezoostore.dto.user.UserUpdateRequestDto;
+import kms.onlinezoostore.dto.user.ChangePasswordRequest;
+import kms.onlinezoostore.dto.user.UserCreateRequest;
+import kms.onlinezoostore.dto.user.UserResponse;
+import kms.onlinezoostore.dto.user.UserUpdateRequest;
 import kms.onlinezoostore.dto.view.UserViews;
 import kms.onlinezoostore.entities.enums.UserRole;
 import kms.onlinezoostore.entities.enums.UserStatus;
@@ -49,7 +49,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PageableAsQueryParam
     @Operation(summary = "Get all users", description = "Retrieve a paginated list of users based on the specified role")
-    public Page<UserResponseDto> findAll(@RequestParam(required = false) UserRole role, Pageable pageable) {
+    public Page<UserResponse> findAll(@RequestParam(required = false) UserRole role, Pageable pageable) {
         if (Objects.isNull(role)) {
             return userService.findPage(pageable);
         }
@@ -60,7 +60,7 @@ public class UserController {
     @JsonView(UserViews.Client.class)
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get own profile", description = "Retrieve the profile of the authenticated user")
-    public UserResponseDto getProfile(@NotNull Principal connectedUser) {
+    public UserResponse getProfile(@NotNull Principal connectedUser) {
         return userService.getOwnProfile(connectedUser);
     }
 
@@ -68,14 +68,14 @@ public class UserController {
     @JsonView(UserViews.Admin.class)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new admin user", description = "Create a new admin user with the provided details")
-    public UserResponseDto createAdminUser(@RequestBody @Valid UserCreateRequestDto request) {
+    public UserResponse createAdminUser(@RequestBody @Valid UserCreateRequest request) {
         return userService.createAdmin(request);
     }
 
     @PatchMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update own profile", description = "Update authenticated user profile")
-    public void updateOwnProfile(@RequestBody @Valid UserUpdateRequestDto request,
+    public void updateOwnProfile(@RequestBody @Valid UserUpdateRequest request,
                                  @NotNull Principal connectedUser) {
         userService.updateOwnProfile(connectedUser, request);
     }
@@ -83,7 +83,7 @@ public class UserController {
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update user password", description = "Update authenticated user password")
-    public void updatePassword(@RequestBody @Valid ChangePasswordRequestDto request,
+    public void updatePassword(@RequestBody @Valid ChangePasswordRequest request,
                                @NotNull Principal connectedUser) {
         userService.updatePassword(connectedUser, request);
     }

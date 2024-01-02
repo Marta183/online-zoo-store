@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @Schema(name = "User")
-public class UserResponseDto {
+public class UserResponse {
 
     @JsonView(UserViews.Admin.class)
     private final Long id;
