@@ -21,10 +21,10 @@ public class AuthenticationMainEntryPoint implements AuthenticationEntryPoint {
                          @NotNull HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                "You need to login first in order to perform this action."
+        response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                "You need to login first in order to perform this action." + authException.getMessage()
         );
     }
 }

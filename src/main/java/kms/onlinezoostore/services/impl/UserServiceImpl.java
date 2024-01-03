@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserCreateRequestMapper userRequestMapper;
-    private final UserDetailsService userDetailsService;
     private final UserResponseMapper userResponseMapper;
     private final UniqueFieldService uniqueFieldService;
     private final PasswordEncoder passwordEncoder;
@@ -60,22 +59,6 @@ public class UserServiceImpl implements UserService {
 
         log.debug("Found {} by e-mail {}", ENTITY_CLASS_NAME, email);
         return user;
-    }
-
-    @Override
-    public User findByJwt(String jwt) {
-        log.debug("Finding user by token {}", jwt);
-
-        if (!jwtProvider.isTokenValid(jwt)) {
-            log.info("Confirmation token is not valid: {}", jwt);
-            throw new InvalidVerificationLink();
-        }
-        final String userEmail = jwtProvider.extractUsername(jwt);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-        User existingUser = ((UserInfoDetails) userDetails).getUser();
-
-        log.debug("Found user with email {} by token {}", existingUser.getEmail(), jwt);
-        return existingUser;
     }
 
     @Override
@@ -191,8 +174,8 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findByEmailIgnoreCase(request.getEmail()).orElse(null);
         if (existingUser != null) {
             throw (existingUser.isEnabled()) ?
-                    new EntityDuplicateException("This account has already been registered, please, login.") :
-                    new InvalidVerificationLink("This account has already been registered, please, verify your email to finish registration process");
+                new EntityDuplicateException("This account has already been registered, please, login.") :
+                new InvalidVerificationLink("This account has already been registered, please, verify your email to finish registration process");
         }
 
         User user = userRequestMapper.mapToEntity(request);

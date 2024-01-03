@@ -25,6 +25,7 @@ public class UserResponse {
     private final String firstName;
     private final String lastName;
     private final String email;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private final LocalDate birthDate;
 
@@ -40,4 +41,6 @@ public class UserResponse {
 
     @JsonView(UserViews.Admin.class)
     private final boolean consentToProcessData;
+
+    private final int countCartItems;
 }

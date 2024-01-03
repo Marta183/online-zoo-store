@@ -10,10 +10,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.CascadeType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "shopping_cart", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id"}))
+@Table(name = "shopping_carts", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id"}))
 public class Cart {
 
     @Id
@@ -33,8 +36,8 @@ public class Cart {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "cart")
-    private List<CartItem> items;
+    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items = new ArrayList<>();
 
     public double getTotalPrice() {
         return items.stream()

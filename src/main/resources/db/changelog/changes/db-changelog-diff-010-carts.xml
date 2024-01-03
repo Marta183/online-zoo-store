@@ -1,0 +1,40 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Missis_MK (generated)" id="1704315324314-1">
+        <createTable tableName="shopping_carts">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="shopping_cart_pkey"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="promo_code" type="VARCHAR(50)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704315324314-6">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="shopping_carts" constraintName="fk_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704315324314-2">
+        <addUniqueConstraint columnNames="user_id" constraintName="unique_user" tableName="shopping_carts"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704315324314-3">
+        <createTable tableName="shopping_cart_items">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="shopping_cart_item_pkey"/>
+            </column>
+            <column name="shopping_cart_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704315324314-4">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="shopping_cart_items" constraintName="fk_product" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="products" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704315324314-5">
+        <addForeignKeyConstraint baseColumnNames="shopping_cart_id" baseTableName="shopping_cart_items" constraintName="fk_shopping_carts_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="shopping_carts" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

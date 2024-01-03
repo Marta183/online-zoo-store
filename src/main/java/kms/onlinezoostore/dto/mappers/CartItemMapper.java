@@ -8,9 +8,7 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CartItemMapper {
-    @Mapping(target = "price", defaultExpression = "getPrice()")
-    @Mapping(target = "sum", defaultExpression = "getSum()")
+    @Mapping(target = "price", expression = "java(entity.getPrice())")
+    @Mapping(target = "sum", expression = "java(entity.getSum())")
     CartItemDto mapToDto(CartItem entity);
-
-    CartItem mapToEntity(CartItemDto dto);
 }

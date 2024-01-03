@@ -34,7 +34,7 @@ public class Color {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @Where(clause = "owner_class = 'Color'")
     private List<AttachedFile> images;

@@ -15,7 +15,6 @@ import java.security.Principal;
 public interface UserService {
 
     User findByEmail(String email);
-    User findByJwt(String jwt);
 
     Page<UserResponse> findPage(Pageable pageable);
 

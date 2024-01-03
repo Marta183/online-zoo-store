@@ -7,6 +7,5 @@ import org.mapstruct.MappingConstants.ComponentModel;
 
 @Mapper(componentModel = ComponentModel.SPRING)
 public interface UserCreateRequestMapper {
-    UserCreateRequest mapToDto(User entity);
     User mapToEntity(UserCreateRequest dto);
 }

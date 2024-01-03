@@ -106,7 +106,7 @@ public class Product {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @Where(clause = "owner_class = 'Product'")
     private List<AttachedFile> images;

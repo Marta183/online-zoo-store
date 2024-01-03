@@ -6,6 +6,7 @@ import kms.onlinezoostore.dto.user.ResetPasswordRequest;
 import kms.onlinezoostore.dto.user.UserCreateRequest;
 import kms.onlinezoostore.exceptions.authentication.AccountAlreadyVerifiedException;
 import kms.onlinezoostore.entities.User;
+import kms.onlinezoostore.exceptions.authentication.InvalidVerificationLink;
 import kms.onlinezoostore.exceptions.authentication.VerificationLimitException;
 import kms.onlinezoostore.notifications.messages.MessageBuilder;
 import kms.onlinezoostore.notifications.messages.MessageType;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,15 +43,14 @@ import static kms.onlinezoostore.notifications.messages.MessageType.REGISTRATION
 @RequiredArgsConstructor
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
+    private final UserDetailsService userDetailsService;
     private final UserResponseMapper userResponseMapper;
     private final UserRepository userRepository;
     private final UserService userService;
-
     private final TokenService tokenService;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
-
     private final NotificationService notificationService;
     private final MessageBuilder messageBuilder;
 
@@ -96,7 +97,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void finishRegistrationProcess(String jwt) {
         log.debug("Verify confirmation link with token {}", jwt);
 
-        final User user = userService.findByJwt(jwt);
+        final User user = findUserByJwt(jwt);
         verifyUserAccountOnRegistrationProcess(user);
         userService.createRelatedEntities(user);
 
@@ -186,10 +187,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void resetPassword(String jwt, ResetPasswordRequest request) {
         log.debug("Reset password for {} with email {}", ENTITY_CLASS_NAME, request.getEmail());
 
-        final User user = userService.findByJwt(jwt);
+        final User user = findUserByJwt(jwt);
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setConfirmationAttempts(0);
 
         log.debug("Password successfully reset for {} with email {}", ENTITY_CLASS_NAME, request.getEmail());
+    }
+
+    private User findUserByJwt(String jwt) {
+        log.debug("Finding user by token {}", jwt);
+
+        if (!jwtProvider.isTokenValid(jwt)) {
+            log.info("Confirmation token is not valid: {}", jwt);
+            throw new InvalidVerificationLink();
+        }
+        final String userEmail = jwtProvider.extractUsername(jwt);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+        User existingUser = ((UserInfoDetails) userDetails).getUser();
+
+        log.debug("Found user with email {} by token {}", existingUser.getEmail(), jwt);
+        return existingUser;
     }
 }

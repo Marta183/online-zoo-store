@@ -84,7 +84,7 @@ public class User {
     @Column(name = "confirmation_attempts")
     private int confirmationAttempts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

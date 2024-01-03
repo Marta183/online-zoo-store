@@ -46,7 +46,7 @@ public class ProductCategory {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private Set<Product> products;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @Where(clause = "owner_class = 'ProductCategory'")
     private List<AttachedFile> images;
