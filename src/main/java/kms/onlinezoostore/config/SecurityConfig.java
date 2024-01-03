@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(PUBLIC_URLs).permitAll()
                                 .requestMatchers("/api/v1/carts/**").hasAuthority(CLIENT.name())
+                                .requestMatchers("/api/v1/wish-lists/**").hasAuthority(CLIENT.name())
                                 .requestMatchers(PATCH, "/api/v1/users/profile").hasAnyAuthority(ADMIN.name(), CLIENT.name())
                                 .requestMatchers(PATCH, "/api/v1/users/password").hasAnyAuthority(ADMIN.name(), CLIENT.name())
                                 .requestMatchers(GET, "/api/v1/users").hasAuthority(ADMIN.name())

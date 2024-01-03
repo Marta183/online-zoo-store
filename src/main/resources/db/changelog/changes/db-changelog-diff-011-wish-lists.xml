@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Missis_MK (generated)" id="1704321163587-2">
+        <createTable tableName="wish_lists">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="wish_lists_pkey"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(20)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704321163587-4">
+        <addUniqueConstraint columnNames="user_id" constraintName="unique_user_k" tableName="wish_lists"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704321163587-11">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="wish_lists" constraintName="fk_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704321163587-6">
+        <createTable tableName="wish_list_items">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="wish_list_items_pkey"/>
+            </column>
+            <column name="wish_list_id" type="BIGINT"/>
+            <column name="product_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704321163587-8">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="wish_list_items" constraintName="fk_product" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="products" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1704321163587-12">
+        <addForeignKeyConstraint baseColumnNames="wish_list_id" baseTableName="wish_list_items" constraintName="fk_wish_list" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="wish_lists" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

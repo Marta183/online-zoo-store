@@ -90,6 +90,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private WishList wishList;
+
     public void setEmail(String email) {
         this.email = email.toLowerCase(Locale.ROOT);
     }

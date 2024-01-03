@@ -14,10 +14,9 @@ import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.entities.enums.UserRole;
 import kms.onlinezoostore.exceptions.authentication.InvalidVerificationLink;
 import kms.onlinezoostore.repositories.UserRepository;
-import kms.onlinezoostore.security.UserInfoDetails;
-import kms.onlinezoostore.security.jwt.JwtProvider;
 import kms.onlinezoostore.services.CartService;
 import kms.onlinezoostore.services.UserService;
+import kms.onlinezoostore.services.WishListService;
 import kms.onlinezoostore.utils.UniqueFieldService;
 import kms.onlinezoostore.utils.UsersUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserResponseMapper userResponseMapper;
     private final UniqueFieldService uniqueFieldService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
+    private final WishListService wishListService;
     private final CartService cartService;
 
     private static final String ENTITY_CLASS_NAME = "USER";
@@ -191,7 +188,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void createRelatedEntities(User user) {
         cartService.createCartForUser(user);
+        wishListService.createDefaultWishListForUser(user);
     }
 }
