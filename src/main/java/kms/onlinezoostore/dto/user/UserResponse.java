@@ -42,5 +42,8 @@ public class UserResponse {
     @JsonView(UserViews.Admin.class)
     private final boolean consentToProcessData;
 
+    @JsonView(UserViews.Admin.class)
+    private final boolean enabled;
+
     private final int countCartItems;
 }
