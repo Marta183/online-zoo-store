@@ -32,4 +32,6 @@ public interface UserService {
     User createClient(UserCreateRequest request);
 
     void createRelatedEntities(User user);
+
+    void deleteUser(String email);
 }

@@ -193,4 +193,17 @@ public class UserServiceImpl implements UserService {
         cartService.createCartForUser(user);
         wishListService.createDefaultWishListForUser(user);
     }
+
+    @Override
+    @Transactional
+    public void deleteUser(String email) {
+        log.debug("Deleting {} with email {}", ENTITY_CLASS_NAME, email);
+
+        User existingUser = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, email));
+
+        userRepository.deleteById(existingUser.getId());
+
+        log.debug("Deleted {} with email {}", ENTITY_CLASS_NAME, email);
+    }
 }
