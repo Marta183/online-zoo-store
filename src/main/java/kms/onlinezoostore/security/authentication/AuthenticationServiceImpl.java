@@ -199,7 +199,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (!jwtProvider.isTokenValid(jwt)) {
             log.info("Confirmation token is not valid: {}", jwt);
-            throw new InvalidVerificationLink();
+            throw new BadCredentialsException("Invalid access token. Try to login");
         }
         final String userEmail = jwtProvider.extractUsername(jwt);
         final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);

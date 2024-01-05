@@ -18,7 +18,7 @@ public class AuthenticationExceptionHandler {
     @ExceptionHandler(AccountAlreadyVerifiedException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    protected ErrorMessage handleEmailVerificationException(AccountAlreadyVerifiedException ex) {
+    protected ErrorMessage handleAccountAlreadyVerifiedException(AccountAlreadyVerifiedException ex) {
         log.warn(ex.getMessage());
         return new ErrorMessage(ex.getMessage());
     }
