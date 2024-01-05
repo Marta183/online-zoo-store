@@ -2,6 +2,7 @@ package kms.onlinezoostore.services.impl;
 
 import jakarta.validation.constraints.NotNull;
 import kms.onlinezoostore.dto.CartDto;
+import kms.onlinezoostore.dto.CartItemDto;
 import kms.onlinezoostore.dto.mappers.CartMapper;
 import kms.onlinezoostore.entities.Cart;
 import kms.onlinezoostore.entities.CartItem;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -58,6 +60,17 @@ public class CartServiceImpl implements CartService {
         user.setCart(savedCart);
 
         log.debug("Created cart for user with email {}", userEmail);
+    }
+
+    @Override
+    public void addItemsToCart(List<CartItemDto> cartItemRequest, User user) {
+        log.debug("Create CartItems for user with email {}", user.getEmail());
+
+        for (CartItemDto item : cartItemRequest) {
+            addItemToCart(item.getProduct().getId(), item.getQuantity(), user);
+        }
+
+        log.debug("Created CartItems for user with email {}", user.getEmail());
     }
 
     @Override
