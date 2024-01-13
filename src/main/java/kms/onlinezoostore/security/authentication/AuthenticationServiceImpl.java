@@ -1,12 +1,13 @@
 package kms.onlinezoostore.security.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kms.onlinezoostore.dto.mappers.CartMapper;
 import kms.onlinezoostore.dto.mappers.UserResponseMapper;
+import kms.onlinezoostore.dto.mappers.WishListMapper;
 import kms.onlinezoostore.dto.user.ResetPasswordRequest;
 import kms.onlinezoostore.dto.user.UserCreateRequest;
 import kms.onlinezoostore.exceptions.authentication.AccountAlreadyVerifiedException;
 import kms.onlinezoostore.entities.User;
-import kms.onlinezoostore.exceptions.authentication.InvalidVerificationLink;
 import kms.onlinezoostore.exceptions.authentication.VerificationLimitException;
 import kms.onlinezoostore.notifications.messages.MessageBuilder;
 import kms.onlinezoostore.notifications.messages.MessageType;
@@ -78,7 +79,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 : null;
 
         log.info("User {} logged in successfully", authRequest.getEmail());
-        return new AuthenticationResponse(accessToken, refreshToken, userResponseMapper.mapToDto(user));
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponseMapper.mapToDto(user))
+                .cart(CartMapper.INSTANCE.mapToDto(user.getCart()))
+                .wishList(WishListMapper.INSTANCE.mapToDto(user.getWishList()))
+                .build();
     }
 
     @Override
@@ -131,7 +138,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser) {
+    public String refreshToken(HttpServletRequest request, Principal connectedUser) {
         log.debug("Refresh token for user {}", connectedUser.getName());
 
         final String refreshToken = JwtUtil.resolveTokenFromRequest(request);
@@ -141,7 +148,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             tokenService.revokeAllAccessTokensByUser(user);
             String newAccessToken = tokenService.createToken(user, ACCESS).getTokenValue();
             log.info("Tokens successfully refreshed for user {}", user.getEmail());
-            return new AuthenticationResponse(newAccessToken, refreshToken);
+            return newAccessToken;
         }
 
         log.info("Trouble during refreshing tokens for user {}: received refresh token is not valid", user.getEmail());

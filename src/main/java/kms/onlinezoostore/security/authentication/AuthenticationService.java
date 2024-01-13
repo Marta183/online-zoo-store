@@ -15,7 +15,7 @@ public interface AuthenticationService {
 
     void finishRegistrationProcess(String verificationToken);
 
-    AuthenticationResponse refreshToken(HttpServletRequest request, Principal connectedUser);
+    String refreshToken(HttpServletRequest request, Principal connectedUser);
 
     void forgotPassword(String email, String applicationUrl);
 

@@ -94,7 +94,7 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Refresh access token",
                description = "Refresh the user's access token using the refresh token")
-    public AuthenticationResponse refreshToken(@NonNull HttpServletRequest request,
+    public String refreshToken(@NonNull HttpServletRequest request,
                                                @NotNull Principal connectedUser) {
         return authService.refreshToken(request, connectedUser);
     }
