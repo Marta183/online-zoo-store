@@ -80,7 +80,9 @@ public class FileServiceStrategyAWS implements FileServiceStrategy {
         log.debug("Deleting file {} from {}:{}", fileName, SERVICE_NAME, bucketName);
 
         if (!amazonS3Client.doesObjectExist(bucketName, fileName)) {
-            throw new FileNotFoundException("File not found in bucket by file name: " + fileName);
+//            throw new FileNotFoundException("File not found in bucket by file name: " + fileName);
+            log.warn("Deleting file: attached file {} not found in the bucket {}", fileName, bucketName);
+            return;
         }
 
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
