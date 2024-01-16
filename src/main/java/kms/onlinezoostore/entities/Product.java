@@ -15,6 +15,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Builder;
@@ -50,6 +52,9 @@ public class Product {
 
     @Column(name = "price_with_discount")
     private Double priceWithDiscount;
+
+    @Column(name = "price_final")
+    private Double currentPrice;
 
     @OneToOne
     @JoinColumn(name = "main_image_id", referencedColumnName = "id")
@@ -110,4 +115,22 @@ public class Product {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @Where(clause = "owner_class = 'Product'")
     private List<AttachedFile> images;
+
+    @PreUpdate
+    private void preUpdate() {
+        updateCurrentPriceValue();
+    }
+
+    @PrePersist
+    private void prePersist() {
+        updateCurrentPriceValue();
+    }
+
+    private void updateCurrentPriceValue() {
+        if (this.priceWithDiscount != null && this.priceWithDiscount > 0) {
+            this.currentPrice = this.priceWithDiscount;
+        } else {
+            this.currentPrice = this.price;
+        }
+    }
 }
