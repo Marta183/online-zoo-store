@@ -2,6 +2,7 @@ package kms.onlinezoostore.controllers.v1;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -50,7 +51,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PageableAsQueryParam
     @Operation(summary = "Get all users", description = "Retrieve a paginated list of users based on the specified role")
-    public Page<UserResponse> findAll(@RequestParam(required = false) UserRole role, Pageable pageable) {
+    public Page<UserResponse> findAll(@RequestParam(required = false) UserRole role,
+                                      @Parameter(hidden = true) Pageable pageable) {
         if (Objects.isNull(role)) {
             return userService.findPage(pageable);
         }

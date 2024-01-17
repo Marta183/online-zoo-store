@@ -58,7 +58,7 @@ public class ProductController {
                     "nameLike, nameStartsWith, minPrice, maxPrice, onSale, newArrival, notAvailable" +
                     "categoryId, brandId, colorId, materialId, weightId, sizeId, ageId, prescriptionId")
                 @RequestParam MultiValueMap<String, String> params,
-                Pageable pageable) {
+                @Parameter(hidden = true) Pageable pageable) {
 
         params.remove("pageNumber");
         params.remove("pageSize");
