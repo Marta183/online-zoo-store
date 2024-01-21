@@ -12,11 +12,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
+
+import java.util.List;
 
 @RestController
 @Tag(name = "Wish lists")
@@ -35,12 +38,12 @@ public class WishListController {
         return wishListService.findByUser(UsersUtil.extractUser(userDetails));
     }
 
-    @PostMapping("/items/{productId}")
+    @PostMapping("/items")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Put item into wish list", description = "Put item into wish list for current user")
-    public void addItem(@PathVariable Long productId,
-                        @AuthenticationPrincipal UserDetails userDetails) {
-        wishListService.addItem(productId, UsersUtil.extractUser(userDetails));
+    @Operation(summary = "Put items into wish list", description = "Put list of items into wish list for current user")
+    public void addItems(@RequestBody List<Long> productIds,
+                         @AuthenticationPrincipal UserDetails userDetails) {
+        wishListService.addItems(productIds, UsersUtil.extractUser(userDetails));
     }
 
     @DeleteMapping("/items/{productId}")

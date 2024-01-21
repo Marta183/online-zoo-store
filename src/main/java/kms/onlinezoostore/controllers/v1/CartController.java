@@ -43,7 +43,7 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Put items into the cart", description = "Put items into the cart for current user")
     public void addItems(@RequestBody List<CartItemDto> cartItemRequest,
-                        @AuthenticationPrincipal UserDetails userDetails) {
+                         @AuthenticationPrincipal UserDetails userDetails) {
         cartService.addItemsToCart(cartItemRequest, UsersUtil.extractUser(userDetails));
     }
 

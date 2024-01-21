@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -61,8 +62,19 @@ public class WishListServiceImpl implements WishListService {
     }
 
     @Override
+    public void addItems(List<Long> productIds, User user) {
+        log.debug("Adding {} products to wishList for user with email {}", productIds.size(), user.getEmail());
+
+        for (Long productId : productIds) {
+            addItem(productId, user);
+        }
+
+        log.debug("Added {} products to wishList for user with email {}", productIds.size(), user.getEmail());
+    }
+
+    @Override
     public void addItem(Long productId, @NotNull User user) {
-        log.debug("Create WishListItem for user with email {}", user.getEmail());
+        log.debug("Adding product with ID {} to wishList for user with email {}", productId, user.getEmail());
 
         WishList wishList = user.getWishList();
         Product product = productRepository.findById(productId)
@@ -78,9 +90,9 @@ public class WishListServiceImpl implements WishListService {
             wishList.getItems().add(savedItem);
         } else {
             log.debug("Item with product id {} already exists in the wish list with user email {}", productId, user.getEmail());
-            throw new EntityDuplicateException("Product already exists in the wish list");
+            throw new EntityDuplicateException("Product with ID " + productId + " already exists in the wish list");
         }
-        log.debug("Created WishListItem for user with email {}", user.getEmail());
+        log.debug("Added product with ID {} to wishList for user with email {}", productId, user.getEmail());
     }
 
     @Override
