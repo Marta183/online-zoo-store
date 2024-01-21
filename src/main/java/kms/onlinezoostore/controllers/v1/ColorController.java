@@ -8,6 +8,7 @@ import kms.onlinezoostore.dto.ColorDto;
 import kms.onlinezoostore.services.ColorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,7 +68,7 @@ public class ColorController {
 
     //// IMAGES ////
 
-    @PostMapping(value = "/{id}/image")
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Upload color image",
             description = "Upload a new image for the color by providing color ID and image file")
@@ -78,7 +79,7 @@ public class ColorController {
 
     @DeleteMapping("/{id}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Delete brand image",
+    @Operation(summary = "Delete color's image",
             description = "Delete image associated with the color by providing color ID")
     public void deleteAllImages(@PathVariable Long id) {
         colorService.deleteImageByOwnerId(id);

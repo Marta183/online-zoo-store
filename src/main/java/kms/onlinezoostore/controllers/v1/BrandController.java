@@ -8,6 +8,7 @@ import kms.onlinezoostore.dto.BrandDto;
 import kms.onlinezoostore.services.BrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +71,7 @@ public class BrandController {
 
     //// IMAGES ////
 
-    @PostMapping(value = "/{id}/image")
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Upload brand image",
                description = "Upload a new image for the brand by providing brand ID and image file")
