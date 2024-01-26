@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Getter
@@ -41,10 +42,10 @@ public class ProductCategory {
     private ProductCategory parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private Set<ProductCategory> innerCategories;
+    private Set<ProductCategory> innerCategories = new HashSet<>();
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private Set<Product> products;
+    private Set<Product> products = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
