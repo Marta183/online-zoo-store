@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @Tag(name = "Wish lists")
@@ -41,9 +42,18 @@ public class WishListController {
     @PostMapping("/items")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Put items into wish list", description = "Put list of items into wish list for current user")
-    public void addItems(@RequestBody List<Long> productIds,
+    public void addItems(@RequestBody Set<Long> productIds,
                          @AuthenticationPrincipal UserDetails userDetails) {
         wishListService.addItems(productIds, UsersUtil.extractUser(userDetails));
+    }
+
+    @PutMapping("/items/refill")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Refill wish list with new items",
+               description = "Delete all existed items and add new into wish list for current user")
+    public void refillWishList(@RequestBody Set<Long> productIds,
+                               @AuthenticationPrincipal UserDetails userDetails) {
+        wishListService.refillWishList(productIds, UsersUtil.extractUser(userDetails));
     }
 
     @DeleteMapping("/items/{productId}")
@@ -55,6 +65,14 @@ public class WishListController {
     }
 
     @DeleteMapping("/items")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Clear wish list for current user", description = "Clear all items from wish list for current user")
+    public void deleteItems(@RequestBody Set<Long> productIds,
+                            @AuthenticationPrincipal UserDetails userDetails) {
+        wishListService.deleteItems(productIds, UsersUtil.extractUser(userDetails));
+    }
+
+    @DeleteMapping("/items/all")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Clear wish list for current user", description = "Clear all items from wish list for current user")
     public void deleteAllItems(@AuthenticationPrincipal UserDetails userDetails) {
