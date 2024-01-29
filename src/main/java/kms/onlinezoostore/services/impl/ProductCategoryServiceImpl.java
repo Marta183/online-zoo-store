@@ -118,23 +118,13 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
         // verify parent
-        var parentCategoryDto = updatedCategoryDto.getParent();
-        if (Objects.nonNull(parentCategoryDto)) {
-            // check if parent exists
-            parentCategoryDto = findById(parentCategoryDto.getId());
+        verifyCategoryParent(updatedCategoryDto, existingCategory);
 
-           // make sure that new parent is not a child at the one moment
-            var newParent = productCategoryMapper.mapToEntity(parentCategoryDto);
-            var oldParent = existingCategory.getParent();
-            if (!newParent.equals(oldParent)
-                    && existingCategory.getInnerCategories().contains(newParent)) {
-                log.info("Inner {} cannot be set as a parent for {}", newParent, existingCategory);
-                throw new HierarchyException("Inner category '" + parentCategoryDto.getName() + "' cannot be set as a parent for '" + existingCategory.getName() + "'");
-            }
-        }
-
+        // verify unique name
         if (!existingCategory.getName().equals(updatedCategoryDto.getName())) {
-            checkUniqueNameWithinParentCategory(updatedCategoryDto.getName(), parentCategoryDto);
+            checkUniqueNameWithinParentCategory(
+                    updatedCategoryDto.getName(),
+                    updatedCategoryDto.getParent());
         }
 
         // saving
@@ -144,6 +134,31 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         categoryRepository.save(updatedCategory);
 
         log.debug("{} with ID {} updated in DB", ENTITY_CLASS_NAME, id);
+    }
+
+    private void verifyCategoryParent(ProductCategoryDto updatedCategoryDto, ProductCategory existingCategory) {
+        var parentCategoryDto = updatedCategoryDto.getParent();
+        if (Objects.isNull(parentCategoryDto)) {
+            return;
+        }
+        // check if parent exists
+        parentCategoryDto = findById(parentCategoryDto.getId());
+
+        // make sure that new parent is not a child at the one moment
+        var newParent = productCategoryMapper.mapToEntity(parentCategoryDto);
+        var oldParent = existingCategory.getParent();
+        if (newParent.equals(oldParent)) {
+            return;
+        }
+        boolean newParentIsInner = categoryRepository.findNestedCategoryIds(
+                    Collections.singletonList(existingCategory.getId()))
+                .stream()
+                .anyMatch(innerCategoryId -> innerCategoryId.equals(newParent.getId()));
+        if (newParentIsInner) {
+            log.info("Inner {} cannot be set as a parent for {}", newParent, existingCategory);
+            throw new HierarchyException("Inner category '" + parentCategoryDto.getName()
+                    + "' cannot be set as a parent for '" + existingCategory.getName() + "'");
+        }
     }
 
     @Override
