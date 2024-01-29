@@ -90,13 +90,12 @@ public class CartServiceImpl implements CartService {
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
-            CartItem savedItem = cartItemRepository.save(newItem);
 
-            cart.getItems().add(savedItem);
+            cart.getItems().add(cartItemRepository.save(newItem));
+            cartRepository.save(cart);
         } else {
             log.debug("Item with product id {} already exists in the cart with user email {}", productId, user.getEmail());
             itemToUpdate.setQuantity(quantity);
-            cartItemRepository.save(itemToUpdate);
         }
         log.debug("Created CartItem for user with email {}", user.getEmail());
     }
