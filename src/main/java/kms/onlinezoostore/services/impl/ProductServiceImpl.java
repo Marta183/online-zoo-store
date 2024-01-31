@@ -6,10 +6,13 @@ import kms.onlinezoostore.dto.mappers.AttachedFileMapper;
 import kms.onlinezoostore.dto.mappers.ProductMapper;
 import kms.onlinezoostore.entities.AttachedFile;
 import kms.onlinezoostore.entities.Product;
+import kms.onlinezoostore.exceptions.EntityCannotBeDeleted;
 import kms.onlinezoostore.exceptions.EntityNotFoundException;
 import kms.onlinezoostore.exceptions.PriceConflictException;
+import kms.onlinezoostore.repositories.CartItemRepository;
 import kms.onlinezoostore.repositories.ProductCategoryRepository;
 import kms.onlinezoostore.repositories.ProductRepository;
+import kms.onlinezoostore.repositories.WishListItemRepository;
 import kms.onlinezoostore.repositories.specifications.ProductSpecifications;
 import kms.onlinezoostore.services.*;
 import kms.onlinezoostore.services.files.images.AttachedImageService;
@@ -39,7 +42,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
     private final AttachedFileMapper attachedFileMapper;
-
     private final UniqueFieldService uniqueFieldService;
 
     private final AttachedImageService attachedImageService;
@@ -51,6 +53,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryService productCategoryService;
     private final ProductSizeService productSizeService;
     private final WeightService weightService;
+
+    private final CartItemRepository cartItemRepository;
+    private final WishListItemRepository wishListItemRepository;
 
     private static final String ENTITY_CLASS_NAME = "PRODUCT";
 
@@ -166,6 +171,12 @@ public class ProductServiceImpl implements ProductService {
         ProductDto existingProductDto = productRepository.findById(id).map(productMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_CLASS_NAME, id));
 
+        if (cartItemRepository.findByProductId(id).isPresent()) {
+            throw new EntityCannotBeDeleted("Product with id " + id + " is present in users carts.");
+        }
+        if (wishListItemRepository.findByProductId(id).isPresent()) {
+            throw new EntityCannotBeDeleted("Product with id " + id + " is present in wish lists.");
+        }
         // delete entity
         productRepository.deleteById(id);
         log.debug("Deleted {} with ID {}", ENTITY_CLASS_NAME, id);
