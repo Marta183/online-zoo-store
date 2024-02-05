@@ -15,6 +15,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
 import kms.onlinezoostore.entities.enums.UserRole;
 import kms.onlinezoostore.entities.enums.UserStatus;
 import lombok.Getter;
@@ -92,6 +93,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private WishList wishList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Order> orders;
 
     public void setEmail(String email) {
         this.email = email.toLowerCase(Locale.ROOT);

@@ -1,0 +1,89 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Missis_MK (generated)" id="1707114366063-1">
+        <createTable tableName="addresses">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="addresses_pkey"/>
+            </column>
+            <column name="street" type="VARCHAR(50)"/>
+            <column name="house_number" type="VARCHAR(10)"/>
+            <column name="apartment" type="VARCHAR(5)"/>
+            <column name="city" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(30)"/>
+            <column name="postal_code" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_department_number" type="VARCHAR(6)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-2">
+        <addUniqueConstraint columnNames="country, city, street, house_number, apartment, postal_code, postal_department_number" constraintName="unique_address" tableName="addresses"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-3">
+        <createTable tableName="order_items">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="order_items_pkey"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="numeric(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="numeric(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-4">
+        <createTable tableName="orders">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="orders_pkey"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(15)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="numeric(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_option" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_service" type="VARCHAR"/>
+            <column name="delivery_method" type="VARCHAR"/>
+            <column name="delivery_address_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_number" type="VARCHAR(50)"/>
+            <column name="comment" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="completed_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-5">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_items" constraintName="order_items_order_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="orders" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-6">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="order_items" constraintName="order_items_product_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="products" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-7">
+        <addForeignKeyConstraint baseColumnNames="delivery_address_id" baseTableName="orders" constraintName="orders_delivery_address_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="addresses" validate="true"/>
+    </changeSet>
+    <changeSet author="Missis_MK (generated)" id="1707114366063-8">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="orders" constraintName="orders_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
